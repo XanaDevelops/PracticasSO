@@ -39,5 +39,93 @@ void *my_stack_pop(struct my_stack *stack);
 int my_stack_len(struct my_stack *stack);
 int my_stack_purge(struct my_stack *stack); 
 struct my_stack *my_stack_read(char *filename);
+
+size_t my_strlen(const char *str) {
+    size_t len = 0;
+
+    for(int i = 0; str[i]; i++) {
+        len++;
+    }
+
+    return len;    
+}
+
+int my_strcmp(const char *str1, const char *str2) {
+    int i = 0;
+
+    while(str1[i] & str2[i]) {
+        char c1,c2;
+        c1 = str1[i];
+        c2 = str2[i];
+
+        if(c1 != c2) {
+            return c1-c2;
+        }
+
+        i++;
+    }
+
+    return 0;
+}
+
+char *my_strcpy(char *dest, const char *src) {
+    int i = 0;
+
+    while(src[i]) {
+        dest[i] = src[i];
+        i++;
+    }
+
+    dest[i] = '\0';
+
+    return dest;
+}
+
+char *my_strncpy(char *dest, const char *src, size_t n){
+    int i = 0;
+
+    while((src[i]) && (n > 0)) {
+        dest[i] = src[i];
+        i++;
+        n--;
+    }
+
+    while(n>0) {
+        dest[i] = '\0';
+        i++;
+        n--;
+    }
+
+    return dest;   
+}
+
+char *my_strcat(char *dest, const char *src) {
+    int i = 0;
+
+    while(dest[i] != '\0'){
+        i++;
+    }
+
+    for(int j = 0; src[j]; j++) {
+        dest[i] = src[j]; 
+        i++;
+    }
+
+    dest[i] = '\0';
+
+    return dest;
+}
+
+char *my_strchr(const char *str, int c) {
+    while(*str != (char)c && *str) {
+        str++;
+    }
+
+    if(*str == (char)c) {
+        return (char*)str;
+    } else {
+        return NULL;
+    }
+}
 int my_stack_write(struct my_stack *stack, char *filename);
     
