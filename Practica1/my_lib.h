@@ -18,6 +18,7 @@ char *my_strcpy(char *dest, const char *src);
 char *my_strncpy(char *dest, const char *src, size_t n);
 char *my_strcat(char *dest, const char *src);
 char *my_strchr(const char *s, int c);
+int my_stack_write(struct my_stack *stack, char *filename);
 
 // char *my_strncat(char *dest, const char *src, size_t n);
 
@@ -127,5 +128,72 @@ char *my_strchr(const char *str, int c) {
         return NULL;
     }
 }
-int my_stack_write(struct my_stack *stack, char *filename);
+
+struct my_stack *my_stack_init(int size) {
+    //guardam memòria per la pila
+    struct my_stack *stack;
+    stack = malloc(sizeof(struct my_stack));
+
+    //declaram les dades de la pila
+    stack->size = size;
+    stack->top = NULL;
+
+    return stack;
+}
+
+int my_stack_push(struct my_stack *stack, void *data) {
+    //comprovar si la pila està inicialitzada
+    if (stack == NULL || stack->size <= 0) {
+        printf("Error: Pila no inicializada o tamaño no válido.\n");
+        return -1;
+    }
+
+    //guardam memòria per el node a introduïr
+    struct my_stack_node *node;
+    node = malloc(sizeof(struct my_stack_node));
+
+    //comprovar si el node és null
+    if (node == NULL) {
+        printf("Error: No se pudo insertar el elemento en la pila.\n");
+        return -1;
+    }
+
+    //guardam memòria per les dades del node
+    node->data = malloc(stack->size);
+    if (node->data == NULL) {
+        printf("Error: No se pudo asignar memoria para el elemento en la pila.\n");
+        return -1;
+    }
+
+    //gestió de la pila (top) i el nou node a introduïr
+    node->data = data;
+    node->next = stack->top;
+    stack->top = node;
+
+    return 0;
+}
+
+void *my_stack_pop(struct my_stack *stack) {
+    //comprovar si la pila no està inicialitzada
+    if (stack == NULL) {
+        printf("Error: Pila no inicializada.\n");
+        return NULL;
+    }
+
+    //comprovar si la pila és buida
+    if(stack->top == NULL) {
+        return NULL;
+    }
+
+    //extreu el node superior de la pila
+    struct my_stack_node *top = stack->top;
+    void *data = top->data;
+
+    stack->top = top->next;
+
+    //alliberar la memòria del node
+    free(top);
+
+    return data;
+}
     
