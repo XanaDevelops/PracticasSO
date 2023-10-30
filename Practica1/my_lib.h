@@ -41,7 +41,6 @@ int my_stack_len(struct my_stack *stack);
 int my_stack_purge(struct my_stack *stack); 
 struct my_stack *my_stack_read(char *filename);
 
-//BORRAR esta linea
 
 size_t my_strlen(const char *str) {
     size_t len = 0;
