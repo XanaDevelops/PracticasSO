@@ -54,6 +54,7 @@ int my_strcmp(const char *str1, const char *str2)
  * Funció: my_strcpy
  * -------------------
  * Copia el contigut d'una cadena de caràcters a una altra.
+ * param: dest --> Cadena de caràcters
  *  */
 char *my_strcpy(char *dest, const char *src)
 {
