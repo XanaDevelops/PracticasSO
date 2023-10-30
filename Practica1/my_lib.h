@@ -18,7 +18,6 @@ char *my_strcpy(char *dest, const char *src);
 char *my_strncpy(char *dest, const char *src, size_t n);
 char *my_strcat(char *dest, const char *src);
 char *my_strchr(const char *s, int c);
-int my_stack_write(struct my_stack *stack, char *filename);
 
 // char *my_strncat(char *dest, const char *src, size_t n);
 
@@ -40,3 +39,6 @@ void *my_stack_pop(struct my_stack *stack);
 int my_stack_len(struct my_stack *stack);
 int my_stack_purge(struct my_stack *stack); 
 struct my_stack *my_stack_read(char *filename);
+int my_stack_write(struct my_stack *stack, char *filename);
+    
+
