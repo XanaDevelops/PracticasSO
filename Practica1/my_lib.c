@@ -13,6 +13,7 @@
  * Funció: my_strlen
  * -------------------
  * Calcula la llargaria de la cadena de caràcters
+ * 
  * param: str --> punter de la cadena de caràcters ha calcular llargaria
  * return: llargaria fora element centinela de la cadena str
 */
