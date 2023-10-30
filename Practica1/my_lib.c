@@ -13,15 +13,14 @@
  * Funció: my_strlen
  * -------------------
  * Calcula la llargaria de la cadena de caràcters
- * 
+ *
  * param: str --> punter de la cadena de caràcters ha calcular llargaria
  * return: llargaria fora element centinela de la cadena str
-*/
+ */
 size_t my_strlen(const char *str)
 {
     size_t len = 0;
-    /*Mentre element d'índex len de str sigui
-  diferent del caràcter centinela increment len */
+    /*Mentre element d'índex len de str sigui diferent del caràcter centinela increment len */
     while (str[len])
     {
         len++;
@@ -34,18 +33,21 @@ size_t my_strlen(const char *str)
  * Funció: my_strcmp
  * -------------------
  * Compara mitjançant el codi ASCII dues cadenes
- * 
+ *
  * param: str1 --> primer punter de una de les cadenes a comparar
  *        str2 --> segon punter de una de les cadenes a comparar
- * return: llargaria fora element centinela de la cadena str
-*/
-int my_strcmp(const char *str1, const char *str2){
+ * return: la resta dels dos primers caràcters no iguals comparats
+ */
+int my_strcmp(const char *str1, const char *str2)
+{
     int i = 0;
-    while(*(str1+i)!=0 && *(str2+i)!=0 && *(str1+i)==*(str2+i)){
+    /*Mentres cap dels dels dos acabi i els caràcters siguin iguals  */
+    while (*(str1 + i) != 0 && *(str2 + i) != 0 && *(str1 + i) == *(str2 + i))
+    {
         i++;
     }
-
-    return *(str1+i)-*(str2+i);
+    /*retorna la resta ASCII del dos primers caràcters no iguals*/
+    return *(str1 + i) - *(str2 + i);
 }
 
 char *my_strcpy(char *dest, const char *src)
