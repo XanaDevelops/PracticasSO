@@ -1,10 +1,12 @@
 /**ENTREGA 1
  * versió: 30/10/32
- * autors: Josep Ferriol Font, Daniel García Vázquez i Biel Perelló Perelló
+ * autors: Josep Ferriol Font, Daniel García Vázquez 
+ * i Biel Perelló Perelló
  */
 
-/**lib.c librería con las funciones equivalentes a las de <string.h> y
- * las funciones y estructuras para el manejo de una pila
+/**lib.c librería con las funciones equivalentes a las de 
+ * <string.h> y  * las funciones y estructuras para el manejo 
+ * de una pila
  */
 #include "my_lib.h"
 
@@ -14,13 +16,15 @@
  * -------------------
  * Calcula la llargaria de la cadena de caràcters
  *
- * param: str --> punter de la cadena de caràcters ha calcular llargaria
+ * param: str --> punter de la cadena de caràcters ha calcular 
+ * llargaria
  * return: llargaria fora element centinela de la cadena str
  */
 size_t my_strlen(const char *str)
 {
     size_t len = 0;
-    /*Mentre element d'índex len de str sigui diferent del caràcter centinela increment len */
+    /*Mentre element d'índex len de str sigui diferent del caràcter 
+    centinela increment len */
     while (str[len])
     {
         len++;
@@ -54,14 +58,16 @@ int my_strcmp(const char *str1, const char *str2)
  * Funció: my_strcpy
  * -------------------
  * Copia el contigut d'una cadena de caràcters a una altra.
- * param: dest --> Cadena de caràcters on s'han de copiar els elements
- *        src --> Cadena de caràcters de la qual s'han de copiar els elements
+ * param: dest --> Cadena de caràcters on s'han de copiar els 
+ * elements
+ *        src --> Cadena de caràcters de la qual s'han de copiar els
+ *  elements
  * return: el punter a l'inici de l'array dest on s'ha copiat src 
  * */
 char *my_strcpy(char *dest, const char *src)
 {
     int i = 0;
-
+    /*Fins no troba element centinela assiganr els valors de src a dst*/
     while (src[i])
     {
         dest[i] = src[i];
