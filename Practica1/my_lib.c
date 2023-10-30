@@ -1,11 +1,11 @@
 /**ENTREGA 1
  * versió: 30/10/32
- * autors: Josep Ferriol Font, Daniel García Vázquez 
+ * autors: Josep Ferriol Font, Daniel García Vázquez
  * i Biel Perelló Perelló
  */
 
-/**lib.c librería con las funciones equivalentes a las de 
- * <string.h> y  * las funciones y estructuras para el manejo 
+/**lib.c librería con las funciones equivalentes a las de
+ * <string.h> y  * las funciones y estructuras para el manejo
  * de una pila
  */
 #include "my_lib.h"
@@ -16,14 +16,14 @@
  * -------------------
  * Calcula la llargaria de la cadena de caràcters
  *
- * param: str --> punter de la cadena de caràcters ha calcular 
+ * param: str --> punter de la cadena de caràcters ha calcular
  * llargaria
  * return: llargaria fora element centinela de la cadena str
  */
 size_t my_strlen(const char *str)
 {
     size_t len = 0;
-    /*Mentre element d'índex len de str sigui diferent del caràcter 
+    /*Mentre element d'índex len de str sigui diferent del caràcter
     centinela increment len */
     while (str[len])
     {
@@ -58,38 +58,50 @@ int my_strcmp(const char *str1, const char *str2)
  * Funció: my_strcpy
  * -------------------
  * Copia el contigut d'una cadena de caràcters a una altra.
- * param: dest --> Cadena de caràcters on s'han de copiar els 
+ * param: dest --> Cadena de caràcters on s'han de copiar els
  * elements
  *        src --> Cadena de caràcters de la qual s'han de copiar els
  *  elements
- * return: el punter a l'inici de l'array dest on s'ha copiat src 
+ * return: el punter a l'inici de l'array dest on s'ha copiat src
  * */
 char *my_strcpy(char *dest, const char *src)
 {
     int i = 0;
-    /*Fins no troba element centinela assiganr els valors de src a dst*/
+    /*Fins no troba element centinela assignar els valors de src a dst*/
     while (src[i])
     {
         dest[i] = src[i];
         i++;
     }
-
+    /*Finalment posa el caràcter centinela i retorna el punter*/
     dest[i] = '\0';
 
     return dest;
 }
 
+/**
+ * Funció: my_strncpy
+ * -------------------
+ * Copia els n primers elements d'una cadena de caràcters a una altra.
+ * param: dest --> Cadena de caràcters on s'han de copiar els
+ *                  elements
+ *        src --> Cadena de caràcters de la qual s'han de copiar els
+ *                  elements
+ *         n --> nombre d'elements que s'ha de copiar
+ * return: el punter a l'inici de l'array dest on s'ha copiat src
+ * */
 char *my_strncpy(char *dest, const char *src, size_t n)
 {
     int i = 0;
-
+    /*Fins no troba element centinela o arriba els n elements
+    copiats, assignar els valors de src a dst*/
     while ((src[i]) && (n > 0))
     {
         dest[i] = src[i];
         i++;
         n--;
     }
-
+    /*Sino s'ha arribat a n oblir amb 0*/
     while (n > 0)
     {
         dest[i] = '\0';
@@ -100,33 +112,51 @@ char *my_strncpy(char *dest, const char *src, size_t n)
     return dest;
 }
 
+/**
+ * Funció: my_strcat
+ * -------------------
+ * Concatedenació de dues cadenes de caràcters, afegeix src a dest
+ * param: dest --> punter on s'han d'afegir els nous elements
+ *        src --> cadena dels caràcters que s'han d'afegir
+ * return: el punter a l'inici de l'array dest on hi ha els elements de dst+src
+ * */
 char *my_strcat(char *dest, const char *src)
 {
     int i = 0;
-
+    /*Cercam el darrer element de dst*/
     while (dest[i] != '\0')
     {
         i++;
     }
-
+    /*Sobreescrivim el centinela de dest i copiam src darrera*/
     for (int j = 0; src[j]; j++)
     {
         dest[i] = src[j];
         i++;
     }
-
+    /*Afegim l'element nul o centinela*/
     dest[i] = '\0';
 
     return dest;
 }
 
+/**
+ * Funció: my_strchr
+ * -------------------
+ * Cerca de la primera aparició del caràcter pasat per paràmetre
+ * param: str --> punter on s'ha de cercar el caràcter
+ *        c --> paràmetre a cercar
+ * return: si l'element hi és retorna la seva posició, sino null
+ * */
 char *my_strchr(const char *str, int c)
 {
+    /*Fa una cerca del caràcter*/
     while (*str != (char)c && *str)
     {
         str++;
     }
 
+    /*Si la trobat retorna la seva posició, sino retorna null*/
     if (*str == (char)c)
     {
         return (char *)str;
