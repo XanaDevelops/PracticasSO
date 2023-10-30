@@ -22,7 +22,7 @@ size_t my_strlen(const char *str)
     size_t len = 0;
     /*Mentre element d'índex len de str sigui
   diferent del caràcter centinela increment len */
-    for (int i = 0; str[i]; i++)
+    while (str[len])
     {
         len++;
     }
@@ -30,6 +30,15 @@ size_t my_strlen(const char *str)
     return len;
 }
 
+/**
+ * Funció: my_strcmp
+ * -------------------
+ * Compara mitjançant el codi ASCII dues cadenes
+ * 
+ * param: str1 --> primer punter de una de les cadenes a comparar
+ *        str2 --> segon punter de una de les cadenes a comparar
+ * return: llargaria fora element centinela de la cadena str
+*/
 int my_strcmp(const char *str1, const char *str2){
     int i = 0;
     while(*(str1+i)!=0 && *(str2+i)!=0 && *(str1+i)==*(str2+i)){
