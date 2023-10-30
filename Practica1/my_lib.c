@@ -129,6 +129,14 @@ char *my_strchr(const char *str, int c)
 }
 
 /*Repte 2*/
+/**
+ * Funció: my_stack_init
+ * -------------------
+ * Reserva un espai de memòria per la pila
+ *
+ * param: int size --> tamany de les dades
+ * return: punter a la pila inicialitzada
+ */
 struct my_stack *my_stack_init(int size)
 {
     // guardam memòria per la pila
@@ -142,6 +150,15 @@ struct my_stack *my_stack_init(int size)
     return stack;
 }
 
+/**
+ * Funció: my_stack_push
+ * -------------------
+ * Inserta un nou node als elements de la pila
+ *
+ * param: struct my_stack *stack --> punter a la pila
+ *        void *data --> punter a les dades del node a introduir
+ * return: retorna 0 si s'ha produït correctament el push, 0 en cas contrari
+ */
 int my_stack_push(struct my_stack *stack, void *data)
 {
     // comprovar si la pila està inicialitzada
@@ -151,7 +168,7 @@ int my_stack_push(struct my_stack *stack, void *data)
         return -1;
     }
 
-    // guardam memòria per el node a introduïr
+    // guardam memòria per el node a introduir
     struct my_stack_node *node;
     node = malloc(sizeof(struct my_stack_node));
 
