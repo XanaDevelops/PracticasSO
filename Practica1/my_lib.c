@@ -3,17 +3,24 @@
  * autors: Josep Ferriol Font, Daniel García Vázquez i Biel Perelló Perelló
  */
 
-/**lib.c librería con las funciones equivalentes a las de <string.h> y 
+/**lib.c librería con las funciones equivalentes a las de <string.h> y
  * las funciones y estructuras para el manejo de una pila
  */
 #include "my_lib.h"
 
 /*REPTE 1*/
-
+/**
+ * Funció: my_strlen
+ * -------------------
+ * Calcula la llargaria de la cadena de caràcters
+ * param: str --> punter de la cadena de caràcters ha calcular llargaria
+ * return: llargaria fora element centinela de la cadena str
+*/
 size_t my_strlen(const char *str)
 {
     size_t len = 0;
-
+    /*Mentre element d'índex len de str sigui
+  diferent del caràcter centinela increment len */
     for (int i = 0; str[i]; i++)
     {
         len++;
