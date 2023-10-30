@@ -147,6 +147,7 @@ struct my_stack *my_stack_init(int size)
     stack->size = size;
     stack->top = NULL;
 
+    // retornam punter a la pila
     return stack;
 }
 
@@ -192,9 +193,18 @@ int my_stack_push(struct my_stack *stack, void *data)
     node->next = stack->top;
     stack->top = node;
 
+    // el push s'ha produït correctament
     return 0;
 }
 
+/**
+ * Funció: my_stack_pop
+ * -------------------
+ * Elimina el node superior dels elements de la pila
+ *
+ * param: struct my_stack *stack --> punter a la pila
+ * return: punter a les dades del node/element eliminat
+ */
 void *my_stack_pop(struct my_stack *stack)
 {
     // comprovar si la pila no està inicialitzada
@@ -219,5 +229,6 @@ void *my_stack_pop(struct my_stack *stack)
     // alliberar la memòria del node
     free(top);
 
+    //retorna el punter a les dades del node eliminat
     return data;
 }
