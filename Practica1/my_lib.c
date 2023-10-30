@@ -54,8 +54,10 @@ int my_strcmp(const char *str1, const char *str2)
  * Funció: my_strcpy
  * -------------------
  * Copia el contigut d'una cadena de caràcters a una altra.
- * param: dest --> Cadena de caràcters
- *  */
+ * param: dest --> Cadena de caràcters on s'han de copiar els elements
+ *        src --> Cadena de caràcters de la qual s'han de copiar els elements
+ * return: el punter a l'inici de l'array dest on s'ha copiat src 
+ * */
 char *my_strcpy(char *dest, const char *src)
 {
     int i = 0;
@@ -230,6 +232,6 @@ void *my_stack_pop(struct my_stack *stack)
     // alliberar la memòria del node
     free(top);
 
-    //retorna el punter a les dades del node eliminat
+    // retorna el punter a les dades del node eliminat
     return data;
 }
