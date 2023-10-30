@@ -50,6 +50,11 @@ int my_strcmp(const char *str1, const char *str2)
     return *(str1 + i) - *(str2 + i);
 }
 
+/**
+ * Funció: my_strcpy
+ * -------------------
+ * Copia el contigut d'una cadena de caràcters a una altre.
+ *  */
 char *my_strcpy(char *dest, const char *src)
 {
     int i = 0;
