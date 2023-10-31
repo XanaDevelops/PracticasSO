@@ -182,6 +182,12 @@ struct my_stack *my_stack_init(int size)
     struct my_stack *stack;
     stack = malloc(sizeof(struct my_stack));
 
+    //comprovam error
+    if(stack==NULL){
+        perror("Error malloc my_stack_init()\n");
+        return NULL;
+    }
+
     // declaram les dades de la pila
     stack->size = size;
     stack->top = NULL;
@@ -299,6 +305,10 @@ int my_stack_purge(struct my_stack *stack){
     free(stack);
 
     return bytes;
+}
+
+struct my_stack *my_stack_read(char *filename){
+    return -1;
 }
 
 /*NO VÀLID*/
