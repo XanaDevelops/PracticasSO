@@ -334,7 +334,8 @@ int my_stack_purge(struct my_stack *stack)
 struct my_stack *my_stack_read(char *filename)
 {
     /*Obrim el fitxer i en cas d'error retornam NULL*/
-    int fitxer = open(filename, O_RDONLY) if (fitxer == -1)
+    int fitxer = open(filename, O_RDONLY);
+    if (fitxer == -1)
     {
         perror("ERROR: Fitxer no es pot obrir");
         return NULL;
@@ -355,7 +356,7 @@ struct my_stack *my_stack_read(char *filename)
     {
         /*Reservam memòria per la dada que anam a llegir*/
         data = malloc(mida_fit);
-        if (dato == NULL)
+        if (data == NULL)
         {
             perror("ERROR: malloc my_stack_read\n");
             return NULL;
@@ -366,16 +367,27 @@ struct my_stack *my_stack_read(char *filename)
         {
             my_stack_push(stack, data);
         }
+        /*Si no retorna -1 (error) retornam NULL*/
+        else if (r == -1)
+        {
+            perror("ERROR: lectura my_stack_read\n");
+            return NULL;
+        }
+        /*Si no arribam al final alliberam la memòria reservada*/
+        else if (r == 0)
+        {
+            free(data);
+        }
     } while (r > 0);
 
-    free(data);
-
+    /*Tancam el fitxer i retornam NULL s'hi ha problemes*/
     if (close(fitxer) == -1)
     {
         perror("ERROR: tancant el fitxer my_stack_read\n");
         return NULL;
     }
 
+    /*Retornam la pila creada*/
     return stack;
 }
 
