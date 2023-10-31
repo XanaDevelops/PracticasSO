@@ -312,8 +312,10 @@ int my_stack_purge(struct my_stack *stack){
     return bytes;
 }
 
-struct my_stack *my_stack_read(char *filename){
-    return -1;
+struct my_stack *my_stack_read(char *filename){´
+struct my_stack *stack;
+stack = malloc(sizeof(struct my_stack));
+    return stack;
 }
 
 /*NO VÀLID*/
