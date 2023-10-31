@@ -296,11 +296,8 @@ int my_stack_len(struct my_stack *stack)
 
         len++;
     }
-    else
-    {
-        printf("len failed %d\n", len);
-    }
-    while (node->next != NULL && node != NULL)
+    
+    while ( node != NULL && node->next != NULL )
     {
         node = node->next;
         len++;
