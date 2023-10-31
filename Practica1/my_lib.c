@@ -330,7 +330,14 @@ int my_stack_purge(struct my_stack *stack)
 
     return bytes;
 }
-
+/**
+ * Funció: my_stack_read
+ * -------------------
+ * Llegeix les dades de un fitxer i construeix una pila amb elles
+ *
+ * param: char *filename --> nom del fitxer a llegir
+ * return: el punter a la pila
+ */
 struct my_stack *my_stack_read(char *filename)
 {
     /*Obrim el fitxer i en cas d'error retornam NULL*/
