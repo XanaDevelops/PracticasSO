@@ -302,7 +302,7 @@ int my_stack_purge(struct my_stack *stack){
     return bytes;
 }
 
-int my_stack_read(char *filename){
+struct my_stack *my_stack_read(char *filename){
     return -1;
 }
 
