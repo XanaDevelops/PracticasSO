@@ -302,6 +302,7 @@ int my_stack_len(struct my_stack *stack)
     struct my_stack_node *node = stack->top;
     while ( node != NULL)
     {
+        /*Actualizam amb el pròxim node*/
         node = node->next;
         len++;
     }
