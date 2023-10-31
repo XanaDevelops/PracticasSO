@@ -294,6 +294,7 @@ int my_stack_len(struct my_stack *stack)
         node = node->next;
         len++;
     }
+    len++;
     return len;
 }
 
