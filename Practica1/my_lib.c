@@ -273,8 +273,13 @@ void *my_stack_pop(struct my_stack *stack)
 }
 /*NO VÀLID*/
 int my_stack_len (struct my_stack *stack){
-
-    return 0;
+    int len = 0;
+    struct my_stack_node *node = stack->top;
+    while(node->next != NULL){
+        node = node->next;
+        len++;
+    }
+    return len;
 }
 
 
