@@ -289,10 +289,12 @@ int my_stack_len(struct my_stack *stack)
     }
 
     struct my_stack_node *node = stack->top;
+    printf("ha estado aqui");
     if (node != NULL)
     {
         len++;
     }
+     printf("ha estado aqui no");
     while (node->next != NULL)
     {
         node = node->next;
