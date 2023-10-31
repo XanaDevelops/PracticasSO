@@ -204,7 +204,7 @@ int my_stack_push(struct my_stack *stack, void *data)
     // comprovar si la pila està inicialitzada
     if (stack == NULL || stack->size <= 0)
     {
-        printf("Error: Pila no inicializada o tamaño no válido.\n");
+        printf("Error: Pila no inicialitzada o mida no vàlida.\n");
         return -1;
     }
 
@@ -215,7 +215,7 @@ int my_stack_push(struct my_stack *stack, void *data)
     // comprovar si el node és null
     if (node == NULL)
     {
-        printf("Error: No se pudo insertar el elemento en la pila.\n");
+        printf("Error: No s'ha pogut inserir l'element a la pila.\n");
         return -1;
     }
 
