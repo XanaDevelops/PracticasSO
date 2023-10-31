@@ -271,6 +271,12 @@ void *my_stack_pop(struct my_stack *stack)
     // retorna el punter a les dades del node eliminat
     return data;
 }
+/*NO VÀLID*/
+int my_stack_len (struct my_stack *stack){
+
+    return 0;
+}
+
 
 int my_stack_purge(struct my_stack *stack){
     int bytes = 0;
