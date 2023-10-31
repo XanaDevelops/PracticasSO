@@ -320,7 +320,7 @@ int my_stack_purge(struct my_stack *stack)
 
 struct my_stack *my_stack_read(char *filename)
 {
-    ´ struct my_stack *stack;
+    struct my_stack *stack;
     stack = malloc(sizeof(struct my_stack));
     return stack;
 }
