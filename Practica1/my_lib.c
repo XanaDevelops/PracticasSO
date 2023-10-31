@@ -302,6 +302,10 @@ int my_stack_purge(struct my_stack *stack){
     return bytes;
 }
 
+int my_stack_read(char *filename){
+    return -1;
+}
+
 /*NO VÀLID*/
 int my_stack_write(struct my_stack *stack, char *filename){
     return -1;
