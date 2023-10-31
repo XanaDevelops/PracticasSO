@@ -221,7 +221,7 @@ int my_stack_push(struct my_stack *stack, void *data)
     // comprovar si el node és null
     if (node == NULL)
     {
-        printf("Error: No s'ha pogut inserir l'element a la pila.\n");
+        perror("Error: No s'ha pogut inserir l'element a la pila.\n");
         return -1;
     }
 
@@ -229,7 +229,7 @@ int my_stack_push(struct my_stack *stack, void *data)
     node->data = malloc(stack->size);
     if (node->data == NULL)
     {
-        printf("Error: No se pudo asignar memoria para el elemento en la pila.\n");
+        perror("Error: No se pudo asignar memoria para el elemento en la pila.\n");
         return -1;
     }
 
