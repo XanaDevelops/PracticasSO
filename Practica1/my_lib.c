@@ -282,19 +282,23 @@ void *my_stack_pop(struct my_stack *stack)
 int my_stack_len(struct my_stack *stack)
 {
     int len = 0;
-
+    /*Primer comprova que Stack hagi estat inacializat*/
     if (stack == NULL)
     {
         return -1;
     }
 
     struct my_stack_node *node = stack->top;
+    if (node != NULL)
+    {
+        len++;
+    }
     while (node->next != NULL)
     {
         node = node->next;
         len++;
     }
-    len++;
+
     return len;
 }
 
