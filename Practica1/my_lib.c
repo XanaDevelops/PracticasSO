@@ -280,7 +280,15 @@ void *my_stack_pop(struct my_stack *stack)
     // retorna el punter a les dades del node eliminat
     return data;
 }
-/*NO VÀLID*/
+
+/**
+ * Funció: my_stack_len
+ * -------------------
+ * Recompta amb un recorregut el nombre de nodes
+ *
+ * param: struct my_stack *stack --> punter a la pila
+ * return: el nombre de nodes de la pila
+ */
 int my_stack_len(struct my_stack *stack)
 {
     int len = 0;
@@ -290,7 +298,7 @@ int my_stack_len(struct my_stack *stack)
         return -1;
     }
     /*Ens situam en el node top i mentres no sigui 
-    num iteram damunt la pila*/
+    num iteram damunt la pila i incrementam len*/
     struct my_stack_node *node = stack->top;
     while ( node != NULL)
     {
@@ -329,7 +337,7 @@ struct my_stack *my_stack_read(char *filename)
     return stack;
 }
 
-/*NO VÀLID*/
+
 int my_stack_write(struct my_stack *stack, char *filename){
 
     if(stack==NULL){
