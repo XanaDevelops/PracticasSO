@@ -289,15 +289,10 @@ int my_stack_len(struct my_stack *stack)
     {
         return -1;
     }
-
+    /*Ens situam en el node top i mentres no sigui 
+    num iteram damunt la pila*/
     struct my_stack_node *node = stack->top;
-    if (node != NULL)
-    {
-
-        len++;
-    }
-    
-    while ( node != NULL && node->next != NULL )
+    while ( node != NULL)
     {
         node = node->next;
         len++;
