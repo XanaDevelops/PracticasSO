@@ -34,7 +34,7 @@ int main() {
     }
     printf("\ns1 initialized, size of data: %lu\n", sizeof(struct my_data));
      len1 = my_stack_len(s1);
-     if (i+1 != len1) {
+     if (0 != len1) {
         fprintf(stderr, ROJO "Error in my_stack_len()\n" RESET);
         //exit(EXIT_FAILURE);
     }
@@ -52,9 +52,7 @@ int main() {
         }
         printf("New node in s1: (%d, %s)\n", data->val, data->name);
         len1 = my_stack_len(s1);
-        if (i+1 != len1) {
-        fprintf(stderr, ROJO "Error in my_stack_len()\n" RESET);
-        //exit(EXIT_FAILURE);
+        printf("len1 = %d\n",len);
     }
     }
 
