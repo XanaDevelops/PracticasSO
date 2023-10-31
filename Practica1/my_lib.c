@@ -184,8 +184,9 @@ struct my_stack *my_stack_init(int size)
     struct my_stack *stack;
     stack = malloc(sizeof(struct my_stack));
 
-    //comprovam error
-    if(stack==NULL){
+    // comprovam error
+    if (stack == NULL)
+    {
         perror("Error malloc my_stack_init()\n");
         return NULL;
     }
@@ -212,7 +213,7 @@ int my_stack_push(struct my_stack *stack, void *data)
     // comprovar si la pila està inicialitzada
     if (stack == NULL || stack->size <= 0)
     {
-        printf("Error: Pila no inicialitzada o mida no vàlida.\n");
+        perror("Error: Pila no inicialitzada o mida no vàlida.\n");
         return -1;
     }
 
@@ -223,7 +224,7 @@ int my_stack_push(struct my_stack *stack, void *data)
     // comprovar si el node és null
     if (node == NULL)
     {
-        printf("Error: No s'ha pogut inserir l'element a la pila.\n");
+        perror("Error: No s'ha pogut inserir l'element a la pila.\n");
         return -1;
     }
 
@@ -231,7 +232,7 @@ int my_stack_push(struct my_stack *stack, void *data)
     node->data = malloc(stack->size);
     if (node->data == NULL)
     {
-        printf("Error: No se pudo asignar memoria para el elemento en la pila.\n");
+        perror("Error: No se pudo asignar memoria para el elemento en la pila.\n");
         return -1;
     }
 
@@ -280,37 +281,51 @@ void *my_stack_pop(struct my_stack *stack)
     return data;
 }
 /*NO VÀLID*/
-int my_stack_len (struct my_stack *stack){
+int my_stack_len(struct my_stack *stack)
+{
     int len = 0;
+
+    if (stack == NULL)
+    {
+        return -1;
+    }
+
     struct my_stack_node *node = stack->top;
-    while(node->next != NULL){
+    while (node->next != NULL)
+    {
         node = node->next;
         len++;
     }
+    len++;
     return len;
 }
 
-
-int my_stack_purge(struct my_stack *stack){
+int my_stack_purge(struct my_stack *stack)
+{
     int bytes = 0;
-    if(stack==NULL){
-        return -1;
+    if (stack == NULL)
+    {
+        return NULL;
     }
     struct my_stack_node *node;
-    while(stack->top != NULL){
+    while (stack->top != NULL)
+    {
         node = stack->top->next;
-        bytes+= sizeof(node);
+        bytes += sizeof(node);
         free(stack->top);
-        stack->top=node;
+        stack->top = node;
     }
-    bytes+=sizeof(stack);
+    bytes += sizeof(stack);
     free(stack);
 
     return bytes;
 }
 
-struct my_stack *my_stack_read(char *filename){
-    return -1;
+struct my_stack *my_stack_read(char *filename)
+{
+    struct my_stack *stack;
+    stack = malloc(sizeof(struct my_stack));
+    return stack;
 }
 
 /*NO VÀLID*/
