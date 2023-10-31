@@ -296,7 +296,7 @@ int my_stack_purge(struct my_stack *stack){
     return bytes;
 }
 
-
+/*NO VÀLID*/
 int my_stack_write(struct my_stack *stack, char *filename){
     return -1;
 }
