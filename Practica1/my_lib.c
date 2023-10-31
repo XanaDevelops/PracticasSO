@@ -271,3 +271,26 @@ void *my_stack_pop(struct my_stack *stack)
     // retorna el punter a les dades del node eliminat
     return data;
 }
+
+int my_stack_purge(struct my_stack *stack){
+    int bytes = 0;
+    if(stack==NULL){
+        return NULL;
+    }
+    struct my_stack_node *node;
+    while(stack->top != NULL){
+        node = stack->top->next;
+        bytes+= sizeof(node);
+        free(stack->top);
+        stack->top=node;
+    }
+    bytes+=sizeof(stack);
+    free(stack);
+
+    return bytes;
+}
+
+
+int my_stack_write(struct my_stack *stack, char *filename){
+    return -1;
+}
