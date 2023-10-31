@@ -9,7 +9,7 @@
  * de una pila
  */
 #include "my_lib.h"
-
+#define FPERMS 0666
 /*REPTE 1*/
 /**
  * Funció: my_strlen
@@ -292,7 +292,7 @@ int my_stack_len (struct my_stack *stack){
 int my_stack_purge(struct my_stack *stack){
     int bytes = 0;
     if(stack==NULL){
-        return NULL;
+        return -1;
     }
     struct my_stack_node *node;
     while(stack->top != NULL){
@@ -313,5 +313,22 @@ struct my_stack *my_stack_read(char *filename){
 
 /*NO VÀLID*/
 int my_stack_write(struct my_stack *stack, char *filename){
-    return -1;
+
+    if(stack==NULL){
+        return -1;
+    }
+    int file = open(filename, O_WRONLY|O_CREAT|O_TRUNC, FPERMS);
+    if(file==-1){
+        perror("ERROR: open file my_stack_write\n");
+        return -1;
+    }
+
+}
+
+int recursive_write(struct my_stack_node *node, char *filename){
+    int r=0;
+    if(node->next!=NULL){
+        r=recursive_write(node->next, filename);
+    }
+    
 }
