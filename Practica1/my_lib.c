@@ -314,7 +314,7 @@ int my_stack_purge(struct my_stack *stack)
     int bytes = 0;
     if (stack == NULL)
     {
-        return NULL;
+        return -1;
     }
     struct my_stack_node *node;
     while (stack->top != NULL)
