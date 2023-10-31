@@ -210,7 +210,7 @@ int my_stack_push(struct my_stack *stack, void *data)
     // comprovar si la pila està inicialitzada
     if (stack == NULL || stack->size <= 0)
     {
-        printf("Error: Pila no inicialitzada o mida no vàlida.\n");
+        perror("Error: Pila no inicialitzada o mida no vàlida.\n");
         return -1;
     }
 
@@ -280,9 +280,11 @@ void *my_stack_pop(struct my_stack *stack)
 /*NO VÀLID*/
 int my_stack_len (struct my_stack *stack){
     int len = 0;
+    
     if(stack==NULL){
         return -1;
     }
+
     struct my_stack_node *node = stack->top;
     while(node->next != NULL){
         node = node->next;
