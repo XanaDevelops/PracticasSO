@@ -339,16 +339,43 @@ struct my_stack *my_stack_read(char *filename)
         perror("ERROR: Fitxer no es pot obrir");
         return NULL;
     }
+    /*Miram la mida del fitxer per inincialtzar pila*/
     int mida_fit;
     int r = read(fitxer, &mida_fit, sizeof(int));
     if (r == -1)
     {
-        perror("ERROR: No es pot llegir del fitxer");
+        perror("ERROR: No es pot llegir del fitxer my_stack_read\n");
         return NULL;
     }
-    struct my_stack *stack = my_stack_init(size);
+    /*Inicialitzam la pila i el punter on es guardaran les dades*/
+    struct my_stack *stack = my_stack_init(mida_fit);
+    void *data;
 
-    stack = malloc(sizeof(struct my_stack));
+    do
+    {
+        /*Reservam memòria per la dada que anam a llegir*/
+        data = malloc(mida_fit);
+        if (dato == NULL)
+        {
+            perror("ERROR: malloc my_stack_read\n");
+            return NULL;
+        }
+        /*Llegim i si la lectura es correcta feim un push*/
+        r = read(fitxer, data, mida_fit);
+        if (r > 0)
+        {
+            my_stack_push(stack, data);
+        }
+    } while (r > 0);
+
+    free(data);
+
+    if (close(fitxer) == -1)
+    {
+        perror("ERROR: tancant el fitxer my_stack_read\n");
+        return NULL;
+    }
+
     return stack;
 }
 
