@@ -297,10 +297,10 @@ int my_stack_len(struct my_stack *stack)
     {
         return -1;
     }
-    /*Ens situam en el node top i mentres no sigui 
+    /*Ens situam en el node top i mentres no sigui
     num iteram damunt la pila i incrementam len*/
     struct my_stack_node *node = stack->top;
-    while ( node != NULL)
+    while (node != NULL)
     {
         /*Actualizam amb el pròxim node*/
         node = node->next;
@@ -333,34 +333,53 @@ int my_stack_purge(struct my_stack *stack)
 
 struct my_stack *my_stack_read(char *filename)
 {
-    struct my_stack *stack;
+    /*Obrim el fitxer i en cas d'error retornam NULL*/
+    int fitxer = open(filename, O_RDONLY) if (fitxer == -1)
+    {
+        perror("ERROR: Fitxer no es pot obrir");
+        return NULL;
+    }
+    int mida_fit;
+    int r = read(fitxer, &mida_fit, sizeof(int));
+    if (r == -1)
+    {
+        perror("ERROR: No es pot llegir del fitxer");
+        return NULL;
+    }
+    struct my_stack *stack = my_stack_init(size);
+
     stack = malloc(sizeof(struct my_stack));
     return stack;
 }
 
+int my_stack_write(struct my_stack *stack, char *filename)
+{
 
-int my_stack_write(struct my_stack *stack, char *filename){
-
-    if(stack==NULL){
+    if (stack == NULL)
+    {
         return -1;
     }
-    int file = open(filename, O_WRONLY|O_CREAT|O_TRUNC, FPERMS);
-    if(file==-1){
+    int file = open(filename, O_WRONLY | O_CREAT | O_TRUNC, FPERMS);
+    if (file == -1)
+    {
         perror("ERROR: open file my_stack_write\n");
         return -1;
     }
-    int r = write(file, &(stack->size), sizeof(int)-1);
+    int r = write(file, &(stack->size), sizeof(int) - 1);
     r += recursive_write(stack->top, &file, &(stack->size));
-    return 0; //PLACEHOLDER
+    return 0; // PLACEHOLDER
 }
 
-int recursive_write(struct my_stack_node *node, int *file, int *size){
-    int r=0;
-    if(node->next!=NULL){
-        r=recursive_write(node->next, file, size-1);
+int recursive_write(struct my_stack_node *node, int *file, int *size)
+{
+    int r = 0;
+    if (node->next != NULL)
+    {
+        r = recursive_write(node->next, file, size - 1);
     }
-    if(r==-1){
+    if (r == -1)
+    {
         return -1;
     }
-    return write(*file, node->data, *size-1)+r;
+    return write(*file, node->data, *size - 1) + r;
 }
