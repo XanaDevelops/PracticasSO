@@ -321,11 +321,11 @@ int my_stack_purge(struct my_stack *stack)
     while (stack->top != NULL)
     {
         node = stack->top->next;
-        bytes += sizeof(node);
+        bytes += sizeof(*node);
         free(stack->top);
         stack->top = node;
     }
-    bytes += sizeof(stack);
+    bytes += sizeof(*stack);
     free(stack);
 
     return bytes;
