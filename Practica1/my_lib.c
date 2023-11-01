@@ -400,7 +400,6 @@ struct my_stack *my_stack_read(char *filename)
 
 int my_stack_write(struct my_stack *stack, char *filename)
 {
-
     if (stack == NULL)
     {
         return -1;
@@ -411,9 +410,9 @@ int my_stack_write(struct my_stack *stack, char *filename)
         perror("ERROR: open file my_stack_write\n");
         return -1;
     }
-    int r = write(file, &(stack->size), sizeof(int) - 1);
+    int r = write(file, &(stack->size), sizeof(int));
     r += recursive_write(stack->top, &file, &(stack->size));
-    return 0; // PLACEHOLDER
+    return r; // PLACEHOLDER
 }
 
 int recursive_write(struct my_stack_node *node, int *file, int *size)
@@ -421,11 +420,11 @@ int recursive_write(struct my_stack_node *node, int *file, int *size)
     int r = 0;
     if (node->next != NULL)
     {
-        r = recursive_write(node->next, file, size - 1);
+        r = recursive_write(node->next, file, size);
     }
     if (r == -1)
     {
         return -1;
     }
-    return write(*file, node->data, *size - 1) + r;
+    return write(*file, node->data, *size ) + r;
 }
