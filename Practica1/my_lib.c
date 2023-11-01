@@ -317,17 +317,21 @@ int my_stack_purge(struct my_stack *stack)
     {
         return -1;
     }
-    struct my_stack_node *node;
+    struct my_stack_node *node, *next;
     while (stack->top != NULL)
     {
-        node = stack->top->next;
+        node = stack->top;
+        next = node->next;
         bytes += sizeof(*node);
-        free(stack->top);
-        stack->top = node;
+        bytes += stack->size;
+        //printf("sizeof %ld %d\n", sizeof(*node), stack->size);
+        free(node->data);
+        free(node);
+        stack->top = next;
     }
     bytes += sizeof(*stack);
     free(stack);
-
+    //printf("PURGE: %d\n", bytes);
     return bytes;
 }
 /**
