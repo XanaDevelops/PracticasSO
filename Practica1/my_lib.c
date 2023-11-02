@@ -310,28 +310,42 @@ int my_stack_len(struct my_stack *stack)
     return len;
 }
 
+/**
+ * Funció: my_stack_purge
+ * -------------------
+ * Purga la pila, alliberant la memòria ocupada
+ *
+ * param: struct my_stack *stack --> punter a la pila
+ * return: el nombre de bytes alliberats
+ */
 int my_stack_purge(struct my_stack *stack)
 {
     int bytes = 0;
+    /*comproba null*/
     if (stack == NULL)
     {
         return -1;
     }
     struct my_stack_node *node, *next;
+    /*recorr la pila*/
     while (stack->top != NULL)
     {
+        /*referencia el node actual i el següent*/
         node = stack->top;
         next = node->next;
+        /*suma els seus tamanys en bytes*/
         bytes += sizeof(*node);
         bytes += stack->size;
-        //printf("sizeof %ld %d\n", sizeof(*node), stack->size);
+        /*allibera l'espai de memòria*/
         free(node->data);
         free(node);
+        /*avançam al següent node*/
         stack->top = next;
     }
+    /*suma el tamany de la pila*/
     bytes += sizeof(*stack);
+    /*allibera el seu espai*/
     free(stack);
-    //printf("PURGE: %d\n", bytes);
     return bytes;
 }
 /**
@@ -402,35 +416,60 @@ struct my_stack *my_stack_read(char *filename)
     return stack;
 }
 
+/**
+ * Funció: my_stack_write
+ * -------------------
+ * Escriu les dades de la pila a un fitxer
+ *
+ * param: struct my_stack *stack --> punter a la pila
+ *        char *filename --> nom del fitxer a escriure
+ * return: nombre d'elements escrits al fitxer
+ */
 int my_stack_write(struct my_stack *stack, char *filename)
 {
+    /*comprobam null*/
     if (stack == NULL)
     {
         return -1;
     }
+    /*obrim el fitxer amb els flags adecuats
+    es comproba si la operació es correcte*/
     int file = open(filename, O_WRONLY | O_CREAT | O_TRUNC, FPERMS);
     if (file == -1)
     {
         perror("ERROR: open file my_stack_write\n");
         return -1;
     }
+    /*escriu el tamany de les dades de la pila*/
     write(file, &(stack->size), sizeof(int));
     int r = 0;
+    /*crida a una funció recursiva que llegeix inversament la pila*/
     r += recursive_write(stack->top, &file, &(stack->size));
-    return r; // PLACEHOLDER
+    return r; 
 }
-
+/**
+ * Funció: recursive_write
+ * -------------------
+ * Funció recursiva auxiliar per my_stack_write
+ *
+ * param: struct my_stack_node *node --> punter al node
+ *        int *file --> punter al fitxer
+ *        int *size --> tamany de les dades
+ * return: 1 + recursive_write elements escrits
+ */
 int recursive_write(struct my_stack_node *node, int *file, int *size)
 {
     int r = 0;
     if (node->next != NULL)
     {
+        /*recorr recursivament la pila*/
         r = recursive_write(node->next, file, size);
     }
     if (r == -1)
     {
         return -1;
     }
+    /*escriu les dades*/
     write(*file, node->data, *size );
     return 1 + r;
 }
