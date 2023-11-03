@@ -258,7 +258,7 @@ void *my_stack_pop(struct my_stack *stack)
     // comprovar si la pila no està inicialitzada
     if (stack == NULL)
     {
-        printf("Error: Pila no inicializada.\n");
+        perror("Error: Pila no inicializada.\n");
         return NULL;
     }
 
