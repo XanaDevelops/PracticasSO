@@ -28,6 +28,18 @@ int check_internal(char **args);
 int internal_cd(char **args);
 int internal_export(char **args);
 int internal_source(char **args);
-int internal_jobs();
-int internal_fg(char **args);
-int internal_bg(char **args);
+
+int internal_jobs() {
+    printf("Imprimeix la llista de treballs");
+    return 0;
+}
+
+int internal_fg(char **args) {
+    printf("Porta processos a primer plà");
+    return 0;
+}
+
+int internal_bg(char **args) {
+    printf("Continuar processos en el front");
+    return 0;
+}
