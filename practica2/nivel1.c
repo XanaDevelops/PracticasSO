@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define DEBUG 1
 
@@ -23,13 +24,46 @@
 #define BLANCO_T "\x1b[97m"
 #define NEGRITA "\x1b[1m"
 
+#define MENSAJE_DESPEDIDA "Que la fuerza te acompañe\n"
+
+char *read_line(char *line);
+int execute_line(char *line);
+int parse_args(char **args, char *line);
+int check_internal(char **args);
+int internal_cd(char **args);
+int internal_export(char **args);
+int internal_source(char **args);
+int internal_jobs();
+int internal_fg(char **args);
+int internal_bg(char **args);
+
+void imprimir_prompt();
+
+const char *delim = " \t\n\r";
+
+char line[COMMAND_LINE_SIZE];
+char *args[ARGS_SIZE];
+
 int main()
 {
-    char line[COMMAND_LINE_SIZE];
     while (1)
     {
-        strcpy(line, read_line(line));
-        printf("%s\n", line);
+        if (read_line(line) == NULL)
+        {
+            continue;
+        }
+        int r = execute_line(line);
+        if (r > 0)
+        {
+            int isIn = check_internal(args);
+            if (isIn)
+            {
+#ifdef DEBUG
+                fprintf(stdout, GRIS_T "Se ha ejecutado comando interno\n" RESET);
+#endif
+                continue;
+            }
+        }
     }
 }
 
@@ -37,39 +71,119 @@ char *read_line(char *line)
 {
     imprimir_prompt();
     // leer usuario
-    *line = *fgets(line, COMMAND_LINE_SIZE, stdin);
+    fgets(line, COMMAND_LINE_SIZE, stdin);
+    if (feof(stdin))
+    {
+#ifdef DEBUG
+        fprintf(stdout, GRIS_T "detectado EOF" RESET);
+#endif
+        return NULL;
+    }
 
     if (line != NULL)
     {
         char *endline = strrchr(line, '\n');
-
         *(endline) = '\0';
     }
-    // printf("%s", line);
+
     return line;
 }
-int execute_line(char *line);
-int parse_args(char **args, char *line);
-int check_internal(char **args);
-int internal_cd(char **args);
-int internal_export(char **args);
-int internal_source(char **args);
+int execute_line(char *line)
+{
+
+    int n_tokens = parse_args(args, line);
+    printf("ntokens %d\n", n_tokens);
+    return n_tokens; // placeholder
+}
+
+int parse_args(char **args, char *line)
+{
+#ifdef DEBUG
+    fprintf(stdout, GRIS_T "parseando %s\n" RESET, line);
+#endif
+    char *token = strtok(line, delim);
+
+    int nt = 0;
+    while (token != NULL)
+    {
+        if (nt >= ARGS_SIZE)
+        {
+            fprintf(stderr, ROJO_T "parse_args() ERROR: demasiados argumentos\n" RESET);
+            return -1;
+        }
+#ifdef DEBUG
+        fprintf(stdout, GRIS_T "TOKEN: %s\n" RESET, token);
+#endif
+        if (*(token) == '#')
+        {
+#ifdef DEBUG
+            fprintf(stdout, GRIS_T "Comentario detectado -> (null)\n" RESET);
+#endif
+            *(args + nt) = token;
+            break;
+        }
+        *(args + nt++) = token;
+        token = strtok(NULL, delim);
+    }
+
+    *(args + nt) = NULL;
+    /*
+    for (int i = 0; i < nt + 1; i++)
+    {
+        printf("ARGS: %s\n", *(args + i));
+    }*/
+
+    return nt;
+}
+
+int check_internal(char **args)
+{
+    char *cmd = *(args);
+#ifdef DEBUG
+    fprintf(stdout, GRIS_T "comprobando %s...\n" RESET, cmd);
+#endif
+    const int n_cmd = 7;
+    const char *cmds_text[] = {"cd", "export", "source", "fg", "bg", "jobs", "exit"};
+    const int (*cmds[])(char **) = {internal_fg, internal_fg, internal_fg, internal_fg, internal_bg};
+    for (int i = 0; i < n_cmd; i++)
+    {
+        if (!strcmp(cmd, *(cmds_text + i)))
+        {
+            switch (i)
+            {
+            case 5:
+                internal_jobs();
+                break;
+            case 6:
+                printf(MENSAJE_DESPEDIDA);
+                exit(0);
+
+            default:
+                cmds[i](args);
+                break;
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
 
 int internal_jobs()
 {
-    printf("Imprimeix la llista de treballs");
+    printf("Imprimeix la llista de treballs\n");
     return 0;
 }
 
 int internal_fg(char **args)
 {
-    printf("Porta el procés passat per paràmetre a primer plà");
+    printf("Porta el procés passat per paràmetre a primer plà\n");
     return 0;
 }
 
 int internal_bg(char **args)
 {
-    printf("Seguir executant el procés passat per paràmetre però en segon pla");
+    printf("Seguir executant el procés passat per paràmetre però en segon pla\n");
     return 0;
 }
 
@@ -79,5 +193,3 @@ void imprimir_prompt()
     fflush(stdout);
     sleep(0.5);
 }
-
-
