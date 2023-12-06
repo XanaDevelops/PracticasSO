@@ -40,6 +40,6 @@ int internal_fg(char **args) {
 }
 
 int internal_bg(char **args) {
-    printf("Continuar processos en el front");
+    printf("Continua processos en el front");
     return 0;
 }
