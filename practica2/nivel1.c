@@ -7,7 +7,7 @@
 
 #define DEBUG 1
 
-#define COMMAND_LINE_SIZE 1024 //max size command line
+#define COMMAND_LINE_SIZE 1024 // max size command line
 #define ARGS_SIZE 64
 
 #define RESET "\033[0m"
@@ -23,7 +23,31 @@
 #define BLANCO_T "\x1b[97m"
 #define NEGRITA "\x1b[1m"
 
-char *read_line(char *line);
+int main()
+{
+    char line[COMMAND_LINE_SIZE];
+    while (1)
+    {
+        strcpy(line, read_line(line));
+        printf("%s\n", line);
+    }
+}
+
+char *read_line(char *line)
+{
+    imprimir_prompt();
+    // leer usuario
+    *line = *fgets(line, COMMAND_LINE_SIZE, stdin);
+
+    if (line != NULL)
+    {
+        char *endline = strrchr(line, '\n');
+
+        *(endline) = '\0';
+    }
+    // printf("%s", line);
+    return line;
+}
 int execute_line(char *line);
 int parse_args(char **args, char *line);
 int check_internal(char **args);
@@ -31,52 +55,29 @@ int internal_cd(char **args);
 int internal_export(char **args);
 int internal_source(char **args);
 
-int internal_jobs() {
+int internal_jobs()
+{
     printf("Imprimeix la llista de treballs");
     return 0;
 }
 
-int internal_fg(char **args) {
+int internal_fg(char **args)
+{
     printf("Porta el procés passat per paràmetre a primer plà");
     return 0;
 }
 
-int internal_bg(char **args) {
+int internal_bg(char **args)
+{
     printf("Seguir executant el procés passat per paràmetre però en segon pla");
     return 0;
 }
 
-void imprimir_prompt();
-
-int main(){
-    char line[COMMAND_LINE_SIZE];
-    while(1){
-        strcpy(line, read_line(line));
-        printf("%s\n", line);
-    }
-
-}
-
-char *read_line(char *line){
-    imprimir_prompt();
-    //leer usuario
-    *line = *fgets(line, COMMAND_LINE_SIZE, stdin);
-    
-    if(line!=NULL){
-        char *endline = strrchr(line, '\n');
-
-        *(endline)='\0';
-
-    }
-    //printf("%s", line);
-    return line;
-}
-
-
-void imprimir_prompt(){
+void imprimir_prompt()
+{
     fprintf(stdout, ROJO_T "PROMTP$ " RESET);
     fflush(stdout);
     sleep(0.5);
-
-
 }
+
+
