@@ -35,11 +35,11 @@ int internal_jobs() {
 }
 
 int internal_fg(char **args) {
-    printf("Porta processos a primer plà");
+    printf("Porta el procés passat per paràmetre a primer plà");
     return 0;
 }
 
 int internal_bg(char **args) {
-    printf("Continua processos en el front");
+    printf("Seguir executant el procés passat per paràmetre però en segon pla");
     return 0;
 }
