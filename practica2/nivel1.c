@@ -2,10 +2,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 
 #define DEBUG 1
 
-#define COMMAND_LINE_SIZE 1024
+#define COMMAND_LINE_SIZE 1024 //max size command line
 #define ARGS_SIZE 64
 
 #define RESET "\033[0m"
@@ -42,4 +44,39 @@ int internal_fg(char **args) {
 int internal_bg(char **args) {
     printf("Seguir executant el procés passat per paràmetre però en segon pla");
     return 0;
+}
+
+void imprimir_prompt();
+
+int main(){
+    char line[COMMAND_LINE_SIZE];
+    while(1){
+        strcpy(line, read_line(line));
+        printf("%s\n", line);
+    }
+
+}
+
+char *read_line(char *line){
+    imprimir_prompt();
+    //leer usuario
+    *line = *fgets(line, COMMAND_LINE_SIZE, stdin);
+    
+    if(line!=NULL){
+        char *endline = strrchr(line, '\n');
+
+        *(endline)='\0';
+
+    }
+    //printf("%s", line);
+    return line;
+}
+
+
+void imprimir_prompt(){
+    fprintf(stdout, ROJO_T "PROMTP$ " RESET);
+    fflush(stdout);
+    sleep(0.5);
+
+
 }
