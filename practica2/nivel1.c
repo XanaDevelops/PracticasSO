@@ -24,7 +24,7 @@
 #define BLANCO_T "\x1b[97m"
 #define NEGRITA "\x1b[1m"
 
-#define MENSAJE_DESPEDIDA "Que la fuerza te acompañe\n"
+#define MENSAJE_DESPEDIDA "\nQue la fuerza te acompañe\n\n"
 
 char *read_line(char *line);
 int execute_line(char *line);
@@ -59,7 +59,7 @@ int main()
             if (isIn)
             {
 #ifdef DEBUG
-                fprintf(stdout, GRIS_T "Se ha ejecutado comando interno\n" RESET);
+                fprintf(stdout, GRIS_T "main(): Se ha ejecutado comando interno\n" RESET);
 #endif
                 continue;
             }
@@ -75,7 +75,7 @@ char *read_line(char *line)
     if (feof(stdin))
     {
 #ifdef DEBUG
-        fprintf(stdout, GRIS_T "detectado EOF" RESET);
+        fprintf(stdout, GRIS_T "read_line(): detectado EOF" RESET);
 #endif
         return NULL;
     }
@@ -92,14 +92,16 @@ int execute_line(char *line)
 {
 
     int n_tokens = parse_args(args, line);
-    printf("ntokens %d\n", n_tokens);
+    #ifdef DEBUG
+    fprintf(stdout, GRIS_T "execute_line(): ntokens = %d\n", n_tokens);
+    #endif
     return n_tokens; // placeholder
 }
 
 int parse_args(char **args, char *line)
 {
 #ifdef DEBUG
-    fprintf(stdout, GRIS_T "parseando %s\n" RESET, line);
+    fprintf(stdout, GRIS_T "parse_args(): parseando %s\n" RESET, line);
 #endif
     char *token = strtok(line, delim);
 
@@ -108,16 +110,16 @@ int parse_args(char **args, char *line)
     {
         if (nt >= ARGS_SIZE)
         {
-            fprintf(stderr, ROJO_T "parse_args() ERROR: demasiados argumentos\n" RESET);
+            fprintf(stderr, ROJO_T "parse_args(): ERROR: demasiados argumentos\n" RESET);
             return -1;
         }
 #ifdef DEBUG
-        fprintf(stdout, GRIS_T "TOKEN: %s\n" RESET, token);
+        fprintf(stdout, GRIS_T "parse_args(): token: %s\n" RESET, token);
 #endif
         if (*(token) == '#')
         {
 #ifdef DEBUG
-            fprintf(stdout, GRIS_T "Comentario detectado -> (null)\n" RESET);
+            fprintf(stdout, GRIS_T "parse_args(): Comentario detectado -> (null)\n" RESET);
 #endif
             *(args + nt) = token;
             break;
@@ -140,7 +142,7 @@ int check_internal(char **args)
 {
     char *cmd = *(args);
 #ifdef DEBUG
-    fprintf(stdout, GRIS_T "comprobando %s...\n" RESET, cmd);
+    fprintf(stdout, GRIS_T "check_internal(): comprobando %s...\n" RESET, cmd);
 #endif
     const int n_cmd = 7;
     const char *cmds_text[] = {"cd", "export", "source", "fg", "bg", "jobs", "exit"};
