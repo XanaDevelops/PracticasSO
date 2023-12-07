@@ -66,7 +66,15 @@ int main()
         }
     }
 }
-
+/**
+ * Funció: read_line
+ * -------------------
+ * Llegeix una linea per stdin
+ *
+ * param: line --> punter de la cadena de caràcters on guardar la linea
+ * 
+ * return: punter de la cadena de caràcters amb la linea
+ */
 char *read_line(char *line)
 {
     imprimir_prompt();
@@ -88,6 +96,16 @@ char *read_line(char *line)
 
     return line;
 }
+
+/**
+ * Funció: execute_line
+ * -------------------
+ * Executa una linea
+ *
+ * param: line --> punter de la cadena de caràcters de la linea
+ * 
+ * return: número de tokens dins la linea
+ */
 int execute_line(char *line)
 {
 
@@ -98,6 +116,17 @@ int execute_line(char *line)
     return n_tokens; // placeholder
 }
 
+/**
+ * Funció: parse_args
+ * -------------------
+ * Parsea una linea de comandes
+ *
+ * param:   
+ *      args --> punter al punter dels tokens d'arguments
+ *      line --> punter de la cadena de caràcters de la linea
+ *  
+ * return: número de tokens dins la linea
+ */
 int parse_args(char **args, char *line)
 {
 #ifdef DEBUG
@@ -138,6 +167,15 @@ int parse_args(char **args, char *line)
     return nt;
 }
 
+/**
+ * Funció: check_internal
+ * -------------------
+ * Comprova si es una comanda interna
+ *
+ * param: args --> punter al punter dels tokens d'arguments
+ * 
+ * return: true si es intern, false si no
+ */
 int check_internal(char **args)
 {
     char *cmd = *(args);
@@ -170,6 +208,7 @@ int check_internal(char **args)
 
     return false;
 }
+
 int internal_cd(char **args)
 {
     printf("Cambiar de directori\n");

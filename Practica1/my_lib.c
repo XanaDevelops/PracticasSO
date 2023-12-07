@@ -18,7 +18,7 @@ int recursive_write(struct my_stack_node *node, int *file, int *size);
  * -------------------
  * Calcula la llargaria de la cadena de caràcters
  *
- * param: str --> punter de la cadena de caràcters ha calcular
+ * param: str --> punter de la cadena de caràcters a calcular
  * llargaria
  * return: llargaria fora element centinela de la cadena str
  */
