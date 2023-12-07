@@ -176,7 +176,7 @@ int internal_cd(char **args)
 
 int internal_export(char **args)
 {
-    printf("Establir l'àmbit de les variables dentorn.\n");
+    printf("Establir l'àmbit de les variables d'entorn.\n");
     return 0;
 }
 int internal_source(char **args){
