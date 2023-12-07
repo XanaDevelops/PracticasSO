@@ -14,7 +14,7 @@
 #define RESET "\033[0m"
 #define NEGRO_T "\x1b[30m"
 #define NEGRO_F "\x1b[40m"
-#define GRIS_T "\x1b[90m" //#define GRIS_T "\x1b[94m"
+#define GRIS_T "\x1b[90m" // #define GRIS_T "\x1b[94m"
 #define ROJO_T "\x1b[31m"
 #define VERDE_T "\x1b[32m"
 #define AMARILLO_T "\x1b[33m"
@@ -167,6 +167,21 @@ int check_internal(char **args)
     }
 
     return false;
+}
+int internal_cd(char **args)
+{
+    printf("Cambiar de directori\n");
+    return 0;
+}
+
+int internal_export(char **args)
+{
+    printf("Establir l'àmbit de les variables dentorn.\n");
+    return 0;
+}
+int internal_source(char **args)
+    printf("Executar ordres des d'un fitxer en el context actual de l'intèrpret d'ordres\n");
+    return 0;
 }
 
 int internal_jobs()
