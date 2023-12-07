@@ -14,7 +14,7 @@
 #define RESET "\033[0m"
 #define NEGRO_T "\x1b[30m"
 #define NEGRO_F "\x1b[40m"
-#define GRIS_T "\x1b[94m"
+#define GRIS_T "\x1b[90m" //#define GRIS_T "\x1b[94m"
 #define ROJO_T "\x1b[31m"
 #define VERDE_T "\x1b[32m"
 #define AMARILLO_T "\x1b[33m"
