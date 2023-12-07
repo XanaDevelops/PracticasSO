@@ -179,7 +179,7 @@ int internal_export(char **args)
     printf("Establir l'àmbit de les variables dentorn.\n");
     return 0;
 }
-int internal_source(char **args)
+int internal_source(char **args){
     printf("Executar ordres des d'un fitxer en el context actual de l'intèrpret d'ordres\n");
     return 0;
 }
