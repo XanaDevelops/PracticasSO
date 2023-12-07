@@ -146,7 +146,7 @@ int check_internal(char **args)
 #endif
     const int n_cmd = 7;
     const char *cmds_text[] = {"cd", "export", "source", "fg", "bg", "jobs", "exit"};
-    const int (*cmds[])(char **) = {internal_fg, internal_fg, internal_fg, internal_fg, internal_bg};
+    const int (*cmds[])(char **) = {internal_cd, internal_export, internal_source, internal_fg, internal_bg};
     for (int i = 0; i < n_cmd; i++)
     {
         if (!strcmp(cmd, *(cmds_text + i)))
