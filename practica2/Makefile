@@ -3,10 +3,10 @@ CC=gcc
 CFLAGS=-c -g -Wall -std=c17
 #LDFLAGS=-lreadline -Incurses #activar usar readline
  
-SOURCES=nivel1.c #nivel2.c nivel3.c nivel4.c nivel5.c nivel6.c my_shell.c
+SOURCES=nivel1.c nivel2.c #nivel3.c nivel4.c nivel5.c nivel6.c my_shell.c
 LIBRARIES= #.o
 INCLUDES= #.h
-PROGRAMS=nivel1 #nivel2 nivel3 nivel4 nivel5 nivel6 my_shell
+PROGRAMS=nivel1 nivel2 #nivel3 nivel4 nivel5 nivel6 my_shell
 OBJS=$(SOURCES:.c=.o)
  
 all: $(OBJS) $(PROGRAMS)
@@ -17,8 +17,8 @@ all: $(OBJS) $(PROGRAMS)
 nivel1: nivel1.o
 	$(CC) $@.o -o $@ $(LIBRARIES)
 
-#nivel2: nivel2.o
-#	$(CC) $@.o -o $@ $(LIBRARIES)
+nivel2: nivel2.o
+	$(CC) $@.o -o $@ $(LIBRARIES)
 
 #nivel3: nivel3.o
 #	$(CC) $@.o -o $@ $(LIBRARIES)
