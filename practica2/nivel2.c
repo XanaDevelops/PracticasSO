@@ -38,6 +38,7 @@ int internal_fg(char **args);
 int internal_bg(char **args);
 
 void imprimir_prompt();
+char *parse_cd(char **args);
 
 const char *delim = " \t\n\r";
 
@@ -58,7 +59,7 @@ int main()
             int isIn = check_internal(args);
             if (isIn)
             {
-#ifdef DEBUG
+#if DEBUG
                 fprintf(stdout, GRIS_T "main(): Se ha ejecutado comando interno\n" RESET);
 #endif
                 continue;
@@ -72,7 +73,7 @@ int main()
  * Llegeix una linea per stdin
  *
  * param: line --> punter de la cadena de caràcters on guardar la linea
- * 
+ *
  * return: punter de la cadena de caràcters amb la linea
  */
 char *read_line(char *line)
@@ -82,7 +83,7 @@ char *read_line(char *line)
     fgets(line, COMMAND_LINE_SIZE, stdin);
     if (feof(stdin))
     {
-#ifdef DEBUG
+#if DEBUG
         fprintf(stdout, GRIS_T "read_line(): detectado EOF" RESET);
 #endif
         return NULL;
@@ -103,16 +104,16 @@ char *read_line(char *line)
  * Executa una linea
  *
  * param: line --> punter de la cadena de caràcters de la linea
- * 
+ *
  * return: número de tokens dins la linea
  */
 int execute_line(char *line)
 {
 
     int n_tokens = parse_args(args, line);
-    #ifdef DEBUG
+#if DEBUG
     fprintf(stdout, GRIS_T "execute_line(): ntokens = %d\n", n_tokens);
-    #endif
+#endif
     return n_tokens; // placeholder
 }
 
@@ -121,15 +122,15 @@ int execute_line(char *line)
  * -------------------
  * Parsea una linea de comandes
  *
- * param:   
+ * param:
  *      args --> punter al punter dels tokens d'arguments
  *      line --> punter de la cadena de caràcters de la linea
- *  
+ *
  * return: número de tokens dins la linea
  */
 int parse_args(char **args, char *line)
 {
-#ifdef DEBUG
+#if DEBUG
     fprintf(stdout, GRIS_T "parse_args(): parseando %s\n" RESET, line);
 #endif
     char *token = strtok(line, delim);
@@ -142,12 +143,12 @@ int parse_args(char **args, char *line)
             fprintf(stderr, ROJO_T "parse_args(): ERROR: demasiados argumentos\n" RESET);
             return -1;
         }
-#ifdef DEBUG
+#if DEBUG
         fprintf(stdout, GRIS_T "parse_args(): token: %s\n" RESET, token);
 #endif
         if (*(token) == '#')
         {
-#ifdef DEBUG
+#if DEBUG
             fprintf(stdout, GRIS_T "parse_args(): Comentario detectado -> (null)\n" RESET);
 #endif
             *(args + nt) = token;
@@ -173,13 +174,13 @@ int parse_args(char **args, char *line)
  * Comprova si es una comanda interna
  *
  * param: args --> punter al punter dels tokens d'arguments
- * 
+ *
  * return: true si es intern, false si no
  */
 int check_internal(char **args)
 {
     char *cmd = *(args);
-#ifdef DEBUG
+#if DEBUG
     fprintf(stdout, GRIS_T "check_internal(): comprobando %s...\n" RESET, cmd);
 #endif
     const int n_cmd = 7;
@@ -212,7 +213,47 @@ int check_internal(char **args)
 int internal_cd(char **args)
 {
     printf("Cambiar de directori\n");
+    char *cd = parse_cd(args);
+    fprintf(stdout, GRIS_T "cd : %s\n" RESET, cd);
     return 0;
+}
+
+char *parse_cd(char **args)
+{
+    bool s_comilla = false, d_comilla = false;
+
+    char *arg = *(++args);
+    char new_cd[COMMAND_LINE_SIZE];
+    memset(new_cd, '\0', COMMAND_LINE_SIZE);
+    int cd_len = 0;
+    while (arg != NULL)
+    {
+        fprintf(stdout, GRIS_T "parse_cd(): comprobando cd: %s\n" RESET, arg);
+        if (!d_comilla)
+        {
+            char *arg_c = strchr(arg, '"');
+            if (arg_c != NULL)
+            {
+                fprintf(stdout, GRIS_T "d_comilla %s\n" RESET, arg_c);
+                d_comilla = true;
+            }
+        }
+        else
+        {
+        }
+        strcat(new_cd, arg);
+
+        if (d_comilla)
+        {
+            arg = *(++args);
+        }
+        else
+        {
+            break;
+        }
+    }
+    fprintf(stdout, GRIS_T "parse_cd(): cd final=%s\n" RESET, new_cd);
+    return new_cd;
 }
 
 /**
@@ -222,7 +263,7 @@ int internal_cd(char **args)
  *
  * param: args --> punter al punter dels tokens d'arguments
  * args[1] -> NOM=VALOR
- * 
+ *
  * return: 1 si existeix un error de sintaxi, 0 si s'ha
  * fet l'exportació correctament.
  */
@@ -235,7 +276,7 @@ int internal_export(char **args)
         fprintf(stderr, ROJO_T "Error de sintaxis. Uso: export Nombre=Valor\n" RESET);
         return 1;
     }
-    
+
     char *variable = strtok(args[1], delim);
     char *valor = strtok(NULL, delim);
 
@@ -245,36 +286,37 @@ int internal_export(char **args)
         return 1;
     }
 
-    #ifdef DEBUG
+#if DEBUG
     fprintf(stdout, GRIS_T "[internal_export()→ nombre: %s]\n" RESET, variable);
     fprintf(stdout, GRIS_T "[internal_export()→ valor: %s]\n" RESET, valor);
-    #endif
+#endif
 
     char *antic_valor = getenv(variable);
 
     if (antic_valor == NULL)
     {
-        #ifdef DEBUG
+#if DEBUG
         fprintf(stdout, GRIS_T "[internal_export()→ antiguo valor para %s: (null)]\n" RESET, variable);
-        #endif 
+#endif
     }
     else
     {
-        #ifdef DEBUG
+#if DEBUG
         fprintf(stdout, GRIS_T "[internal_export()→ antiguo valor para %s: %s]\n" RESET, variable, antic_valor);
-        #endif
+#endif
     }
 
     setenv(variable, valor, 1);
 
-    #ifdef DEBUG
+#if DEBUG
     fprintf(stdout, GRIS_T "[internal_export()→ nuevo valor para %s: %s]\n" RESET, variable, valor);
-    #endif
+#endif
 
     return 0;
 }
 
-int internal_source(char **args){
+int internal_source(char **args)
+{
     printf("Executar ordres des d'un fitxer en el context actual de l'intèrpret d'ordres\n");
     return 0;
 }

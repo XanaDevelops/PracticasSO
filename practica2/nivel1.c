@@ -58,8 +58,8 @@ int main()
             int isIn = check_internal(args);
             if (isIn)
             {
-#ifdef DEBUG
-                fprintf(stdout, GRIS_T "main(): Se ha ejecutado comando interno\n" RESET);
+#if DEBUG
+                fprintf(stdout, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
 #endif
                 continue;
             }
@@ -82,8 +82,8 @@ char *read_line(char *line)
     fgets(line, COMMAND_LINE_SIZE, stdin);
     if (feof(stdin))
     {
-#ifdef DEBUG
-        fprintf(stdout, GRIS_T "read_line(): detectado EOF" RESET);
+#if DEBUG
+        fprintf(stdout, GRIS_T "[read_line(): detectado EOF]\n" RESET);
 #endif
         return NULL;
     }
@@ -110,8 +110,8 @@ int execute_line(char *line)
 {
 
     int n_tokens = parse_args(args, line);
-    #ifdef DEBUG
-    fprintf(stdout, GRIS_T "execute_line(): ntokens = %d\n", n_tokens);
+    #if DEBUG
+    fprintf(stdout, GRIS_T "[execute_line(): ntokens = %d]\n", n_tokens);
     #endif
     return n_tokens; // placeholder
 }
@@ -129,8 +129,8 @@ int execute_line(char *line)
  */
 int parse_args(char **args, char *line)
 {
-#ifdef DEBUG
-    fprintf(stdout, GRIS_T "parse_args(): parseando %s\n" RESET, line);
+#if DEBUG
+    fprintf(stdout, GRIS_T "[parse_args(): parseando %s]\n" RESET, line);
 #endif
     char *token = strtok(line, delim);
 
@@ -142,13 +142,13 @@ int parse_args(char **args, char *line)
             fprintf(stderr, ROJO_T "parse_args(): ERROR: demasiados argumentos\n" RESET);
             return -1;
         }
-#ifdef DEBUG
-        fprintf(stdout, GRIS_T "parse_args(): token: %s\n" RESET, token);
+#if DEBUG
+        fprintf(stdout, GRIS_T "[parse_args(): token: %s]\n" RESET, token);
 #endif
         if (*(token) == '#')
         {
-#ifdef DEBUG
-            fprintf(stdout, GRIS_T "parse_args(): Comentario detectado -> (null)\n" RESET);
+#if DEBUG
+            fprintf(stdout, GRIS_T "[parse_args(): Comentario detectado -> (null)]\n" RESET);
 #endif
             *(args + nt) = token;
             break;
@@ -179,8 +179,8 @@ int parse_args(char **args, char *line)
 int check_internal(char **args)
 {
     char *cmd = *(args);
-#ifdef DEBUG
-    fprintf(stdout, GRIS_T "check_internal(): comprobando %s...\n" RESET, cmd);
+#if DEBUG
+    fprintf(stdout, GRIS_T "[check_internal(): comprobando %s]\n" RESET, cmd);
 #endif
     const int n_cmd = 7;
     const char *cmds_text[] = {"cd", "export", "source", "fg", "bg", "jobs", "exit"};
@@ -228,49 +228,7 @@ int internal_cd(char **args)
  */
 int internal_export(char **args)
 {
-    const char *delim = "=";
-
-    if (args[1] == NULL)
-    {
-        fprintf(stderr, ROJO_T "Error de sintaxis. Uso: export Nombre=Valor\n" RESET);
-        return 1;
-    }
-    
-    char *variable = strtok(args[1], delim);
-    char *valor = strtok(NULL, delim);
-
-    if (variable == NULL || valor == NULL)
-    {
-        fprintf(stderr, ROJO_T "Error de sintaxis. Uso: export Nombre=Valor\n" RESET);
-        return 1;
-    }
-
-    #ifdef DEBUG
-    fprintf(stdout, GRIS_T "[internal_export()→ nombre: %s]\n" RESET, variable);
-    fprintf(stdout, GRIS_T "[internal_export()→ valor: %s]\n" RESET, valor);
-    #endif
-
-    char *antic_valor = getenv(variable);
-
-    if (antic_valor == NULL)
-    {
-        #ifdef DEBUG
-        fprintf(stdout, GRIS_T "[internal_export()→ antiguo valor para %s: (null)]\n" RESET, variable);
-        #endif 
-    }
-    else
-    {
-        #ifdef DEBUG
-        fprintf(stdout, GRIS_T "[internal_export()→ antiguo valor para %s: %s]\n" RESET, variable, antic_valor);
-        #endif
-    }
-
-    setenv(variable, valor, 1);
-
-    #ifdef DEBUG
-    fprintf(stdout, GRIS_T "[internal_export()→ nuevo valor para %s: %s]\n" RESET, variable, valor);
-    #endif
-
+    printf("Establir l'àmbit de les variables d'entorn.\n");
     return 0;
 }
 
