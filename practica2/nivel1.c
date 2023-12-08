@@ -215,11 +215,65 @@ int internal_cd(char **args)
     return 0;
 }
 
+/**
+ * Funció: internal_export
+ * -------------------
+ * Obtenció de variables d'entorn
+ *
+ * param: args --> punter al punter dels tokens d'arguments
+ * args[1] -> NOM=VALOR
+ * 
+ * return: 1 si existeix un error de sintaxi, 0 si s'ha
+ * fet l'exportació correctament.
+ */
 int internal_export(char **args)
 {
-    printf("Establir l'àmbit de les variables d'entorn.\n");
+    const char *delim = "=";
+
+    if (args[1] == NULL)
+    {
+        fprintf(stderr, ROJO_T "Error de sintaxis. Uso: export Nombre=Valor\n" RESET);
+        return 1;
+    }
+    
+    char *variable = strtok(args[1], delim);
+    char *valor = strtok(NULL, delim);
+
+    if (variable == NULL || valor == NULL)
+    {
+        fprintf(stderr, ROJO_T "Error de sintaxis. Uso: export Nombre=Valor\n" RESET);
+        return 1;
+    }
+
+    #ifdef DEBUG
+    fprintf(stdout, GRIS_T "[internal_export()→ nombre: %s]\n" RESET, variable);
+    fprintf(stdout, GRIS_T "[internal_export()→ valor: %s]\n" RESET, valor);
+    #endif
+
+    char *antic_valor = getenv(variable);
+
+    if (antic_valor == NULL)
+    {
+        #ifdef DEBUG
+        fprintf(stdout, GRIS_T "[internal_export()→ antiguo valor para %s: (null)]\n" RESET, variable);
+        #endif 
+    }
+    else
+    {
+        #ifdef DEBUG
+        fprintf(stdout, GRIS_T "[internal_export()→ antiguo valor para %s: %s]\n" RESET, variable, antic_valor);
+        #endif
+    }
+
+    setenv(variable, valor, 1);
+
+    #ifdef DEBUG
+    fprintf(stdout, GRIS_T "[internal_export()→ nuevo valor para %s: %s]\n" RESET, variable, valor);
+    #endif
+
     return 0;
 }
+
 int internal_source(char **args){
     printf("Executar ordres des d'un fitxer en el context actual de l'intèrpret d'ordres\n");
     return 0;
