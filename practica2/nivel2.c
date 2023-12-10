@@ -162,7 +162,7 @@ int parse_args(char **args, char *line)
             char *token_sep2 = strchr(token, 92);
             token_sep = token_sep2;
         }
-        
+
         if (token_sep != NULL)
         {
             printf("%s\n", token_sep);
@@ -261,11 +261,15 @@ int internal_cd(char **args)
     if (!args[1])
     {
         strcpy(cwd, "/home");
-        chdir(cwd);
     }
     else
     {
-        printf("Anar %s", args[1]);
+        strcat(cwd, args[1]);
+    }
+    
+    if (chdir(cwd) == -1)
+    {
+        perror(ROJO_T "chdir(): Directori no trobat");
     }
 
     return 0;
@@ -405,7 +409,7 @@ void imprimir_prompt()
 {
     char cwd[COMMAND_LINE_SIZE];
     getcwd(cwd, COMMAND_LINE_SIZE);
-    
+
     fprintf(stdout, BLANCO_T "USUARI:" RESET);
     fprintf(stdout, ROJO_T "%s" RESET, cwd);
     fprintf(stdout, ROJO_T "$ " RESET);
