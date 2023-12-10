@@ -157,13 +157,21 @@ int parse_args(char **args, char *line)
             break;
         }
         char *token_sep = strchr(token, '"');
+        if (strchr(token, '"') == NULL)
+        {
+            char *token_sep2 = strchr(token, 92);
+            token_sep = token_sep2;
+        }
+        
         if (token_sep != NULL)
         {
+            printf("%s\n", token_sep);
             char new_token[COMMAND_LINE_SIZE];
             memset(new_token, '\0', COMMAND_LINE_SIZE);
-            
+
             strncpy(new_token, token, (token_sep - token) / 1);
             strcat(new_token, ++token_sep);
+            strcat(new_token, " ");
 #if DEBUG
             fprintf(stdout, GRIS_T "[parse_args(): doble comilla detectada -> %s]\n" RESET, new_token);
 #endif
@@ -234,9 +242,29 @@ int check_internal(char **args)
     return false;
 }
 
+/**
+ * Funció: cd
+ * -------------------
+ * Cambiar de directori.
+ *
+ * param: args --> punter al punter dels tokens d'arguments
+ * args[1] -> NOM=VALOR
+ *
+ * return: int 0 si s'executa correctament.
+ */
 int internal_cd(char **args)
 {
     printf("Cambiar de directori\n");
+
+    if (!args[1])
+    {
+        printf("Anar home \n");
+    }
+    else
+    {
+        printf("Anar %s", args[1]);
+    }
+
     return 0;
 }
 
