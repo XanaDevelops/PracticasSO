@@ -400,7 +400,13 @@ int internal_bg(char **args)
 
 void imprimir_prompt()
 {
-    fprintf(stdout, ROJO_T "PROMTP$ " RESET);
+    char cwd[COMMAND_LINE_SIZE];
+    getcwd(cwd, COMMAND_LINE_SIZE);
+    
+    fprintf(stdout, ROJO_T "PROMTP " RESET);
+
+
+
     fflush(stdout);
     sleep(0.5);
 }
