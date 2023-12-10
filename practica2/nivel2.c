@@ -187,7 +187,7 @@ int parse_args(char **args, char *line)
             strcat(new_token, token_sep);
 
 #if DEBUG
-            fprintf(stdout, GRIS_T "[parse_args(): doble comilla finalizada -> %s]\n" RESET, new_token);
+            fprintf(stdout, GRIS_T "[parse_args(): doble comilla finalizada -> -%s-]\n" RESET, new_token);
 #endif
             token = new_token;
         }
@@ -254,24 +254,32 @@ int check_internal(char **args)
  */
 int internal_cd(char **args)
 {
-    printf("Cambiar de directori\n");
+#if DEBUG
+    fprintf(stdout, GRIS_T "[internal_cd(): Canviant directori...]\n" RESET);
+#endif
     char cwd[COMMAND_LINE_SIZE];
     memset(cwd, '\0', sizeof(cwd));
 
+printf("%s \n", args[1]);
     if (!args[1])
     {
         strcpy(cwd, "/home");
     }
     else
     {
+        
         strcat(cwd, args[1]);
     }
-    
+
     if (chdir(cwd) == -1)
     {
         perror(ROJO_T "chdir(): Directori no trobat");
+        return -1;
     }
 
+#if DEBUG
+    fprintf(stdout, GRIS_T "[internal_cd(): Directori canviat]\n" RESET);
+#endif
     return 0;
 }
 
