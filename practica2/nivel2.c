@@ -404,8 +404,8 @@ void imprimir_prompt()
     getcwd(cwd, COMMAND_LINE_SIZE);
     
     fprintf(stdout, ROJO_T "PROMTP " RESET);
-
-
+    fprintf(stdout, ROJO_T "%s" RESET, cwd);
+    fprintf(stdout, ROJO_T "$ " RESET);
 
     fflush(stdout);
     sleep(0.5);
