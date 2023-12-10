@@ -38,7 +38,6 @@ int internal_fg(char **args);
 int internal_bg(char **args);
 
 void imprimir_prompt();
-char *parse_comillas(char **args);
 
 const char *delim = " \t\n\r";
 
@@ -207,7 +206,7 @@ int parse_args(char **args, char *line)
 #if DEBUG
             fprintf(stdout, GRIS_T "parse_args(): final new_token:|%s|\n" RESET, new_token);
 #endif
-            //*(args + nt++) = new_token;
+            //*(args + nt++) = new_token; 
             //strcpy(*(args + nt++), new_token);
             args[nt]= "";
             strcpy(args[nt++], new_token);
@@ -301,52 +300,6 @@ int internal_cd(char **args)
     return 0;
 }
 
-char *parse_comillas(char **args)
-{
-    bool d_comilla = false;
-
-    char *arg = *(++args);
-    char new_cd[COMMAND_LINE_SIZE];
-    memset(new_cd, '\0', COMMAND_LINE_SIZE);
-    int cd_len = 0;
-    while (arg != NULL)
-    {
-        fprintf(stdout, GRIS_T "[parse_comillas(): comprobando cd: %s]\n" RESET, arg);
-        char *arg_c = strchr(arg, '"');
-        if (arg_c != NULL)
-        {
-            if (!d_comilla)
-            {
-                {
-                    fprintf(stdout, GRIS_T "[parse_comillas(): d_comilla true %s]\n" RESET, arg_c);
-                    d_comilla = true;
-                }
-            }
-            else
-            {
-                {
-                    fprintf(stdout, GRIS_T "[parse_comillas(): d_comilla false %s]\n" RESET, arg_c);
-                    strcat(new_cd, " ");
-                    d_comilla = false;
-                }
-            }
-        }
-
-        if (d_comilla)
-        {
-            strcat(new_cd, " ");
-            strcat(new_cd, arg);
-            arg = *(++args);
-        }
-        else
-        {
-            strcat(new_cd, arg);
-            break;
-        }
-    }
-    fprintf(stdout, GRIS_T "[parse_comillas(): cd final=%s]\n" RESET, new_cd);
-    return new_cd;
-}
 
 /**
  * Funció: internal_export
