@@ -38,11 +38,11 @@ int internal_fg(char **args);
 int internal_bg(char **args);
 
 void imprimir_prompt();
-char *parse_comillas(char **args);
 
 const char *delim = " \t\n\r";
 
 char line[COMMAND_LINE_SIZE];
+char new_token[COMMAND_LINE_SIZE];
 char *args[ARGS_SIZE];
 
 int main()
@@ -137,6 +137,14 @@ int parse_args(char **args, char *line)
     bool s_comilla = false, d_comilla = false, slash = false;
 
     int nt = 0;
+    //char *new_token = (char *)malloc(COMMAND_LINE_SIZE);
+    
+    if (new_token == NULL)
+    {
+        perror("parse_args(): Error al alocar memoria new_token");
+        return -1;
+    }
+
     while (token != NULL)
     {
         if (nt >= ARGS_SIZE)
@@ -155,6 +163,9 @@ int parse_args(char **args, char *line)
             *(args + nt) = token;
             break;
         }
+
+        memset(new_token, '\0', COMMAND_LINE_SIZE);
+        // comprobar comillas dentro de token
         char *token_sep = strchr(token, '"');
         if (strchr(token, '"') == NULL)
         {
@@ -162,41 +173,55 @@ int parse_args(char **args, char *line)
             token_sep = token_sep2;
         }
 
-        if (token_sep != NULL)
+        int sep_l = 0;
+        int sep_h = strlen(token);
+        while (token_sep != NULL)
         {
-            printf("%s\n", token_sep);
-            char new_token[COMMAND_LINE_SIZE];
-            memset(new_token, '\0', COMMAND_LINE_SIZE);
-
-            strncpy(new_token, token, (token_sep - token) / 1);
-            strcat(new_token, ++token_sep);
-            strcat(new_token, " ");
-#if DEBUG
-            fprintf(stdout, GRIS_T "[parse_args(): doble comilla detectada -> %s]\n" RESET, new_token);
-#endif
-            char *pretoken = strchr(token_sep, '\0');
-            fprintf(stdout, VERDE_T "pretoken: %s\n" RESET, pretoken);
-            token_sep = strtok(NULL, dc_delim);
-            fprintf(stdout, VERDE_T "pretoken: %s\n" RESET, token_sep);
-            if (token_sep == NULL)
+            d_comilla = !d_comilla;
+            if (d_comilla)
             {
-                fprintf(stderr, ROJO_T "parse_args() ERROR: comillas no cerradas\n" RESET);
-                return -1;
+                sep_l = ++token_sep - token;
+                fprintf(stdout, GRIS_T "comilla en true, lim inf %i\n" RESET, sep_l);
             }
-            strcat(new_token, token_sep);
+            else
+            {
+                sep_h = token_sep++ - token;
+                fprintf(stdout, GRIS_T "comilla en true, lim sup %i\n" RESET, sep_h);
+            }
+
+            token_sep = strchr(token_sep, '"');
+        }
+        strncpy(new_token, token + sep_l, sep_h - sep_l);
+        fprintf(stdout, GRIS_T "new_token: |%s|\n" RESET, new_token);
+        if (d_comilla)
+        {
+            fprintf(stdout, GRIS_T "d_comilla\n" RESET);
+            token = strtok(NULL, dc_delim);
+            fprintf(stdout, GRIS_T "tkn: |%s|\n" RESET, token);
+            strcat(new_token, " "); // strtok se come un espacio o algo
+            strcat(new_token, token);
+            d_comilla = false;
 
 
 #if DEBUG
-            fprintf(stdout, GRIS_T "[parse_args(): doble comilla finalizada -> -%s-]\n" RESET, new_token);
+            fprintf(stdout, GRIS_T "[parse_args(): doble comilla finalizada -> %s]\n" RESET, new_token);
 #endif
-            token = new_token;
+            //*(args + nt++) = new_token; 
+            //strcpy(*(args + nt++), new_token);
+            args[nt]= "";
+            strcpy(args[nt++], new_token);
+            token = strtok(NULL, delim);
         }
-        *(args + nt++) = token;
-        token = strtok(NULL, delim);
+        else
+        {
+            *(args + nt++) = token;
+            token = strtok(NULL, delim);
+        }
     }
 
     *(args + nt) = NULL;
 
+    //free(new_token);
     return nt;
 }
 
@@ -283,52 +308,6 @@ printf("%s \n", args[1]);
     return 0;
 }
 
-char *parse_comillas(char **args)
-{
-    bool d_comilla = false;
-
-    char *arg = *(++args);
-    char new_cd[COMMAND_LINE_SIZE];
-    memset(new_cd, '\0', COMMAND_LINE_SIZE);
-    int cd_len = 0;
-    while (arg != NULL)
-    {
-        fprintf(stdout, GRIS_T "[parse_comillas(): comprobando cd: %s]\n" RESET, arg);
-        char *arg_c = strchr(arg, '"');
-        if (arg_c != NULL)
-        {
-            if (!d_comilla)
-            {
-                {
-                    fprintf(stdout, GRIS_T "[parse_comillas(): d_comilla true %s]\n" RESET, arg_c);
-                    d_comilla = true;
-                }
-            }
-            else
-            {
-                {
-                    fprintf(stdout, GRIS_T "[parse_comillas(): d_comilla false %s]\n" RESET, arg_c);
-                    strcat(new_cd, " ");
-                    d_comilla = false;
-                }
-            }
-        }
-
-        if (d_comilla)
-        {
-            strcat(new_cd, " ");
-            strcat(new_cd, arg);
-            arg = *(++args);
-        }
-        else
-        {
-            strcat(new_cd, arg);
-            break;
-        }
-    }
-    fprintf(stdout, GRIS_T "[parse_comillas(): cd final=%s]\n" RESET, new_cd);
-    return new_cd;
-}
 
 /**
  * Funció: internal_export
