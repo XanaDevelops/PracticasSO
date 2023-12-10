@@ -209,6 +209,16 @@ int check_internal(char **args)
     return false;
 }
 
+/**
+ * Funció: cd
+ * -------------------
+ * Cambiar de directori.
+ *
+ * param: args --> punter al punter dels tokens d'arguments
+ * args[1] -> NOM=VALOR
+ * 
+ * return: int 0 si s'executa correctament.
+ */
 int internal_cd(char **args)
 {
     printf("Cambiar de directori\n");
@@ -235,7 +245,12 @@ int internal_export(char **args)
 /**
  * Funció: internal_source
  * -------------------
- * Executar comandos des d'un fitxer en el constext actual del shell
+ * Executar comandos des d'un fitxer en el constext actual del shell.
+ * 
+ * param: args --> punter al punter dels tokens d'arguments
+ * args[1] -> NOM=VALOR
+ * 
+ * return: int 0 si s'executa correctament.
  */
 int internal_source(char **args){
     printf("Executar ordres des d'un fitxer en el context actual del shell\n");
