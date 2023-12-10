@@ -134,7 +134,6 @@ int parse_args(char **args, char *line)
     fprintf(stdout, GRIS_T "[parse_args(): parseando %s]\n" RESET, line);
 #endif
     char *token = strtok(line, delim);
-    char *dc_delim = "\"";
     bool s_comilla = false, d_comilla = false, slash = false;
 
     int nt = 0;
@@ -185,6 +184,7 @@ int parse_args(char **args, char *line)
                 return -1;
             }
             strcat(new_token, token_sep);
+
 
 #if DEBUG
             fprintf(stdout, GRIS_T "[parse_args(): doble comilla finalizada -> -%s-]\n" RESET, new_token);
