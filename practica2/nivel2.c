@@ -255,10 +255,13 @@ int check_internal(char **args)
 int internal_cd(char **args)
 {
     printf("Cambiar de directori\n");
+    char cwd[COMMAND_LINE_SIZE];
+    memset(cwd, '\0', sizeof(cwd));
 
     if (!args[1])
     {
-        printf("Anar home \n");
+        strcpy(cwd, "/home");
+        chdir(cwd);
     }
     else
     {
@@ -403,7 +406,7 @@ void imprimir_prompt()
     char cwd[COMMAND_LINE_SIZE];
     getcwd(cwd, COMMAND_LINE_SIZE);
     
-    fprintf(stdout, ROJO_T "PROMTP " RESET);
+    fprintf(stdout, BLANCO_T "USUARI:" RESET);
     fprintf(stdout, ROJO_T "%s" RESET, cwd);
     fprintf(stdout, ROJO_T "$ " RESET);
 
