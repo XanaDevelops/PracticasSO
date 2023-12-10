@@ -232,8 +232,13 @@ int internal_export(char **args)
     return 0;
 }
 
+/**
+ * Funció: internal_source
+ * -------------------
+ * Executar comandos des d'un fitxer en el constext actual del shell
+ */
 int internal_source(char **args){
-    printf("Executar ordres des d'un fitxer en el context actual de l'intèrpret d'ordres\n");
+    printf("Executar ordres des d'un fitxer en el context actual del shell\n");
     return 0;
 }
 
