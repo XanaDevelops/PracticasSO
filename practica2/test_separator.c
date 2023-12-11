@@ -35,63 +35,100 @@ char *args[ARGS_SIZE];
 
 int main()
 {
-
-    // fgets(line, COMMAND_LINE_SIZE, stdin);
-    strcpy(line, "hola\" lol   3\"espacios\ sep");
     int nt = 0;
-    char *token = strtok(line, delim);
-    char *lineleft = line;
-    bool d_comilla = false;
-    char *p_dc = NULL;
-
-    memset(aux_line, '\000', COMMAND_LINE_SIZE);
-
-    while (token != NULL)
+    while (true)
     {
-        fprintf(stdout, "token |%s|\n", token);
-        fprintf(stdout, "len token %lu\n", strlen(token));
-        p_dc = strchr(token, '\"');
-        if (p_dc != NULL)
+        nt = 0;
+        fgets(line, COMMAND_LINE_SIZE, stdin);
+        fprintf(stdout, "Line es %s\n", line);
+        // strcpy(line, "hola\" lol   3\"espacios\ sep");
+        
+        char *token = strtok(line, delim);
+        char *lineleft = line;
+        bool d_comilla = false;
+        char *p_dc = NULL;
+
+        memset(aux_line, '\000', COMMAND_LINE_SIZE);
+
+        while (token != NULL)
         {
-            d_comilla = !d_comilla;
-            fprintf(stdout, "comillas detectadas %i\n", d_comilla);
-            strncat(aux_line, token, p_dc - token);
-            strcat(aux_line, " "); // fix strtok
-            strcat(aux_line, p_dc + 1);
+            fprintf(stdout, "token |%s|\n", token);
+            fprintf(stdout, "len token %lu\n", strlen(token));
+            p_dc = strchr(token, '\"');
+            if (p_dc != NULL)
+            {
+                d_comilla = !d_comilla;
+                fprintf(stdout, "comillas detectadas %i\n", d_comilla);
+                strncat(aux_line, token, p_dc - token);
+                if (p_dc != token)
+                {
+                    if (*(p_dc + 1) == ' ' || *(p_dc + 1) == '\0')
+                    {
+                        strcat(aux_line, " "); // fix strtok
+                    }
+                }
+                char *p_cd2 = strchr(p_dc+1, '\"');
+                if(p_cd2==NULL)
+                {
+                    strcat(aux_line, p_dc + 1);
+                }else{
+                    strncat(aux_line, p_dc+1, p_cd2-p_dc-1);
+                    strcat(aux_line, p_cd2+1);
+                }
+                if (p_dc == token)
+                {
+                    strcat(aux_line, " "); // fix strtok
+                }
 
-            fprintf(stdout, "aux_line %s\n", aux_line);
+                fprintf(stdout, "aux_line %s\n", aux_line);
 
-            lineleft = line + (token + strlen(token) - line) + 1;
-            fprintf(stdout, "lineleft |%s|\n", lineleft);
-            p_dc = strchr(lineleft, '\"'); // check if not
-            strncat(aux_line, lineleft, p_dc - lineleft);
+                lineleft = line + (token + strlen(token) - line) + 1;
+                fprintf(stdout, "lineleft |%s|\n", lineleft);
+                p_dc = strchr(lineleft, '\"'); // check if not
+                if (p_dc == NULL && strlen(lineleft) == 0)
+                {
+                    if (*(aux_line + strlen(aux_line) - 1) == '\"')
+                    {
+                        *(aux_line + strlen(aux_line) - 1) = '\0';
+                    }
+                    token = strtok(NULL, dc_delim);
+                    token = strtok(NULL, delim);
+                }
+                else
+                {
+                    strncat(aux_line, lineleft, p_dc - lineleft);
 
-            fprintf(stdout, "aux_line2 %s\n", aux_line);
-            if (*(p_dc + 1) != ' ')
-            { // check all delim, check "\ "!
-                token = strtok(NULL, dc_delim);
-                token = strtok(NULL, delim);
-                strcat(aux_line, token);
+                    fprintf(stdout, "aux_line2 %s\n", aux_line);
+                    if (*(p_dc + 1) != ' ')
+                    { // check all delim, check "\ "!
+                        token = strtok(NULL, dc_delim);
+                        token = strtok(NULL, delim);
+                        if (token != NULL)
+                        {
+                            strcat(aux_line, token);
+                        }
+                    }
+                    else
+                    {
+                        token = strtok(NULL, dc_delim);
+                        token = strtok(NULL, delim);
+                    }
+                }
+                *(args + nt++) = (char *)aux_line;
             }
+
             else
             {
-                token = strtok(NULL, dc_delim);
-                token = strtok(NULL, delim);
+                *(args + nt++) = token;
             }
-
-            *(args + nt++) = (char *)aux_line;
+            token = strtok(NULL, delim);
         }
 
-        else
+        *(args + nt) = NULL;
+        for (int i = 0; i < nt + 1; i++)
         {
-            *(args + nt++) = token;
+            fprintf(stdout, "ARG: |%s|\n", *(args + i));
         }
-        token = strtok(NULL, delim);
-    }
-
-    *(args + nt) = NULL;
-    for(int i=0;i<nt;i++){
-        fprintf(stdout, "ARG: %s\n", *(args+i));
     }
     return nt;
 }
