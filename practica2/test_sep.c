@@ -31,7 +31,7 @@ char *dc_delim = "\"";
 
 char line[COMMAND_LINE_SIZE];
 char aux_line[COMMAND_LINE_SIZE];
-int aux_line_index = 0, linesize=0;
+int aux_line_index = 0, linesize = 0;
 char *args[ARGS_SIZE];
 
 int main()
@@ -41,8 +41,14 @@ int main()
     {
         nt = 0;
         memset(aux_line, '\000', COMMAND_LINE_SIZE);
+        memset(line, '\000', COMMAND_LINE_SIZE);
         aux_line_index = 0;
         fgets(line, COMMAND_LINE_SIZE, stdin);
+        if (line != NULL)
+        {
+            char *endline = strrchr(line, '\n');
+            *(endline) = '\0';
+        }
         fprintf(stdout, "Line es %s\n", line);
         linesize = strlen(line);
         char *token = strtok(line, delim);
@@ -52,7 +58,7 @@ int main()
             char *p_dc = strchr(token, '\"');
             if (p_dc != NULL)
             {
-
+                bool d_comilla = true;
                 char c = *(token);
                 int m = strlen(token);
                 for (int i = 0; i < m; i++)
@@ -61,36 +67,69 @@ int main()
                     {
                         aux_line[aux_line_index++] = c;
                     }
+                    else
+                    {
+                        d_comilla = !d_comilla;
+                    }
                     c = *(++token);
                 }
-                
+                if (d_comilla)
+                {
+                    aux_line_index++;
+                    goto j_test;
+                }
                 int linei = 0;
                 aux_line[aux_line_index++] = ' ';
-                c = line[token-line+ ++linei];
-                while(true){
-                    if(linesize<aux_line_index){
+
+                c = line[token - line + ++linei];
+
+                bool hasmore = false;
+
+                while (true)
+                {
+                    if (linesize < aux_line_index)
+                    {
                         break;
                     }
-                    if(c=='\"'){
+                    if (c == '\"')
+                    {
                         break;
+                    }
+                    if (c == ' ')
+                    {
+                        if (hasmore)
+                        {
+                            line[token - line + linei] = '\0';
+                        }
+                        hasmore = true;
                     }
                     aux_line[aux_line_index++] = c;
-                    c = line[token-line+ ++linei];
+                    c = line[token - line + ++linei];
                 }
                 linei++;
-                aux_line_index++;
-                while(true){
-                    if(linesize<aux_line_index){
+                // aux_line_index++;
+                c = line[token - line + linei];
+
+                while (true)
+                {
+                    if (linesize < aux_line_index)
+                    {
                         break;
                     }
-                    if(c==' '){
+                    if (c == ' ' || c == '\0')
+                    {
+                        if (hasmore)
+                        {
+                            //?
+                        }
                         break;
                     }
+                    hasmore = true;
                     aux_line[aux_line_index++] = c;
-                    c = line[token-line+linei++];
+                    c = line[token - line + ++linei];
                 }
                 token = strtok(NULL, delim);
-
+            j_test:
                 *(args + nt++) = aux_line + aux_start;
                 token = strtok(NULL, delim);
             }
@@ -99,6 +138,14 @@ int main()
 
                 *(args + nt++) = token;
                 token = strtok(NULL, delim);
+                // testear
+                if (token != NULL)
+                {
+                    if (*(token) == ' ' && strlen(token) == 1)
+                    {
+                        token = NULL;
+                    }
+                }
             }
         }
 
