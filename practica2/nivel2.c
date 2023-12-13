@@ -42,7 +42,7 @@ void imprimir_prompt();
 const char *delim = " \t\n\r";
 
 char line[COMMAND_LINE_SIZE];
-char new_token[COMMAND_LINE_SIZE];
+char aux_line[COMMAND_LINE_SIZE];
 char *args[ARGS_SIZE];
 
 int main()
@@ -130,98 +130,140 @@ int execute_line(char *line)
  */
 int parse_args(char **args, char *line)
 {
-#if DEBUG
-    fprintf(stdout, GRIS_T "[parse_args(): parseando %s]\n" RESET, line);
-#endif
-    char *token = strtok(line, delim);
-    bool s_comilla = false, d_comilla = false, slash = false;
-
-    int nt = 0;
-    //char *new_token = (char *)malloc(COMMAND_LINE_SIZE);
+    bool global_d_comilla = false;
+    int aux_line_index = 0, linesize = 0;
     
-    if (new_token == NULL)
+
+    if (line == NULL)
     {
-        perror("parse_args(): Error al alocar memoria new_token");
         return -1;
     }
 
+    int nt = 0;
+
+    nt = 0;
+    global_d_comilla = false;
+    memset(aux_line, '\000', COMMAND_LINE_SIZE);
+    aux_line_index = 0;
+
+    linesize = strlen(line);
+    char *token = strtok(line, delim);
     while (token != NULL)
     {
-        if (nt >= ARGS_SIZE)
+        int m = strlen(token);
+        if (token < line + aux_line_index)
         {
-            fprintf(stderr, ROJO_T "parse_args(): ERROR: demasiados argumentos\n" RESET);
-            return -1;
+            goto next_token;
         }
-#if DEBUG
-        fprintf(stdout, GRIS_T "[parse_args(): token: %s]\n" RESET, token);
-#endif
-        if (*(token) == '#')
+        int aux_start = aux_line_index;
+        char *p_dc = strchr(token, '\"');
+        if (p_dc != NULL)
         {
-#if DEBUG
-            fprintf(stdout, GRIS_T "[parse_args(): Comentario detectado -> (null)]\n" RESET);
-#endif
-            *(args + nt) = token;
-            break;
-        }
+            global_d_comilla = !global_d_comilla;
+            if (!global_d_comilla)
+            {
+                goto next_token;
+            }
+            bool d_comilla = true;
+            char c = *(token);
 
-        memset(new_token, '\0', COMMAND_LINE_SIZE);
-        // comprobar comillas dentro de token
-        char *token_sep = strchr(token, '"');
-        if (strchr(token, '"') == NULL)
-        {
-            char *token_sep2 = strchr(token, 92);
-            token_sep = token_sep2;
-        }
-
-        int sep_l = 0;
-        int sep_h = strlen(token);
-        while (token_sep != NULL)
-        {
-            d_comilla = !d_comilla;
+            for (int i = 0; i < m; i++)
+            {
+                if (c != '\"')
+                {
+                    aux_line[aux_line_index++] = c;
+                }
+                else
+                {
+                    global_d_comilla = !global_d_comilla;
+                    d_comilla = !d_comilla;
+                }
+                c = *(++token);
+            }
             if (d_comilla)
             {
-                sep_l = ++token_sep - token;
-                fprintf(stdout, GRIS_T "comilla en true, lim inf %i\n" RESET, sep_l);
+                aux_line_index++;
+                goto j_test;
             }
-            else
+            int linei = 0;
+            aux_line[aux_line_index++] = ' ';
+
+            c = line[token - line + ++linei];
+
+            bool hasmore = false;
+
+            while (true)
             {
-                sep_h = token_sep++ - token;
-                fprintf(stdout, GRIS_T "comilla en true, lim sup %i\n" RESET, sep_h);
+                if (linesize < aux_line_index)
+                {
+                    break;
+                }
+                if (c == '\"')
+                {
+                    global_d_comilla = !global_d_comilla;
+                    break;
+                }
+                if (c == ' ')
+                {
+                    hasmore = true;
+                }
+                aux_line[aux_line_index++] = c;
+                c = line[token - line + ++linei];
             }
+            linei++;
+            c = line[token - line + linei];
 
-            token_sep = strchr(token_sep, '"');
-        }
-        strncpy(new_token, token + sep_l, sep_h - sep_l);
-        fprintf(stdout, GRIS_T "new_token: |%s|\n" RESET, new_token);
-        if (d_comilla)
-        {
-            fprintf(stdout, GRIS_T "d_comilla\n" RESET);
-            token = strtok(NULL, dc_delim);
-            fprintf(stdout, GRIS_T "tkn: |%s|\n" RESET, token);
-            strcat(new_token, " "); // strtok se come un espacio o algo
-            strcat(new_token, token);
-            d_comilla = false;
+            while (true)
+            {
+                if (linesize < aux_line_index)
+                {
+                    break;
+                }
+                if (c == ' ' || c == '\0')
+                {
+                    if (c == ' ')
+                    {
+                        strtok(NULL, delim);
+                        if (hasmore)
+                        {
+                            strtok(NULL, delim);
+                        }
+                    }
+                    break;
+                }
+                hasmore = true;
+                aux_line[aux_line_index++] = c;
+                c = line[token - line + ++linei];
+            }
+            // token = strtok(NULL, delim);
 
-
-#if DEBUG
-            fprintf(stdout, GRIS_T "[parse_args(): doble comilla finalizada -> %s]\n" RESET, new_token);
-#endif
-            //*(args + nt++) = new_token; 
-            //strcpy(*(args + nt++), new_token);
-            args[nt]= "";
-            strcpy(args[nt++], new_token);
-            token = strtok(NULL, delim);
+        j_test:
+            *(args + nt++) = aux_line + aux_start;
         }
         else
         {
             *(args + nt++) = token;
-            token = strtok(NULL, delim);
+        }
+    next_token:
+        token = strtok(NULL, delim);
+        aux_line_index++;
+        // testear
+        if (token != NULL)
+        {
+            if (*(token) == ' ' && strlen(token) == 1)
+            {
+                token = NULL;
+            }
         }
     }
 
     *(args + nt) = NULL;
-
-    //free(new_token);
+#if DEBUG
+    for (int i = 0; i < nt + 1; i++)
+    {
+        fprintf(stdout, GRIS_T "[parse_args(): token %i: |%s|]\n" RESET, i, *(args + i));
+    }
+#endif
     return nt;
 }
 
@@ -285,17 +327,19 @@ int internal_cd(char **args)
     char cwd[COMMAND_LINE_SIZE];
     memset(cwd, '\0', sizeof(cwd));
 
-printf("%s \n", args[1]);
+    printf("%s \n", args[1]);
     if (!args[1])
     {
         strcpy(cwd, "/home");
     }
     else
     {
-        
+
         strcat(cwd, args[1]);
     }
-
+#if DEBUG
+    fprintf(stdout, GRIS_T "[internal_cd(): Directori a canviar: %s]\n" RESET, cwd);
+#endif
     if (chdir(cwd) == -1)
     {
         perror(ROJO_T "chdir(): Directori no trobat");
@@ -307,7 +351,6 @@ printf("%s \n", args[1]);
 #endif
     return 0;
 }
-
 
 /**
  * Funció: internal_export
