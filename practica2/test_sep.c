@@ -33,13 +33,20 @@ char line[COMMAND_LINE_SIZE];
 char aux_line[COMMAND_LINE_SIZE];
 int aux_line_index = 0, linesize = 0;
 char *args[ARGS_SIZE];
-
+bool global_d_comilla = false;
 int main()
 {
+    char *dgb;
+    if (line == NULL)
+    {
+        return -1;
+    }
+
     int nt = 0;
     while (true)
     {
         nt = 0;
+        global_d_comilla = false;
         memset(aux_line, '\000', COMMAND_LINE_SIZE);
         memset(line, '\000', COMMAND_LINE_SIZE);
         aux_line_index = 0;
@@ -54,13 +61,22 @@ int main()
         char *token = strtok(line, delim);
         while (token != NULL)
         {
+            int m = strlen(token);
+            if(token<line+aux_line_index){
+                goto next_token;
+            }
             int aux_start = aux_line_index;
             char *p_dc = strchr(token, '\"');
             if (p_dc != NULL)
             {
+                global_d_comilla = !global_d_comilla;
+                if (!global_d_comilla)
+                {
+                    goto next_token;
+                }
                 bool d_comilla = true;
                 char c = *(token);
-                int m = strlen(token);
+                
                 for (int i = 0; i < m; i++)
                 {
                     if (c != '\"')
@@ -69,6 +85,7 @@ int main()
                     }
                     else
                     {
+                        global_d_comilla = !global_d_comilla;
                         d_comilla = !d_comilla;
                     }
                     c = *(++token);
@@ -93,13 +110,14 @@ int main()
                     }
                     if (c == '\"')
                     {
+                        global_d_comilla = !global_d_comilla;
                         break;
                     }
                     if (c == ' ')
                     {
-                        if (hasmore)
+                        if (hasmore || 1)
                         {
-                            line[token - line + linei] = '\0';
+                            // line[token - line + linei] = '\0';
                         }
                         hasmore = true;
                     }
@@ -110,6 +128,11 @@ int main()
                 // aux_line_index++;
                 c = line[token - line + linei];
 
+                if (hasmore)
+                {
+                    // strtok(NULL, delim);
+                }
+
                 while (true)
                 {
                     if (linesize < aux_line_index)
@@ -118,9 +141,13 @@ int main()
                     }
                     if (c == ' ' || c == '\0')
                     {
-                        if (hasmore)
+                        if (c == ' ')
                         {
-                            //?
+                            dgb = strtok(NULL, delim);
+                            if (hasmore)
+                            {
+                                dgb = strtok(NULL, delim);
+                            }
                         }
                         break;
                     }
@@ -128,23 +155,24 @@ int main()
                     aux_line[aux_line_index++] = c;
                     c = line[token - line + ++linei];
                 }
-                token = strtok(NULL, delim);
+                // token = strtok(NULL, delim);
+
             j_test:
                 *(args + nt++) = aux_line + aux_start;
-                token = strtok(NULL, delim);
             }
             else
             {
-
                 *(args + nt++) = token;
-                token = strtok(NULL, delim);
-                // testear
-                if (token != NULL)
+            }
+            next_token:
+            token = strtok(NULL, delim);
+            aux_line_index++;
+            // testear
+            if (token != NULL)
+            {
+                if (*(token) == ' ' && strlen(token) == 1)
                 {
-                    if (*(token) == ' ' && strlen(token) == 1)
-                    {
-                        token = NULL;
-                    }
+                    token = NULL;
                 }
             }
         }
