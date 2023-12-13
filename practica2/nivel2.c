@@ -132,7 +132,6 @@ int parse_args(char **args, char *line)
 {
     bool global_d_comilla = false;
     int aux_line_index = 0, linesize = 0;
-    
 
     if (line == NULL)
     {
@@ -330,11 +329,10 @@ int internal_cd(char **args)
     printf("%s \n", args[1]);
     if (!args[1])
     {
-        strcpy(cwd, "/home");
+        strcpy(cwd, getenv("HOME")); //Variable d'entorn
     }
     else
     {
-
         strcat(cwd, args[1]);
     }
 #if DEBUG
@@ -440,8 +438,19 @@ void imprimir_prompt()
     char cwd[COMMAND_LINE_SIZE];
     getcwd(cwd, COMMAND_LINE_SIZE);
 
-    fprintf(stdout, BLANCO_T "USUARI:" RESET);
-    fprintf(stdout, ROJO_T "%s" RESET, cwd);
+    fprintf(stdout, VERDE_T "%s:" RESET, getenv("USER"));
+
+    //Si esta dins usuari  retorna path relatiu a usuari (carpetes a partir d'usuari)
+    if (!strncmp(cwd, getenv("HOME"), strlen(getenv("HOME"))))
+    {
+        printf("~%s", &cwd[strlen(getenv("HOME"))]);
+    }
+    else
+    //Sino imprimeix path sencer
+    {
+        printf("%s", cwd); 
+    }
+
     fprintf(stdout, ROJO_T "$ " RESET);
 
     fflush(stdout);
