@@ -325,6 +325,7 @@ int internal_cd(char **args)
 #endif
     char cwd[COMMAND_LINE_SIZE];
     memset(cwd, '\0', sizeof(cwd));
+     //Si no hi ha atributs anar a Home
     if (!args[1])
     {
         strcpy(cwd, getenv("HOME")); //Variable d'entorn
