@@ -182,59 +182,62 @@ int parse_args(char **args, char *line)
             if (d_comilla)
             {
                 aux_line_index++;
-                goto j_test;
+                // goto j_test;
             }
-            int linei = 0;
-            aux_line[aux_line_index++] = ' ';
-
-            c = line[token - line + ++linei];
-
-            bool hasmore = false;
-
-            while (true)
+            else
             {
-                if (linesize < aux_line_index)
-                {
-                    break;
-                }
-                if (c == '\"')
-                {
-                    global_d_comilla = !global_d_comilla;
-                    break;
-                }
-                if (c == ' ')
-                {
-                    hasmore = true;
-                }
-                aux_line[aux_line_index++] = c;
+                int linei = 0;
+                aux_line[aux_line_index++] = ' ';
+
                 c = line[token - line + ++linei];
-            }
-            linei++;
-            c = line[token - line + linei];
 
-            while (true)
-            {
-                if (linesize < aux_line_index)
+                bool hasmore = false;
+
+                while (true)
                 {
-                    break;
-                }
-                if (c == ' ' || c == '\0')
-                {
+                    if (linesize < aux_line_index)
+                    {
+                        break;
+                    }
+                    if (c == '\"')
+                    {
+                        global_d_comilla = !global_d_comilla;
+                        break;
+                    }
                     if (c == ' ')
                     {
-                        strtok(NULL, delim);
-                        if (hasmore)
+                        hasmore = true;
+                    }
+                    aux_line[aux_line_index++] = c;
+                    c = line[token - line + ++linei];
+                }
+                linei++;
+                c = line[token - line + linei];
+
+                while (true)
+                {
+                    if (linesize < aux_line_index)
+                    {
+                        break;
+                    }
+                    if (c == ' ' || c == '\0')
+                    {
+                        if (c == ' ')
                         {
                             strtok(NULL, delim);
+                            if (hasmore)
+                            {
+                                strtok(NULL, delim);
+                            }
                         }
+                        break;
                     }
-                    break;
+                    hasmore = true;
+                    aux_line[aux_line_index++] = c;
+                    c = line[token - line + ++linei];
                 }
-                hasmore = true;
-                aux_line[aux_line_index++] = c;
-                c = line[token - line + ++linei];
+                // token = strtok(NULL, delim);
             }
-            // token = strtok(NULL, delim);
 
         j_test:
             *(args + nt++) = aux_line + aux_start;
@@ -325,10 +328,10 @@ int internal_cd(char **args)
 #endif
     char cwd[COMMAND_LINE_SIZE];
     memset(cwd, '\0', sizeof(cwd));
-     //Si no hi ha atributs anar a Home
+    // Si no hi ha atributs anar a Home
     if (!args[1])
     {
-        strcpy(cwd, getenv("HOME")); //Variable d'entorn
+        strcpy(cwd, getenv("HOME")); // Variable d'entorn
     }
     else
     {
@@ -412,10 +415,10 @@ int internal_export(char **args)
  * Funció: internal_source
  * -------------------
  * Executar comandos des d'un fitxer en el constext actual del shell.
- * 
+ *
  * param: args --> punter al punter dels tokens d'arguments
  * args[1] -> NOM=VALOR
- * 
+ *
  * return: int 0 si s'executa correctament.
  */
 int internal_source(char **args)
@@ -449,15 +452,15 @@ void imprimir_prompt()
 
     fprintf(stdout, ROJO_T "%s:" RESET, getenv("USER"));
 
-    //Si esta dins usuari  retorna path relatiu a usuari (carpetes a partir d'usuari)
+    // Si esta dins usuari  retorna path relatiu a usuari (carpetes a partir d'usuari)
     if (!strncmp(cwd, getenv("HOME"), strlen(getenv("HOME"))))
     {
         fprintf(stdout, VERDE_T "~%s" RESET, &cwd[strlen(getenv("HOME"))]);
     }
     else
-    //Sino imprimeix path sencer
+    // Sino imprimeix path sencer
     {
-        fprintf(stdout, VERDE_T "%s" RESET, cwd); 
+        fprintf(stdout, VERDE_T "%s" RESET, cwd);
     }
 
     fprintf(stdout, ROJO_T "$ " RESET);
