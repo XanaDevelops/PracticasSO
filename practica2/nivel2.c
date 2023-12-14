@@ -325,8 +325,6 @@ int internal_cd(char **args)
 #endif
     char cwd[COMMAND_LINE_SIZE];
     memset(cwd, '\0', sizeof(cwd));
-
-    printf("%s \n", args[1]);
     if (!args[1])
     {
         strcpy(cwd, getenv("HOME")); //Variable d'entorn
@@ -438,17 +436,17 @@ void imprimir_prompt()
     char cwd[COMMAND_LINE_SIZE];
     getcwd(cwd, COMMAND_LINE_SIZE);
 
-    fprintf(stdout, VERDE_T "%s:" RESET, getenv("USER"));
+    fprintf(stdout, ROJO_T "%s:" RESET, getenv("USER"));
 
     //Si esta dins usuari  retorna path relatiu a usuari (carpetes a partir d'usuari)
     if (!strncmp(cwd, getenv("HOME"), strlen(getenv("HOME"))))
     {
-        printf("~%s", &cwd[strlen(getenv("HOME"))]);
+        fprintf(stdout, VERDE_T "~%s" RESET, &cwd[strlen(getenv("HOME"))]);
     }
     else
     //Sino imprimeix path sencer
     {
-        printf("%s", cwd); 
+        fprintf(stdout, VERDE_T "%s" RESET, cwd); 
     }
 
     fprintf(stdout, ROJO_T "$ " RESET);
