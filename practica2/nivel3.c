@@ -38,31 +38,32 @@ int internal_jobs();
 int internal_fg(char **args);
 int internal_bg(char **args);
 
-struct info_job {
-   pid_t pid;
-   char estado; // ‘N’, ’E’, ‘D’, ‘F’ (‘N’: Ninguno, ‘E’: Ejecutándose y ‘D’: Detenido, ‘F’: Finalizado) 
-   char cmd[COMMAND_LINE_SIZE]; // línea de comando asociada
+struct info_job
+{
+    pid_t pid;
+    char estado;                 // ‘N’, ’E’, ‘D’, ‘F’ (‘N’: Ninguno, ‘E’: Ejecutándose y ‘D’: Detenido, ‘F’: Finalizado)
+    char cmd[COMMAND_LINE_SIZE]; // línea de comando asociada
 };
-
 
 void imprimir_prompt();
 
 const char *delim = " \t\n\r";
 
-static char mi_shell[COMMAND_LINE_SIZE]; 
+static char mi_shell[COMMAND_LINE_SIZE];
 char line[COMMAND_LINE_SIZE];
 char aux_line[COMMAND_LINE_SIZE];
 char *args[ARGS_SIZE];
 
-static struct info_job jobs_list [N_JOBS];
+static struct info_job jobs_list[N_JOBS];
 
 int main(int argc, char **argsc)
 {
     strcpy(mi_shell, argsc[0]);
-    //inicializar jobs_list
-    for(int i=0;i<N_JOBS;i++){
-        jobs_list[i].pid=0;
-        jobs_list[i].estado='N';
+    // inicializar jobs_list
+    for (int i = 0; i < N_JOBS; i++)
+    {
+        jobs_list[i].pid = 0;
+        jobs_list[i].estado = 'N';
         memset(jobs_list[i].cmd, '\0', COMMAND_LINE_SIZE);
     }
 
@@ -344,10 +345,10 @@ int internal_cd(char **args)
 #endif
     char cwd[COMMAND_LINE_SIZE];
     memset(cwd, '\0', sizeof(cwd));
-    //Si no hi ha atributs anar a Home
+    // Si no hi ha atributs anar a Home
     if (!args[1])
     {
-        strcpy(cwd, getenv("HOME")); //Variable d'entorn de la home de l'usuari
+        strcpy(cwd, getenv("HOME")); // Variable d'entorn de la home de l'usuari
     }
     else
     {
@@ -449,13 +450,16 @@ int internal_source(char **args)
         return -1;
     }
     char linia[COMMAND_LINE_SIZE];
-    fgets(linia, COMMAND_LINE_SIZE, fp);
-    while (linia)
+    while (fgets(linia, COMMAND_LINE_SIZE, fp))
     {
+        char *fi = strrchr(linia, '\n');
+        if (fi)
+        {
+            *(fi) = '\0';
+        }
 #if DEBUG
         fprintf(stdout, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
 #endif
-        fgets(linia, COMMAND_LINE_SIZE, fp);
     }
 
 #if DEBUG
@@ -489,15 +493,15 @@ void imprimir_prompt()
 
     fprintf(stdout, ROJO_T "%s:" RESET, getenv("USER"));
 
-    //Si esta dins usuari  retorna path relatiu a usuari (carpetes a partir d'usuari)
+    // Si esta dins usuari  retorna path relatiu a usuari (carpetes a partir d'usuari)
     if (!strncmp(cwd, getenv("HOME"), strlen(getenv("HOME"))))
     {
         fprintf(stdout, VERDE_T "~%s" RESET, &cwd[strlen(getenv("HOME"))]);
     }
     else
-    //Sino imprimeix path sencer
+    // Sino imprimeix path sencer
     {
-        fprintf(stdout, VERDE_T "%s" RESET, cwd); 
+        fprintf(stdout, VERDE_T "%s" RESET, cwd);
     }
 
     fprintf(stdout, ROJO_T "$ " RESET);
