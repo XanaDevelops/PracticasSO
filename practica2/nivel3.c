@@ -10,6 +10,7 @@
 
 #define COMMAND_LINE_SIZE 1024 // max size command line
 #define ARGS_SIZE 64
+#define N_JOBS 64
 
 #define RESET "\033[0m"
 #define NEGRO_T "\x1b[30m"
@@ -37,16 +38,34 @@ int internal_jobs();
 int internal_fg(char **args);
 int internal_bg(char **args);
 
+struct info_job {
+   pid_t pid;
+   char estado; // ‘N’, ’E’, ‘D’, ‘F’ (‘N’: Ninguno, ‘E’: Ejecutándose y ‘D’: Detenido, ‘F’: Finalizado) 
+   char cmd[COMMAND_LINE_SIZE]; // línea de comando asociada
+};
+
+
 void imprimir_prompt();
 
 const char *delim = " \t\n\r";
 
+static char mi_shell[COMMAND_LINE_SIZE]; 
 char line[COMMAND_LINE_SIZE];
 char aux_line[COMMAND_LINE_SIZE];
 char *args[ARGS_SIZE];
 
-int main()
+static struct info_job jobs_list [N_JOBS];
+
+int main(int argc, char **args)
 {
+    strcpy(mi_shell, args[0]);
+    //inicializar jobs_list
+    for(int i=0;i<N_JOBS;i++){
+        jobs_list[i].pid=0;
+        jobs_list[i].estado='N';
+        memset(jobs_list[i].cmd, '\0', COMMAND_LINE_SIZE);
+    }
+    
     while (1)
     {
         if (read_line(line) == NULL)
