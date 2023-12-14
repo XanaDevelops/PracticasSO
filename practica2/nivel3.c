@@ -170,100 +170,99 @@ int parse_args(char **args, char *line)
     while (token != NULL)
     {
         int m = strlen(token);
-        if (token < line + aux_line_index)
+        if (token >= line + aux_line_index)
         {
-            goto next_token;
-        }
-        int aux_start = aux_line_index;
-        char *p_dc = strchr(token, '\"');
-        if (p_dc != NULL)
-        {
-            global_d_comilla = !global_d_comilla;
-            if (!global_d_comilla)
+            // goto next_token;
+            int aux_start = aux_line_index;
+            char *p_dc = strchr(token, '\"');
+            if (p_dc != NULL)
             {
-                goto next_token;
-            }
-            bool d_comilla = true;
-            char c = *(token);
+                global_d_comilla = !global_d_comilla;
+                if (global_d_comilla)
+                {
+                    bool d_comilla = true;
+                    char c = *(token);
 
-            for (int i = 0; i < m; i++)
-            {
-                if (c != '\"')
-                {
-                    aux_line[aux_line_index++] = c;
-                }
-                else
-                {
-                    global_d_comilla = !global_d_comilla;
-                    d_comilla = !d_comilla;
-                }
-                c = *(++token);
-            }
-            if (d_comilla)
-            {
-                aux_line_index++;
-                goto j_test;
-            }
-            int linei = 0;
-            aux_line[aux_line_index++] = ' ';
-
-            c = line[token - line + ++linei];
-
-            bool hasmore = false;
-
-            while (true)
-            {
-                if (linesize < aux_line_index)
-                {
-                    break;
-                }
-                if (c == '\"')
-                {
-                    global_d_comilla = !global_d_comilla;
-                    break;
-                }
-                if (c == ' ')
-                {
-                    hasmore = true;
-                }
-                aux_line[aux_line_index++] = c;
-                c = line[token - line + ++linei];
-            }
-            linei++;
-            c = line[token - line + linei];
-
-            while (true)
-            {
-                if (linesize < aux_line_index)
-                {
-                    break;
-                }
-                if (c == ' ' || c == '\0')
-                {
-                    if (c == ' ')
+                    for (int i = 0; i < m; i++)
                     {
-                        strtok(NULL, delim);
-                        if (hasmore)
+                        if (c != '\"')
                         {
-                            strtok(NULL, delim);
+                            aux_line[aux_line_index++] = c;
                         }
+                        else
+                        {
+                            global_d_comilla = !global_d_comilla;
+                            d_comilla = !d_comilla;
+                        }
+                        c = *(++token);
                     }
-                    break;
-                }
-                hasmore = true;
-                aux_line[aux_line_index++] = c;
-                c = line[token - line + ++linei];
-            }
-            // token = strtok(NULL, delim);
+                    if (d_comilla)
+                    {
+                        aux_line_index++;
+                    }
+                    else
+                    {
+                        int linei = 0;
+                        aux_line[aux_line_index++] = ' ';
 
-        j_test:
-            *(args + nt++) = aux_line + aux_start;
+                        c = line[token - line + ++linei];
+
+                        bool hasmore = false;
+
+                        while (true)
+                        {
+                            if (linesize < aux_line_index)
+                            {
+                                break;
+                            }
+                            if (c == '\"')
+                            {
+                                global_d_comilla = !global_d_comilla;
+                                break;
+                            }
+                            if (c == ' ')
+                            {
+                                hasmore = true;
+                            }
+                            aux_line[aux_line_index++] = c;
+                            c = line[token - line + ++linei];
+                        }
+                        linei++;
+                        c = line[token - line + linei];
+
+                        while (true)
+                        {
+                            if (linesize < aux_line_index)
+                            {
+                                break;
+                            }
+                            if (c == ' ' || c == '\0')
+                            {
+                                if (c == ' ')
+                                {
+                                    strtok(NULL, delim);
+                                    if (hasmore)
+                                    {
+                                        strtok(NULL, delim);
+                                    }
+                                }
+                                break;
+                            }
+                            hasmore = true;
+                            aux_line[aux_line_index++] = c;
+                            c = line[token - line + ++linei];
+                        }
+                        // token = strtok(NULL, delim);
+                    }
+                    *(args + nt++) = aux_line + aux_start;
+                }
+            }
+            else
+            {
+                *(args + nt++) = token;
+            }
         }
-        else
-        {
-            *(args + nt++) = token;
-        }
-    next_token:
+
         token = strtok(NULL, delim);
         aux_line_index++;
         // testear
@@ -428,6 +427,16 @@ int internal_export(char **args)
     return 0;
 }
 
+/**
+ * Funció: internal_source
+ * -------------------
+ * Executar comandos des d'un fitxer en el constext actual del shell.
+ * 
+ * param: args --> punter al punter dels tokens d'arguments
+ * args[1] -> NOM=VALOR
+ * 
+ * return: int 0 si s'executa correctament.
+ */
 int internal_source(char **args)
 {
 
