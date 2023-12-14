@@ -427,19 +427,40 @@ int internal_export(char **args)
     return 0;
 }
 
-/**
- * Funció: internal_source
- * -------------------
- * Executar comandos des d'un fitxer en el constext actual del shell.
- * 
- * param: args --> punter al punter dels tokens d'arguments
- * args[1] -> NOM=VALOR
- * 
- * return: int 0 si s'executa correctament.
- */
 int internal_source(char **args)
 {
-    printf("Executar ordres des d'un fitxer en el context actual de l'intèrpret d'ordres\n");
+
+#if DEBUG
+    fprintf(stdout, GRIS_T "[internal_source(): Executant fitxer ...]\n" RESET);
+#endif
+    char aux[COMMAND_LINE_SIZE];
+    memset(aux, '\0', sizeof(aux));
+
+    if (!args[1])
+    {
+        perror(ROJO_T "internal_source(): Fitxer no trobat");
+        return -1;
+    }
+    strcpy(aux, args[1]);
+    FILE *fp = fopen(aux, "r");
+    if (!fp)
+    {
+        perror(ROJO_T "internal_source(): Fitxer no s'ha pogut obrir");
+        return -1;
+    }
+    char linia[COMMAND_LINE_SIZE];
+    fgets(linia, COMMAND_LINE_SIZE, fp);
+    while (linia)
+    {
+#if DEBUG
+        fprintf(stdout, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
+#endif
+        fgets(linia, COMMAND_LINE_SIZE, fp);
+    }
+
+#if DEBUG
+    fprintf(stdout, GRIS_T "[internal_source(): Fitxer executat]\n" RESET);
+#endif
     return 0;
 }
 
