@@ -327,7 +327,7 @@ int internal_cd(char **args)
     memset(cwd, '\0', sizeof(cwd));
     if (!args[1])
     {
-        strcpy(cwd, getenv("HOME")); //Variable d'entorn
+        strcpy(cwd, getenv("HOME")); //Variable d'entorn de home d'usuari
     }
     else
     {
@@ -407,6 +407,16 @@ int internal_export(char **args)
     return 0;
 }
 
+/**
+ * Funció: internal_source
+ * -------------------
+ * Executar comandos des d'un fitxer en el constext actual del shell.
+ * 
+ * param: args --> punter al punter dels tokens d'arguments
+ * args[1] -> NOM=VALOR
+ * 
+ * return: int 0 si s'executa correctament.
+ */
 int internal_source(char **args)
 {
     printf("Executar ordres des d'un fitxer en el context actual de l'intèrpret d'ordres\n");
