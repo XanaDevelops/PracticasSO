@@ -56,16 +56,16 @@ char *args[ARGS_SIZE];
 
 static struct info_job jobs_list [N_JOBS];
 
-int main(int argc, char **args)
+int main(int argc, char **argsc)
 {
-    strcpy(mi_shell, args[0]);
+    strcpy(mi_shell, argsc[0]);
     //inicializar jobs_list
     for(int i=0;i<N_JOBS;i++){
         jobs_list[i].pid=0;
         jobs_list[i].estado='N';
         memset(jobs_list[i].cmd, '\0', COMMAND_LINE_SIZE);
     }
-    
+
     while (1)
     {
         if (read_line(line) == NULL)
