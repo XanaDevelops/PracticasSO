@@ -243,7 +243,6 @@ int parse_args(char **args, char *line)
             }
         }
 
-    next_token:
         token = strtok(NULL, delim);
         aux_line_index++;
         // testear
