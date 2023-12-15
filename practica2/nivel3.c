@@ -139,6 +139,9 @@ int execute_line(char *line)
 
     if(check_internal(args)) return 1;
 
+    fprintf(stdout, RESET);
+    //fflush(stdout);
+    fflush(NULL);
     pid_t child = fork();
 
     if(child == -1) {
@@ -147,6 +150,9 @@ int execute_line(char *line)
     }
 
     if(child == 0) {    // procés fill
+        fprintf(stdout, RESET);
+        //fflush(stdout);
+        fflush(NULL);
         execvp(args[0], args);
 
         fprintf(stderr, ROJO_T "Error, ordre inexistent: %s \n" RESET, args[0]);
