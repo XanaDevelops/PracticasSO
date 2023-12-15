@@ -77,8 +77,7 @@ int main(int argc, char **argsc)
         int r = execute_line(line);
         if (r > 0)
         {
-            int isIn = check_internal(args);
-            if (isIn)
+            if (r = 1)
             {
 #if DEBUG
                 fprintf(stdout, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
