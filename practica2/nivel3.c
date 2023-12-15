@@ -125,7 +125,7 @@ char *read_line(char *line)
  *
  * param: line --> punter de la cadena de caràcters de la linea
  *
- * return: número de tokens dins la linea
+ * return: 1 si és una comanda interna, -1 si no hi ha arguments a la línia, 0 en altre cas
  */
 int execute_line(char *line)
 {
