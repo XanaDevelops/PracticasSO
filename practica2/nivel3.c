@@ -129,12 +129,59 @@ char *read_line(char *line)
  */
 int execute_line(char *line)
 {
+    char *args[ARGS_SIZE];
 
-    int n_tokens = parse_args(args, line);
-#if DEBUG
-    fprintf(stdout, GRIS_T "[execute_line(): ntokens = %d]\n", n_tokens);
+    char cline[COMMAND_LINE_SIZE];
+    strcpy(cline, line);
+
+    if(!parse_args(args, line)) return -1;
+
+    if(check_internal(args)) return 1;
+
+    pid_t child = fork();
+
+    if(child == -1) {
+        perror(ROJO_T "fork");
+        return -1;
+    }
+
+    if(child == 0) {    // procés fill
+        execvp(args[0], args);
+
+        fprintf(stderr, ROJO_T "Error, ordre inexistent: %s \n" RESET, args[0]);
+        exit(-1);
+
+    } else {    // procés pare
+        jobs_list[0].pid = child;
+        jobs_list[0].estado = 'E';
+        strcpy(jobs_list[0].cmd, cline);
+
+#ifdef DEBUG
+        fprintf(stdout, GRIS_T "[execute_line()→PID pare: %d (%s)]\n" RESET, getppid(), mi_shell);
+        fprintf(stdout, GRIS_T "[execute_line()→PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
 #endif
-    return n_tokens; // placeholder
+        int status;
+        wait(&status);
+
+        if(WIFEXITED(status)) {
+#ifdef DEBUG
+            fprintf(stdout, GRIS_T "[execute_line()→Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
+            jobs_list[0].pid, jobs_list[0].cmd, WEXITSTATUS(status));
+#endif
+        } else if(WIFSIGNALED(status)) {
+ #ifdef DEBUG
+            fprintf(stdout, GRIS_T "[execute_line()→Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
+            jobs_list[0].pid, jobs_list[0].cmd, WTERMSIG(status));
+ #endif           
+        }
+
+
+        jobs_list[0].pid = 0;
+        jobs_list[0].estado = 'N';
+        memset(jobs_list[0].cmd, '\0', sizeof(jobs_list[0].cmd)); 
+
+        return 0;  
+    }
 }
 
 /**
