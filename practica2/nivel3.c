@@ -157,7 +157,7 @@ int execute_line(char *line)
         jobs_list[0].estado = 'E';
         strcpy(jobs_list[0].cmd, cline);
 
-#ifdef DEBUG
+#if DEBUG
         fprintf(stdout, GRIS_T "[execute_line()→PID pare: %d (%s)]\n" RESET, getppid(), mi_shell);
         fprintf(stdout, GRIS_T "[execute_line()→PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
 #endif
@@ -165,12 +165,12 @@ int execute_line(char *line)
         wait(&status);
 
         if(WIFEXITED(status)) {
-#ifdef DEBUG
+#if DEBUG
             fprintf(stdout, GRIS_T "[execute_line()→Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
             jobs_list[0].pid, jobs_list[0].cmd, WEXITSTATUS(status));
 #endif
         } else if(WIFSIGNALED(status)) {
- #ifdef DEBUG
+ #if DEBUG
             fprintf(stdout, GRIS_T "[execute_line()→Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
             jobs_list[0].pid, jobs_list[0].cmd, WTERMSIG(status));
  #endif           
