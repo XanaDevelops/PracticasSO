@@ -7,6 +7,10 @@
 #include <stdbool.h>
 #include <sys/wait.h>
 
+#include <fcntl.h>
+#include <sys/stat.h>
+
+
 #define DEBUG 1
 
 #define COMMAND_LINE_SIZE 1024 // max size command line
@@ -125,7 +129,7 @@ char *read_line(char *line)
  *
  * param: line --> punter de la cadena de caràcters de la linea
  *
- * return: 1 si és una comanda interna, -1 si no hi ha arguments a la línia o no són vàlids, 
+ * return: 1 si és una comanda interna, -1 si no hi ha arguments a la línia o no són vàlids,
  * 0 en altre cas.
  */
 int execute_line(char *line)
@@ -135,30 +139,29 @@ int execute_line(char *line)
     char cline[COMMAND_LINE_SIZE];
     strcpy(cline, line);
 
-    if(!parse_args(args, line)) return -1;
+    if (!parse_args(args, line))
+        return -1;
 
-    if(check_internal(args)) return 1;
+    if (check_internal(args))
+        return 1;
 
-    fprintf(stdout, RESET);
-    //fflush(stdout);
-    fflush(NULL);
     pid_t child = fork();
 
-    if(child == -1) {
+    if (child == -1)
+    {
         perror(ROJO_T "fork");
         return -1;
     }
 
-    if(child == 0) {    // procés fill
-        fprintf(stdout, RESET);
-        //fflush(stdout);
-        fflush(NULL);
+    if (child == 0)
+    {   // procés fill
         execvp(args[0], args);
 
         fprintf(stderr, ROJO_T "Error, ordre inexistent: %s \n" RESET, args[0]);
         exit(-1);
-
-    } else {    // procés pare
+    }
+    else
+    { // procés pare
         jobs_list[0].pid = child;
         jobs_list[0].estado = 'E';
         strcpy(jobs_list[0].cmd, cline);
@@ -167,27 +170,33 @@ int execute_line(char *line)
         fprintf(stdout, GRIS_T "[execute_line()→PID pare: %d (%s)]\n" RESET, getppid(), mi_shell);
         fprintf(stdout, GRIS_T "[execute_line()→PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
 #endif
+        fprintf(stdout, RESET);
+        //fflush(stdout);
+        fflush(NULL);
+
         int status;
         wait(&status);
 
-        if(WIFEXITED(status)) {
+        if (WIFEXITED(status))
+        {
 #if DEBUG
             fprintf(stdout, GRIS_T "[execute_line()→Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
-            jobs_list[0].pid, jobs_list[0].cmd, WEXITSTATUS(status));
+                    jobs_list[0].pid, jobs_list[0].cmd, WEXITSTATUS(status));
 #endif
-        } else if(WIFSIGNALED(status)) {
- #if DEBUG
-            fprintf(stdout, GRIS_T "[execute_line()→Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
-            jobs_list[0].pid, jobs_list[0].cmd, WTERMSIG(status));
- #endif           
         }
-
+        else if (WIFSIGNALED(status))
+        {
+#if DEBUG
+            fprintf(stdout, GRIS_T "[execute_line()→Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
+                    jobs_list[0].pid, jobs_list[0].cmd, WTERMSIG(status));
+#endif
+        }
 
         jobs_list[0].pid = 0;
         jobs_list[0].estado = 'N';
-        memset(jobs_list[0].cmd, '\0', sizeof(jobs_list[0].cmd)); 
+        memset(jobs_list[0].cmd, '\0', sizeof(jobs_list[0].cmd));
 
-        return 0;  
+        return 0;
     }
 }
 
@@ -485,10 +494,10 @@ int internal_export(char **args)
  * Funció: internal_source
  * -------------------
  * Executar comandos des d'un fitxer en el constext actual del shell.
- * 
+ *
  * param: args --> punter al punter dels tokens d'arguments
  * args[1] -> NOM=VALOR
- * 
+ *
  * return: int 0 si s'executa correctament.
  */
 int internal_source(char **args)
