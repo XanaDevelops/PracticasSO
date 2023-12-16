@@ -48,6 +48,7 @@ int main()
 {
     while (1)
     {
+        memset(line, '\0', COMMAND_LINE_SIZE);
         if (read_line(line) == NULL)
         {
             continue;
@@ -83,8 +84,9 @@ char *read_line(char *line)
     if (feof(stdin))
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "[read_line(): detectado EOF]\n" RESET);
+        fprintf(stdout, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
 #endif
+        clearerr(stdin);
         return NULL;
     }
 

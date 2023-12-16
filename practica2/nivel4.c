@@ -113,8 +113,9 @@ char *read_line(char *line)
     if (feof(stdin))
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "[read_line(): detectado EOF]\n" RESET);
+        fprintf(stdout, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
 #endif
+        clearerr(stdin);
         return NULL;
     }
 
@@ -554,7 +555,7 @@ void reaper(int signum)
     pid_t ended;
     while ((ended = waitpid(-1, &status, WNOHANG)) > 0)
     {
-        fprintf(stdout, GRIS_T "reaper(): loop: %i status %i\n" RESET, ended, status);
+        fprintf(stdout, GRIS_T "[reaper(): loop: %i status %i]\n" RESET, ended, status);
         if (ended == jobs_list[0].pid)
         {
             fprintf(stdout, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
