@@ -8,7 +8,6 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-
 #define DEBUG 1
 
 #define COMMAND_LINE_SIZE 1024 // max size command line
@@ -64,9 +63,9 @@ static struct info_job jobs_list[N_JOBS];
 
 int main(int argc, char **argsc)
 {
-    // inicializar señales
+    // inicializar senyals
     signal(SIGCHLD, reaper);
-    //signal(SIGINT, ctrlc); DESCOMENTAR
+    signal(SIGINT, ctrlc); 
 
     strcpy(mi_shell, argsc[0]);
     // inicializar jobs_list
@@ -160,7 +159,7 @@ int execute_line(char *line)
     }
 
     if (child == 0)
-    {   // procés fill
+    { // procés fill
         signal(SIGCHLD, SIG_DFL);
         signal(SIGINT, SIG_IGN);
 
@@ -176,15 +175,15 @@ int execute_line(char *line)
         strcpy(jobs_list[0].cmd, cline);
 
 #if DEBUG
-        fprintf(stdout, GRIS_T "[execute_line()→PID pare: %d (%s)]\n" RESET, getppid(), mi_shell);
-        fprintf(stdout, GRIS_T "[execute_line()→PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
+        fprintf(stdout, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), mi_shell);
+        fprintf(stdout, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
 #endif
         fprintf(stdout, RESET);
         // fflush(stdout);
         fflush(NULL);
 
-        //while(jobs_list[0].pid > 0) {
-            pause();
+        // while(jobs_list[0].pid > 0) {
+        pause();
         //}
 
         return 0;
@@ -340,6 +339,23 @@ int parse_args(char **args, char *line)
 }
 
 /**
+ *  ctrlc
+ * --------------------
+ *  S'executa quan hi ha un Ctrl + C, i interromp l'execució principal.
+ *
+ *  param: SIGINT (llençada pel Ctrl + C)
+ *
+ */
+void ctrlc(int signum) {
+    fprintf(stdout, GRIS_T "I am here mather fuckers]\n" RESET);
+    signal(SIGINT, ctrlc);
+
+        fprintf(stdout, GRIS_T "I am here mather fuckers]\n" RESET);
+  
+
+}
+
+/**
  * Funció: check_internal
  * -------------------
  * Comprova si es una comanda interna
@@ -453,8 +469,8 @@ int internal_export(char **args)
     }
 
 #if DEBUG
-    fprintf(stdout, GRIS_T "[internal_export()→ nombre: %s]\n" RESET, variable);
-    fprintf(stdout, GRIS_T "[internal_export()→ valor: %s]\n" RESET, valor);
+    fprintf(stdout, GRIS_T "[internal_export(): nombre: %s]\n" RESET, variable);
+    fprintf(stdout, GRIS_T "[internal_export(): valor: %s]\n" RESET, valor);
 #endif
 
     char *antic_valor = getenv(variable);
@@ -462,20 +478,20 @@ int internal_export(char **args)
     if (antic_valor == NULL)
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "[internal_export()→ antiguo valor para %s: (null)]\n" RESET, variable);
+        fprintf(stdout, GRIS_T "[internal_export(): antic valor per %s: (null)]\n" RESET, variable);
 #endif
     }
     else
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "[internal_export()→ antiguo valor para %s: %s]\n" RESET, variable, antic_valor);
+        fprintf(stdout, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, antic_valor);
 #endif
     }
 
     setenv(variable, valor, 1);
 
 #if DEBUG
-    fprintf(stdout, GRIS_T "[internal_export()→ nuevo valor para %s: %s]\n" RESET, variable, valor);
+    fprintf(stdout, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, valor);
 #endif
 
     return 0;
@@ -570,7 +586,6 @@ void reaper(int signum)
         }
         ended = waitpid(-1, &status, WNOHANG);
     }
-    
 
     signal(SIGCHLD, reaper);
 }
