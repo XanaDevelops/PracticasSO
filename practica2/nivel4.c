@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 
 #define DEBUG 1
@@ -152,6 +153,9 @@ int execute_line(char *line)
 
     if (child == 0)
     {   // procés fill
+        signal(SIGCHLD, SIG_DFL);
+        signal(SIGINT, SIG_IGN);
+
         execvp(args[0], args);
 
         fprintf(stderr, ROJO_T "Error, ordre inexistent: %s \n" RESET, args[0]);
@@ -171,27 +175,9 @@ int execute_line(char *line)
         //fflush(stdout);
         fflush(NULL);
 
-        int status;
-        wait(&status);
-
-        if (WIFEXITED(status))
-        {
-#if DEBUG
-            fprintf(stdout, GRIS_T "[execute_line()→Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
-                    jobs_list[0].pid, jobs_list[0].cmd, WEXITSTATUS(status));
-#endif
+        while(jobs_list[0].pid > 0) {
+            pause();
         }
-        else if (WIFSIGNALED(status))
-        {
-#if DEBUG
-            fprintf(stdout, GRIS_T "[execute_line()→Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
-                    jobs_list[0].pid, jobs_list[0].cmd, WTERMSIG(status));
-#endif
-        }
-
-        jobs_list[0].pid = 0;
-        jobs_list[0].estado = 'N';
-        memset(jobs_list[0].cmd, '\0', sizeof(jobs_list[0].cmd));
 
         return 0;
     }
