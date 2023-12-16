@@ -175,9 +175,9 @@ int execute_line(char *line)
         //fflush(stdout);
         fflush(NULL);
 
-        while(jobs_list[0].pid > 0) {
+        //while(jobs_list[0].pid > 0) {
             pause();
-        }
+        //}
 
         return 0;
     }
