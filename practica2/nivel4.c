@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <sys/wait.h>
 
+
 #define DEBUG 1
 
 #define COMMAND_LINE_SIZE 1024 // max size command line
