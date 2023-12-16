@@ -41,6 +41,9 @@ int internal_jobs();
 int internal_fg(char **args);
 int internal_bg(char **args);
 
+void reaper(int signum);
+void ctrlc(int signum);
+
 struct info_job
 {
     pid_t pid;
@@ -61,6 +64,10 @@ static struct info_job jobs_list[N_JOBS];
 
 int main(int argc, char **argsc)
 {
+    // inicializar señales
+    signal(SIGCHLD, reaper);
+    //signal(SIGINT, ctrlc); DESCOMENTAR
+
     strcpy(mi_shell, argsc[0]);
     // inicializar jobs_list
     for (int i = 0; i < N_JOBS; i++)
@@ -172,7 +179,7 @@ int execute_line(char *line)
         fprintf(stdout, GRIS_T "[execute_line()→PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
 #endif
         fprintf(stdout, RESET);
-        //fflush(stdout);
+        // fflush(stdout);
         fflush(NULL);
 
         //while(jobs_list[0].pid > 0) {
@@ -539,6 +546,32 @@ int internal_bg(char **args)
 {
     printf("Seguir executant el procés passat per paràmetre però en segon pla\n");
     return 0;
+}
+
+void reaper(int signum)
+{
+    int status;
+    pid_t ended;
+    while ((ended = waitpid(-1, &status, WNOHANG)) > 0)
+    {
+        fprintf(stdout, GRIS_T "reaper(): loop: %i status %i\n" RESET, ended, status);
+        if (ended == jobs_list[0].pid)
+        {
+            fprintf(stdout, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
+                    jobs_list[0].pid, jobs_list[0].cmd, WEXITSTATUS(status));
+
+            fprintf(stdout, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
+                    jobs_list[0].pid, jobs_list[0].cmd, WTERMSIG(status));
+
+            jobs_list[0].pid = 0;
+            jobs_list[0].estado = 'F';
+            memset(jobs_list[0].cmd, '\0', COMMAND_LINE_SIZE);
+        }
+        ended = waitpid(-1, &status, WNOHANG);
+    }
+    
+
+    signal(SIGCHLD, reaper);
 }
 
 void imprimir_prompt()
