@@ -348,8 +348,8 @@ int parse_args(char **args, char *line)
  */
 void ctrlc(int signum)
 {
-    signal(SIGINT, ctrlc);
-    printf("\n");
+    signal(SIGINT, ctrlc); 
+    fprintf(stdout, GRIS_T "\n" RESET);
     // mirar si hi ha un procés a foreground
     if (jobs_list[0].pid != 0)
     {
