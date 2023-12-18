@@ -142,41 +142,53 @@ char *read_line(char *line)
  */
 int execute_line(char *line)
 {
+    // variable per guardar els arguments de la línia
     char *args[ARGS_SIZE];
 
+    // variable còpia de line
     char cline[COMMAND_LINE_SIZE];
     strcpy(cline, line);
 
+    // comprovar si no hi ha arguments
     if (!parse_args(args, line))
         return -1;
 
+    // comprovar si és una comanda interna
     if (check_internal(args))
         return 1;
 
+    // creació de fill per executar la comanda de forma externa
     pid_t child = fork();
 
+    // error al crear el fill
     if (child == -1)
     {
         perror(ROJO_T "fork");
         return -1;
     }
 
+    // comprovar si es tracata d'un procés fill o pare
     if (child == 0)
     { // procés fill
+        // 
         signal(SIGCHLD, SIG_DFL);
         signal(SIGINT, SIG_IGN);
 
+        // cridada al sistema per executar la comanda externa
         execvp(args[0], args);
 
+        // comanda fallida
         fprintf(stderr, ROJO_T "Error, ordre inexistent: %s \n" RESET, args[0]);
         exit(-1);
     }
     else
     { // procés pare
+        // actualització de les dades de jobs_list[0] amb els procesos fill en foreground
         jobs_list[0].pid = child;
         jobs_list[0].estado = 'E';
         strcpy(jobs_list[0].cmd, cline);
 
+        // visualització del PID del pare i del fill
 #if DEBUG
         fprintf(stdout, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), my_shell);
         fprintf(stdout, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
@@ -185,6 +197,7 @@ int execute_line(char *line)
         // fflush(stdout);
         fflush(NULL);
 
+        // espera a finalització del procés fill executant-se
         pause();
 
         return 0;
