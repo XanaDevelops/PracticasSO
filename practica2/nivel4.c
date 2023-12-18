@@ -121,7 +121,10 @@ char *read_line(char *line)
     if (line != NULL)
     {
         char *endline = strrchr(line, '\n');
-        *(endline) = '\0';
+        if (endline != NULL)
+        {
+            *(endline) = '\0';
+        }
     }
 
     return line;
@@ -348,19 +351,28 @@ int parse_args(char **args, char *line)
  */
 void ctrlc(int signum)
 {
-    signal(SIGINT, ctrlc); 
-    fprintf(stdout, GRIS_T "\n" RESET);
+    signal(SIGINT, ctrlc);
+    fflush(stdout);
+#if DEBUG
+    fprintf(stdout, GRIS_T "[ctrlc(): Interromp execució]\n" RESET);
+#endif
     // mirar si hi ha un procés a foreground
     if (jobs_list[0].pid != 0)
     {
+#if DEBUG
+        fprintf(stdout, GRIS_T "[ctrlc(): %s és procés fill. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+#endif
+        // mirar si el procés és el nostre shell
         if (strcmp(jobs_list[0].cmd, my_shell))
         {
+#if DEBUG
+            fprintf(stdout, GRIS_T "[ctrlc(): %s és una execució del nostre mini shelll. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+#endif
             kill(jobs_list[0].pid, SIGTERM);
         }
         pause();
     }
 
-    fprintf(stdout, GRIS_T "I am here mather fuckers\n" RESET);
     return;
 }
 
