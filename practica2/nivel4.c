@@ -352,7 +352,7 @@ int parse_args(char **args, char *line)
 void ctrlc(int signum)
 {
     signal(SIGINT, ctrlc);
-    fflush(stdout);
+    fprintf(stdout, "\n");
 #if DEBUG
     fprintf(stdout, GRIS_T "[ctrlc(): Interromp execució]\n" RESET);
 #endif
@@ -366,13 +366,17 @@ void ctrlc(int signum)
         if (strcmp(jobs_list[0].cmd, my_shell))
         {
 #if DEBUG
-            fprintf(stdout, GRIS_T "[ctrlc(): %s és una execució del nostre mini shelll. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+            fprintf(stdout, GRIS_T "[ctrlc(): %s no és una execució del nostre mini shelll, per tant s'interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
             kill(jobs_list[0].pid, SIGTERM);
         }
         pause();
+        return;
     }
-
+#if DEBUG
+            fprintf(stdout, GRIS_T "[ctrlc(): %s no és una execució en foreground, per tant no se la interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+#endif
+    fflush(stdout);
     return;
 }
 
