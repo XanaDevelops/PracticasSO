@@ -347,17 +347,17 @@ int parse_args(char **args, char *line)
  *
  */
 void ctrlc(int signum)
-{   signal(SIGINT, ctrlc);
+{
+    signal(SIGINT, ctrlc);
     printf("\n");
-    //mirar si hi ha un procés a foreground
-    if (jobs_list[0].pid > 0)
+    // mirar si hi ha un procés a foreground
+    if (jobs_list[0].pid != 0)
     {
-        if (strcmp(my_shell, jobs_list[0].cmd)) {
-
-        
+        if (strcmp(jobs_list[0].cmd, my_shell))
+        {
+            kill(jobs_list[0].pid, SIGTERM);
         }
         pause();
-        return;
     }
 
     fprintf(stdout, GRIS_T "I am here mather fuckers\n" RESET);
