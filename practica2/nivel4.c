@@ -59,6 +59,7 @@ char line[COMMAND_LINE_SIZE];
 char aux_line[COMMAND_LINE_SIZE];
 char *args[ARGS_SIZE];
 
+
 static struct info_job jobs_list[N_JOBS];
 
 int main(int argc, char **argsc)
@@ -78,6 +79,12 @@ int main(int argc, char **argsc)
 
     while (1)
     {
+        //inicialitzar line, args, etc
+        memset(line, '\0', COMMAND_LINE_SIZE);
+        memset(aux_line, '\0', COMMAND_LINE_SIZE);
+        for(int i=0;i<ARGS_SIZE;i++){
+            *(args+i)=NULL;
+        }
         if (read_line(line) == NULL)
         {
             continue;
