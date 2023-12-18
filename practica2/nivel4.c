@@ -54,7 +54,7 @@ void imprimir_prompt();
 
 const char *delim = " \t\n\r";
 
-static char mi_shell[COMMAND_LINE_SIZE];
+static char my_shell[COMMAND_LINE_SIZE];
 char line[COMMAND_LINE_SIZE];
 char aux_line[COMMAND_LINE_SIZE];
 char *args[ARGS_SIZE];
@@ -65,9 +65,9 @@ int main(int argc, char **argsc)
 {
     // inicializar senyals
     signal(SIGCHLD, reaper);
-    signal(SIGINT, ctrlc); 
+    signal(SIGINT, ctrlc);
 
-    strcpy(mi_shell, argsc[0]);
+    strcpy(my_shell, argsc[0]);
     // inicializar jobs_list
     for (int i = 0; i < N_JOBS; i++)
     {
@@ -175,7 +175,7 @@ int execute_line(char *line)
         strcpy(jobs_list[0].cmd, cline);
 
 #if DEBUG
-        fprintf(stdout, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), mi_shell);
+        fprintf(stdout, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), my_shell);
         fprintf(stdout, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
 #endif
         fprintf(stdout, RESET);
@@ -339,20 +339,29 @@ int parse_args(char **args, char *line)
 }
 
 /**
- *  ctrlc
+ *  Funció: ctrlc
  * --------------------
  *  S'executa quan hi ha un Ctrl + C, i interromp l'execució principal.
  *
  *  param: SIGINT (llençada pel Ctrl + C)
  *
  */
-void ctrlc(int signum) {
-    fprintf(stdout, GRIS_T "I am here mather fuckers]\n" RESET);
-    signal(SIGINT, ctrlc);
+void ctrlc(int signum)
+{   signal(SIGINT, ctrlc);
+    printf("\n");
+    //mirar si hi ha un procés a foreground
+    if (jobs_list[0].pid > 0)
+    {
+        if (strcmp(my_shell, jobs_list[0].cmd)) {
 
-        fprintf(stdout, GRIS_T "I am here mather fuckers]\n" RESET);
-  
+        
+        }
+        pause();
+        return;
+    }
 
+    fprintf(stdout, GRIS_T "I am here mather fuckers\n" RESET);
+    return;
 }
 
 /**
@@ -398,7 +407,7 @@ int check_internal(char **args)
 }
 
 /**
- * Funció: cd
+ * Funció: internal_cd
  * -------------------
  * Cambiar de directori.
  *
