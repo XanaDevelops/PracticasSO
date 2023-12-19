@@ -147,26 +147,27 @@ char *read_line(char *line)
     return line;
 }
 
-
 /**
  * Funció: is_background
  * --------------------
  * Comprova si una es una comanda en background .
- * 
+ *
  * param: args --> punter al punter dels tokens d'arguments
- * 
- * return: 1 si es tracta d'una comanda en background (conté token &), 
+ *
+ * return: 1 si es tracta d'una comanda en background (conté token &),
  * 0 en cas contrari.
-*/
+ */
 int is_background(char **args)
 {
     int i = 0;
 
     // cerca del token '&'
-    while(args[i]) {
+    while (args[i])
+    {
         // comprovació per si s'ha trobat el token '&'
-        if(!strcmp(args[i], "&")) {
-            args[i] = NULL; 
+        if (!strcmp(args[i], "&"))
+        {
+            args[i] = NULL;
             return 1;
         }
 
@@ -235,16 +236,17 @@ int execute_line(char *line)
     }
     else
     { // procés pare
-        // visualització del PID del pare i del fill
+      // visualització del PID del pare i del fill
 #if DEBUG
         fprintf(stdout, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), my_shell);
         fprintf(stdout, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, child, line);
 #endif
         fprintf(stdout, RESET);
         // fflush(stdout);
-        fflush(NULL);    
-        
-        if(!isBack) {   // foreground
+        fflush(NULL);
+
+        if (!isBack)
+        { // foreground
             // actualització de les dades de jobs_list[0] amb els procesos fill en foreground
             jobs_list[0].pid = child;
             jobs_list[0].estado = 'E';
@@ -252,8 +254,9 @@ int execute_line(char *line)
 
             // espera a finalització del procés fill executant-se
             pause();
-
-        } else {    // background
+        }
+        else
+        { // background
             jobs_list_add(child, 'E', line);
         }
 
@@ -642,43 +645,54 @@ int internal_source(char **args)
 
 int internal_jobs()
 {
-    //printf("Imprimeix la llista de treballs\n");
-    for(int i=0;i<n_job;i++){
-        
-        if(jobs_list[i].pid==0){
+    // printf("Imprimeix la llista de treballs\n");
+    for (int i = 0; i < n_job; i++)
+    {
+
+        if (jobs_list[i].pid == 0)
+        {
             continue;
         }
-        //FORMATAR COMO job de bash!!!!
+        // FORMATAR COMO job de bash!!!!
         fprintf(stdout, "[%d] status:%c cmd:%s\n", jobs_list[i].pid, jobs_list[i].estado, jobs_list[i].cmd);
     }
     return 0;
 }
 
-int jobs_list_add(pid_t pid, char estado, char *cmd){
-    if(n_job<N_JOBS){
+int jobs_list_add(pid_t pid, char estado, char *cmd)
+{
+    if (n_job < N_JOBS)
+    {
         jobs_list[n_job].pid = pid;
         jobs_list[n_job].estado = estado;
         strncpy(jobs_list[n_job].cmd, cmd, COMMAND_LINE_SIZE);
         n_job++;
         return 0;
-    }else{
+    }
+    else
+    {
         fprintf(stderr, AMARILLO_T "jobs_list_add() W: Se ha alcanzado el maximo en jobs_list\n" RESET);
         return -1;
     }
 }
 
-int jobs_list_remove(int pos){
-    if(pos>n_job || pos<0){
+int jobs_list_remove(int pos)
+{
+    if (pos > n_job || pos < 0)
+    {
         fprintf(stderr, ROJO_T "jobs_list_remove() E: pos fuera de rango\n");
         return -1;
     }
-    if(pos==n_job){
-        jobs_list[pos].pid=0;
-        jobs_list[pos].estado='F';
+    if (pos == n_job)
+    {
+        jobs_list[pos].pid = 0;
+        jobs_list[pos].estado = 'F';
         memset(jobs_list[pos].cmd, '\0', COMMAND_LINE_SIZE);
-    }else{
-        jobs_list[pos].pid=jobs_list[n_job].pid;
-        jobs_list[pos].estado=jobs_list[n_job].estado;
+    }
+    else
+    {
+        jobs_list[pos].pid = jobs_list[n_job].pid;
+        jobs_list[pos].estado = jobs_list[n_job].estado;
         strncpy(jobs_list[pos].cmd, jobs_list[n_job].cmd, COMMAND_LINE_SIZE);
     }
 
@@ -686,9 +700,12 @@ int jobs_list_remove(int pos){
     return 0;
 }
 
-int jobs_list_find(pid_t pid){
-    for(int i=0;i<n_job;i++){
-        if(jobs_list[i].pid==pid){
+int jobs_list_find(pid_t pid)
+{
+    for (int i = 0; i < n_job; i++)
+    {
+        if (jobs_list[i].pid == pid)
+        {
             return i;
         }
     }
@@ -710,29 +727,52 @@ int internal_bg(char **args)
 void reaper(int signum)
 {
     signal(SIGCHLD, reaper);
+
     int status;
     pid_t ended;
+
     while ((ended = waitpid(-1, &status, WNOHANG)) > 0)
     {
         fprintf(stdout, GRIS_T "[reaper(): loop: %i status %i]\n" RESET, ended, status);
         if (ended == jobs_list[0].pid)
         {
 #if DEBUG
-            // obtenció de les dades de finalització del fill
+            // obtenció de les dades de finalització del fill en foreground
             if (WIFEXITED(status))
             {
-                fprintf(stdout, GRIS_T "[reaper()→Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
+                fprintf(stdout, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
                         jobs_list[0].pid, jobs_list[0].cmd, WEXITSTATUS(status));
             }
             else if (WIFSIGNALED(status))
             {
-                fprintf(stdout, GRIS_T "[reaper()→Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
+                fprintf(stdout, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
                         jobs_list[0].pid, jobs_list[0].cmd, WTERMSIG(status));
             }
 #endif
             jobs_list[0].pid = 0;
             jobs_list[0].estado = 'F';
             memset(jobs_list[0].cmd, '\0', COMMAND_LINE_SIZE);
+        }
+        else
+        {
+            int fi = jobs_list_find(ended);
+
+#if DEBUG
+            // obtenció de les dades de finalització del fill en background
+            if (WIFEXITED(status))
+            {
+                fprintf(stdout, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
+                        jobs_list[fi].pid, jobs_list[fi].cmd, WEXITSTATUS(status));
+            }
+            else if (WIFSIGNALED(status))
+            {
+                fprintf(stdout, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
+                        jobs_list[fi].pid, jobs_list[fi].cmd, WTERMSIG(status));
+            }
+#endif
+            fprintf(stdout, BLANCO_T "[reaper(): Procés fill %d (%s) num: %d dins jobs_list, finalitzat amb status: %d]\n" RESET,
+                    jobs_list[fi].pid, jobs_list[fi].cmd, fi, WTERMSIG(status));
+            jobs_list_remove(fi);
         }
         ended = waitpid(-1, &status, WNOHANG);
     }
