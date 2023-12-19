@@ -452,6 +452,21 @@ void ctrlc(int signum)
 }
 
 /**
+ *  Funció: ctrlz
+ * --------------------
+ *  S'executa quan hi ha un Ctrl + Z, i  atura temporalment un procés en segon pla.
+ *
+ *  param: SIGTSTP (llençada pel Ctrl + Z)
+ *
+ */
+void ctrlz(int signum)
+{
+    signal(SIGTSTP, ctrlz);
+    
+    return;
+}
+
+/**
  * Funció: check_internal
  * -------------------
  * Comprova si es una comanda interna
