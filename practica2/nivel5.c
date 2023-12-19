@@ -66,6 +66,7 @@ int main(int argc, char **argsc)
     // inicializar senyals
     signal(SIGCHLD, reaper);
     signal(SIGINT, ctrlc);
+    signal(SIGTSTP, ctrlz);
 
     strcpy(my_shell, argsc[0]);
     // inicializar jobs_list
@@ -137,6 +138,35 @@ char *read_line(char *line)
     return line;
 }
 
+
+/**
+ * Funció: is_background
+ * --------------------
+ * Comprova si una es una comanda en background .
+ * 
+ * param: args --> punter al punter dels tokens d'arguments
+ * 
+ * return: 1 si es tracta d'una comanda en background (conté token &), 
+ * 0 en cas contrari.
+*/
+int is_background(char **args)
+{
+    int i = 0;
+
+    // cerca del token '&'
+    while(args[i]) {
+        // comprovació per si s'ha trobat el token '&'
+        if(!strcmp(args[i], "&")) {
+            args[i] = NULL; 
+            return 1;
+        }
+
+        i++;
+    }
+
+    return 0;
+}
+
 /**
  * Funció: execute_line
  * -------------------
@@ -157,12 +187,15 @@ int execute_line(char *line)
     strcpy(cline, line);
 
     // comprovar si no hi ha arguments
-    if (!parse_args(args, line))
+    if (!parse_args(args, cline))
         return -1;
 
     // comprovar si és una comanda interna
     if (check_internal(args))
         return 1;
+
+    // comprovar si és una comanda en background
+    int isBack = is_background(args);
 
     // creació de fill per executar la comanda de forma externa
     pid_t child = fork();
@@ -177,9 +210,12 @@ int execute_line(char *line)
     // comprovar si es tracata d'un procés fill o pare
     if (child == 0)
     { // procés fill
-        //
+        // asginar acció per defecte a SIGCHLD
         signal(SIGCHLD, SIG_DFL);
+        // ignorar la senyal SIGINT (Ctrl + C)
         signal(SIGINT, SIG_IGN);
+        // ignorar la senyal SIGTSTP (Ctrl + Z)
+        signal(SIGTSTP, SIG_IGN);
 
         // cridada al sistema per executar la comanda externa
         execvp(args[0], args);
@@ -190,22 +226,27 @@ int execute_line(char *line)
     }
     else
     { // procés pare
-        // actualització de les dades de jobs_list[0] amb els procesos fill en foreground
-        jobs_list[0].pid = child;
-        jobs_list[0].estado = 'E';
-        strcpy(jobs_list[0].cmd, cline);
-
         // visualització del PID del pare i del fill
 #if DEBUG
         fprintf(stdout, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), my_shell);
-        fprintf(stdout, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
+        fprintf(stdout, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, child, line);
 #endif
         fprintf(stdout, RESET);
         // fflush(stdout);
-        fflush(NULL);
+        fflush(NULL);    
+        
+        if(!isBack) {   // foreground
+            // actualització de les dades de jobs_list[0] amb els procesos fill en foreground
+            jobs_list[0].pid = child;
+            jobs_list[0].estado = 'E';
+            strcpy(jobs_list[0].cmd, line);
 
-        // espera a finalització del procés fill executant-se
-        pause();
+            // espera a finalització del procés fill executant-se
+            pause();
+
+        } else {    // background
+            jobs_list_add(child, 'E', line);
+        }
 
         return 0;
     }

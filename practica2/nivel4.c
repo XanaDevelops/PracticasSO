@@ -177,8 +177,9 @@ int execute_line(char *line)
     // comprovar si es tracata d'un procés fill o pare
     if (child == 0)
     { // procés fill
-        //
+        // asginar acció per defecte a SIGCHLD
         signal(SIGCHLD, SIG_DFL);
+        // ignorar la senyal SIGINT (Ctrl + C)
         signal(SIGINT, SIG_IGN);
 
         // cridada al sistema per executar la comanda externa
