@@ -40,8 +40,16 @@ int internal_jobs();
 int internal_fg(char **args);
 int internal_bg(char **args);
 
+int is_background(char **args);
+int jobs_list_add(pid_t pid, char estado, char *cmd);
+int jobs_list_find(pid_t pid);
+int jobs_list_remove(int pos);
+
 void reaper(int signum);
 void ctrlc(int signum);
+void ctrlz(int signum);
+
+void imprimir_prompt();
 
 struct info_job
 {
@@ -49,8 +57,6 @@ struct info_job
     char estado;                 // ‘N’, ’E’, ‘D’, ‘F’ (‘N’: Ninguno, ‘E’: Ejecutándose y ‘D’: Detenido, ‘F’: Finalizado)
     char cmd[COMMAND_LINE_SIZE]; // línea de comando asociada
 };
-
-void imprimir_prompt();
 
 const char *delim = " \t\n\r";
 
@@ -60,6 +66,7 @@ char aux_line[COMMAND_LINE_SIZE];
 char *args[ARGS_SIZE];
 
 static struct info_job jobs_list[N_JOBS];
+static int n_job;
 
 int main(int argc, char **argsc)
 {
@@ -76,6 +83,8 @@ int main(int argc, char **argsc)
         jobs_list[i].estado = 'N';
         memset(jobs_list[i].cmd, '\0', COMMAND_LINE_SIZE);
     }
+
+    n_job = 0;
 
     while (1)
     {
@@ -633,8 +642,57 @@ int internal_source(char **args)
 
 int internal_jobs()
 {
-    printf("Imprimeix la llista de treballs\n");
+    //printf("Imprimeix la llista de treballs\n");
+    for(int i=0;i<n_job;i++){
+        
+        if(jobs_list[i].pid==0){
+            continue;
+        }
+        //FORMATAR COMO job de bash!!!!
+        fprintf(stdout, "[%d] status:%c cmd:%s\n", jobs_list[i].pid, jobs_list[i].estado, jobs_list[i].cmd);
+    }
     return 0;
+}
+
+int jobs_list_add(pid_t pid, char estado, char *cmd){
+    if(n_job<N_JOBS){
+        jobs_list[n_job].pid = pid;
+        jobs_list[n_job].estado = estado;
+        strncpy(jobs_list[n_job].cmd, cmd, COMMAND_LINE_SIZE);
+        n_job++;
+        return 0;
+    }else{
+        fprintf(stderr, AMARILLO_T "jobs_list_add() W: Se ha alcanzado el maximo en jobs_list\n" RESET);
+        return -1;
+    }
+}
+
+int jobs_list_remove(int pos){
+    if(pos>n_job || pos<0){
+        fprintf(stderr, ROJO_T "jobs_list_remove() E: pos fuera de rango\n");
+        return -1;
+    }
+    if(pos==n_job){
+        jobs_list[pos].pid=0;
+        jobs_list[pos].estado='F';
+        memset(jobs_list[pos].cmd, '\0', COMMAND_LINE_SIZE);
+    }else{
+        jobs_list[pos].pid=jobs_list[n_job].pid;
+        jobs_list[pos].estado=jobs_list[n_job].estado;
+        strncpy(jobs_list[pos].cmd, jobs_list[n_job].cmd, COMMAND_LINE_SIZE);
+    }
+
+    n_job--;
+    return 0;
+}
+
+int jobs_list_find(pid_t pid){
+    for(int i=0;i<n_job;i++){
+        if(jobs_list[i].pid==pid){
+            return i;
+        }
+    }
+    return -1;
 }
 
 int internal_fg(char **args)
