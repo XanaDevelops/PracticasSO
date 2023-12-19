@@ -60,7 +60,7 @@ struct info_job
 
 const char *delim = " \t\n\r";
 
-static char my_shell[COMMAND_LINE_SIZE];
+static char mini_shell[COMMAND_LINE_SIZE];
 char line[COMMAND_LINE_SIZE];
 char aux_line[COMMAND_LINE_SIZE];
 char *args[ARGS_SIZE];
@@ -75,7 +75,7 @@ int main(int argc, char **argsc)
     signal(SIGINT, ctrlc);
     signal(SIGTSTP, ctrlz);
 
-    strcpy(my_shell, argsc[0]);
+    strcpy(mini_shell, argsc[0]);
     // inicializar jobs_list
     for (int i = 0; i < N_JOBS; i++)
     {
@@ -238,7 +238,7 @@ int execute_line(char *line)
     { // procés pare
       // visualització del PID del pare i del fill
 #if DEBUG
-        fprintf(stdout, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), my_shell);
+        fprintf(stdout, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), mini_shell);
         fprintf(stdout, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, child, line);
 #endif
         fprintf(stdout, RESET);
@@ -434,7 +434,7 @@ void ctrlc(int signum)
         fprintf(stdout, GRIS_T "[ctrlc(): %s és procés fill. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
         // mirar si el procés és el nostre shell
-        if (strcmp(jobs_list[0].cmd, my_shell))
+        if (strcmp(jobs_list[0].cmd, mini_shell))
         {
 #if DEBUG
             fprintf(stdout, GRIS_T "[ctrlc(): %s no és una execució del nostre mini shelll, per tant s'interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
@@ -462,7 +462,41 @@ void ctrlc(int signum)
 void ctrlz(int signum)
 {
     signal(SIGTSTP, ctrlz);
-    
+
+#if DEBUG
+    fprintf(stdout, GRIS_T "[ctrlz(): El procés %s està en foreground. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+#endif
+
+    // Mirar si el procés està en foreground
+    if (jobs_list[0].pid > 0)
+    {
+        // Si el procés no és una execució del mini-Shell
+        if (strcmp(jobs_list[0].cmd, mini_shell))
+        {
+#if DEBUG
+            fprintf(stdout, GRIS_T "[ctrlz(): %s no és una execució del nostre mini shelll, per tant se li enviarà SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+#endif
+            kill(jobs_list[0].pid, SIGSTOP);
+            fprintf(stdout, BLANCO_T "[ctrlz(): se li ha enviat %s a %s. PID: %d]\n" RESET, SIGSTOP, jobs_list[0].cmd, getpid());
+
+            jobs_list[0].estado = 'D';
+            jobs_list_add(jobs_list[0].pid, jobs_list[0].estado, jobs_list[0].cmd);
+
+            jobs_list[0].pid = 0;
+            jobs_list[0].estado = 'F';
+
+            return;
+        }
+#if DEBUG
+        fprintf(stdout, GRIS_T "[ctrlz(): %s és el shell, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+#endif
+        pause();
+        return;
+    }
+#if DEBUG
+    fprintf(stdout, GRIS_T "[ctrlz(): %s no és una execució en foreground, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+#endif
+
     return;
 }
 
@@ -729,7 +763,7 @@ int jobs_list_find(pid_t pid)
 
 int internal_fg(char **args)
 {
-    printf("Porta el procés passat per paràmetre a primer plà\n");
+    printf("Porta el procés passat per paràmetre a primer pla\n");
     return 0;
 }
 
@@ -789,7 +823,6 @@ void reaper(int signum)
                     jobs_list[fi].pid, jobs_list[fi].cmd, fi, WTERMSIG(status));
             jobs_list_remove(fi);
         }
-        ended = waitpid(-1, &status, WNOHANG);
     }
 }
 
