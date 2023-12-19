@@ -423,7 +423,6 @@ int parse_args(char **args, char *line)
 void ctrlc(int signum)
 {
     signal(SIGINT, ctrlc);
-    fprintf(stdout, "\n");
 #if DEBUG
     fprintf(stdout, GRIS_T "[ctrlc(): Interromp execució]\n" RESET);
 #endif
@@ -476,6 +475,7 @@ void ctrlz(int signum)
 #if DEBUG
             fprintf(stdout, GRIS_T "[ctrlz(): %s no és una execució del nostre mini shelll, per tant se li enviarà SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
+            // enviar SIGSTOP
             kill(jobs_list[0].pid, SIGSTOP);
             fprintf(stdout, BLANCO_T "[ctrlz(): se li ha enviat %s a %s. PID: %d]\n" RESET, SIGSTOP, jobs_list[0].cmd, getpid());
 
@@ -484,6 +484,7 @@ void ctrlz(int signum)
 
             jobs_list[0].pid = 0;
             jobs_list[0].estado = 'F';
+            memset(jobs_list[0].cmd, '\0', sizeof(jobs_list[0].cmd));
 
             return;
         }
