@@ -232,6 +232,7 @@ int execute_line(char *line)
         // ignorar la senyal SIGTSTP (Ctrl + Z)
         signal(SIGTSTP, SIG_IGN);
 
+        is_output_redirection(args);
         // cridada al sistema per executar la comanda externa
         execvp(args[0], args);
 
