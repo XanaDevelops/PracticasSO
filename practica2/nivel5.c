@@ -66,7 +66,7 @@ char aux_line[COMMAND_LINE_SIZE];
 char *args[ARGS_SIZE];
 
 static struct info_job jobs_list[N_JOBS];
-static int n_job;
+static int n_job; // de procesos en background
 
 int main(int argc, char **argsc)
 {
@@ -475,7 +475,7 @@ void ctrlz(int signum)
 #if DEBUG
             fprintf(stdout, GRIS_T "[ctrlz(): %s no és una execució del nostre mini shelll, per tant se li enviarà SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
-            
+
             // enviar SIGSTOP
             kill(jobs_list[0].pid, SIGSTOP);
             fprintf(stdout, BLANCO_T "[ctrlz(): se li ha enviat %d a %s. PID: %d]\n" RESET, SIGSTOP, jobs_list[0].cmd, getpid());
@@ -696,45 +696,58 @@ int internal_source(char **args)
 
 int internal_jobs()
 {
+#if DEBUG
+    fprintf(stdout, GRIS_T "[internal_jobs(): Existen %d jobs en bg]\n" RESET, n_job);
+#endif
     // printf("Imprimeix la llista de treballs\n");
-    for (int i = 0; i < n_job; i++)
+    for (int i = 1; i < n_job + 1 && i < N_JOBS; i++)
     {
-
         if (jobs_list[i].pid == 0)
         {
             continue;
         }
         // FORMATAR COMO job de bash!!!!
-        fprintf(stdout, "[%d] status:%c cmd:%s\n", jobs_list[i].pid, jobs_list[i].estado, jobs_list[i].cmd);
+        fprintf(stdout, "[%d] %c   %s\n", jobs_list[i].pid, jobs_list[i].estado, jobs_list[i].cmd);
     }
     return 0;
 }
 
 int jobs_list_add(pid_t pid, char estado, char *cmd)
 {
-    if (n_job < N_JOBS)
+#if DEBUG
+    fprintf(stdout, GRIS_T "[jobs_list_add(): se va a añadir %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
+#endif
+    // jobs_list[0] es el foreground
+    if (n_job + 1 < N_JOBS)
     {
-        jobs_list[n_job].pid = pid;
-        jobs_list[n_job].estado = estado;
-        strncpy(jobs_list[n_job].cmd, cmd, COMMAND_LINE_SIZE);
+        jobs_list[n_job + 1].pid = pid;
+        jobs_list[n_job + 1].estado = estado;
+        strncpy(jobs_list[n_job + 1].cmd, cmd, COMMAND_LINE_SIZE);
         n_job++;
+#if DEBUG
+        fprintf(stdout, GRIS_T "[jobs_list_add(): Añadido %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
+#endif
         return 0;
     }
     else
     {
-        fprintf(stderr, AMARILLO_T "jobs_list_add() W: Se ha alcanzado el maximo en jobs_list\n" RESET);
+        fprintf(stderr, AMARILLO_T "[jobs_list_add() W: Se ha alcanzado el maximo en jobs_list]\n" RESET);
         return -1;
     }
 }
 
 int jobs_list_remove(int pos)
 {
-    if (pos > n_job || pos < 0)
+#if DEBUG
+    fprintf(stdout, GRIS_T "[jobs_list_remove(): se va a eliminar %d. Hay %d jobs en bg]\n" RESET, pos, n_job);
+#endif
+
+    if (pos > n_job + 1 || pos < 0)
     {
         fprintf(stderr, ROJO_T "jobs_list_remove() E: pos fuera de rango\n");
         return -1;
     }
-    if (pos == n_job)
+    if (pos == n_job + 1)
     {
         jobs_list[pos].pid = 0;
         jobs_list[pos].estado = 'F';
@@ -748,12 +761,18 @@ int jobs_list_remove(int pos)
     }
 
     n_job--;
+#if DEBUG
+    fprintf(stdout, GRIS_T "[jobs_list_remove(): Eliminado %d. Hay %d jobs en bg]\n" RESET, pos, n_job);
+#endif
     return 0;
 }
 
 int jobs_list_find(pid_t pid)
 {
-    for (int i = 0; i < n_job; i++)
+#if DEBUG
+    fprintf(stdout, GRIS_T "[jobs_list_find(): se va a buscar %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
+#endif
+    for (int i = 1; i < n_job + 1 && i < N_JOBS; i++)
     {
         if (jobs_list[i].pid == pid)
         {
