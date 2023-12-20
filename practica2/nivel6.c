@@ -15,6 +15,7 @@
 #define COMMAND_LINE_SIZE 1024 // max size command line
 #define ARGS_SIZE 64
 #define N_JOBS 64
+#define FPERMS 0666
 
 #define RESET "\033[0m"
 #define NEGRO_T "\x1b[30m"
@@ -28,6 +29,7 @@
 #define CYAN_T "\x1b[36m"
 #define BLANCO_T "\x1b[97m"
 #define NEGRITA "\x1b[1m"
+
 
 #define MENSAJE_DESPEDIDA "\nQue la fuerza te acompañe\n\n"
 
@@ -967,6 +969,29 @@ void reaper(int signum)
  *  return: 1 si hi ha d'haver redirecció, sinó 0
  */
 int is_output_redirection (char **args) {
+    int cont = 0;
+    while (args[cont])
+    {   
+        //Cercam existència del token > seguit de qualque cosa
+        if(strcmp(args[cont], ">") == 0 && (args[cont + 1] != NULL)){
+        args[cont] = NULL;
+        int fd =  open(args[cont + 1], O_WRONLY | O_CREAT | O_TRUNC, FPERMS);
+        if (fd == -1) {
+                perror("is_output_redirection(): open");
+                return -1;
+            }  
+
+        
+        
+        if (close(fd) == -1) {
+                perror("is_output_redirection(): close");
+                return -1;
+            }
+         return 1;   
+        }
+        cont++;
+    }
+    return 0;
     
 }
 
