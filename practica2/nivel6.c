@@ -111,7 +111,7 @@ int main(int argc, char **argsc)
             if (r == 1)
             {
 #if DEBUG
-                fprintf(stdout, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
+                fprintf(stderr, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
 #endif
                 continue;
             }
@@ -135,7 +135,7 @@ char *read_line(char *line)
     if (feof(stdin))
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
+        fprintf(stderr, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
 #endif
         clearerr(stdin);
         return NULL;
@@ -244,8 +244,8 @@ int execute_line(char *line)
     { // procés pare
       // visualització del PID del pare i del fill
 #if DEBUG
-        fprintf(stdout, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), mini_shell);
-        fprintf(stdout, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, child, line);
+        fprintf(stderr, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), mini_shell);
+        fprintf(stderr, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, child, line);
 #endif
         fprintf(stdout, RESET);
         // fflush(stdout);
@@ -412,7 +412,7 @@ int parse_args(char **args, char *line)
 #if DEBUG
     for (int i = 0; i < nt + 1; i++)
     {
-        fprintf(stdout, GRIS_T "[parse_args(): token %i: |%s|]\n" RESET, i, *(args + i));
+        fprintf(stderr, GRIS_T "[parse_args(): token %i: |%s|]\n" RESET, i, *(args + i));
     }
 #endif
     return nt;
@@ -431,19 +431,19 @@ void ctrlc(int signum)
     signal(SIGINT, ctrlc);
     fprintf(stdout, "\n");
 #if DEBUG4
-    fprintf(stdout, GRIS_T "[ctrlc(): Interromp execució]\n" RESET);
+    fprintf(stderr, GRIS_T "[ctrlc(): Interromp execució]\n" RESET);
 #endif
     // mirar si hi ha un procés a foreground
     if (jobs_list[0].pid != 0)
     {
 #if DEBUG4
-        fprintf(stdout, GRIS_T "[ctrlc(): %s és procés fill. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+        fprintf(stderr, GRIS_T "[ctrlc(): %s és procés fill. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
         // mirar si el procés és el nostre shell
         if (strcmp(jobs_list[0].cmd, mini_shell))
         {
 #if DEBUG4
-            fprintf(stdout, GRIS_T "[ctrlc(): %s no és una execució del nostre mini shelll, per tant s'interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+            fprintf(stderr, GRIS_T "[ctrlc(): %s no és una execució del nostre mini shelll, per tant s'interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
             kill(jobs_list[0].pid, SIGTERM);
         }
@@ -452,7 +452,7 @@ void ctrlc(int signum)
         return;
     }
 #if DEBUG4
-    fprintf(stdout, GRIS_T "[ctrlc(): %s no és una execució en foreground, per tant no se la interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+    fprintf(stderr, GRIS_T "[ctrlc(): %s no és una execució en foreground, per tant no se la interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
     fflush(stdout);
     perror("Senyal SIGTERM no enviat pel fet que no hi ha procés en foreground");
@@ -472,7 +472,7 @@ void ctrlz(int signum)
     signal(SIGTSTP, ctrlz);
 
 #if DEBUG5
-    fprintf(stdout, GRIS_T "[ctrlz(): El procés %s està en foreground. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+    fprintf(stderr, GRIS_T "[ctrlz(): El procés %s està en foreground. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
 
     // Mirar si el procés està en foreground
@@ -482,7 +482,7 @@ void ctrlz(int signum)
         if (strcmp(jobs_list[0].cmd, mini_shell))
         {
 #if DEBUG5
-            fprintf(stdout, GRIS_T "[ctrlz(): %s no és una execució del nostre mini shelll, per tant se li enviarà SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+            fprintf(stderr, GRIS_T "[ctrlz(): %s no és una execució del nostre mini shelll, per tant se li enviarà SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
 
             // enviar SIGSTOP
@@ -499,14 +499,14 @@ void ctrlz(int signum)
             return;
         }
 #if DEBUG5
-        fprintf(stdout, GRIS_T "[ctrlz(): %s és el shell, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+        fprintf(stderr, GRIS_T "[ctrlz(): %s és el shell, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
         perror("Señal SIGSTOP no enviada debido a que el proceso en foreground es el shell");
         pause();
         return;
     }
 #if DEBUG5
-    fprintf(stdout, GRIS_T "[ctrlz(): %s no és una execució en foreground, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+    fprintf(stderr, GRIS_T "[ctrlz(): %s no és una execució en foreground, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
     perror("Senyal SIGSTOP no enviat pel fet que no hi ha procés en foreground");
     return;
@@ -525,7 +525,7 @@ int check_internal(char **args)
 {
     char *cmd = *(args);
 #if DEBUG
-    fprintf(stdout, GRIS_T "[check_internal(): comprobando %s]\n" RESET, cmd);
+    fprintf(stderr, GRIS_T "[check_internal(): comprobando %s]\n" RESET, cmd);
 #endif
     const int n_cmd = 7;
     const char *cmds_text[] = {"cd", "export", "source", "fg", "bg", "jobs", "exit"};
@@ -567,7 +567,7 @@ int check_internal(char **args)
 int internal_cd(char **args)
 {
 #if DEBUG2
-    fprintf(stdout, GRIS_T "[internal_cd(): Canviant directori...]\n" RESET);
+    fprintf(stderr, GRIS_T "[internal_cd(): Canviant directori...]\n" RESET);
 #endif
     char cwd[COMMAND_LINE_SIZE];
     memset(cwd, '\0', sizeof(cwd));
@@ -581,7 +581,7 @@ int internal_cd(char **args)
         strcat(cwd, args[1]);
     }
 #if DEBUG2
-    fprintf(stdout, GRIS_T "[internal_cd(): Directori a canviar: %s]\n" RESET, cwd);
+    fprintf(stderr, GRIS_T "[internal_cd(): Directori a canviar: %s]\n" RESET, cwd);
 #endif
     if (chdir(cwd) == -1)
     {
@@ -590,7 +590,7 @@ int internal_cd(char **args)
     }
 
 #if DEBUG2
-    fprintf(stdout, GRIS_T "[internal_cd(): Directori canviat]\n" RESET);
+    fprintf(stderr, GRIS_T "[internal_cd(): Directori canviat]\n" RESET);
 #endif
     return 0;
 }
@@ -626,8 +626,8 @@ int internal_export(char **args)
     }
 
 #if DEBUG
-    fprintf(stdout, GRIS_T "[internal_export(): nombre: %s]\n" RESET, variable);
-    fprintf(stdout, GRIS_T "[internal_export(): valor: %s]\n" RESET, valor);
+    fprintf(stderr, GRIS_T "[internal_export(): nombre: %s]\n" RESET, variable);
+    fprintf(stderr, GRIS_T "[internal_export(): valor: %s]\n" RESET, valor);
 #endif
 
     char *antic_valor = getenv(variable);
@@ -635,20 +635,20 @@ int internal_export(char **args)
     if (antic_valor == NULL)
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "[internal_export(): antic valor per %s: (null)]\n" RESET, variable);
+        fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: (null)]\n" RESET, variable);
 #endif
     }
     else
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, antic_valor);
+        fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, antic_valor);
 #endif
     }
 
     setenv(variable, valor, 1);
 
 #if DEBUG
-    fprintf(stdout, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, valor);
+    fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, valor);
 #endif
 
     return 0;
@@ -668,7 +668,7 @@ int internal_source(char **args)
 {
 
 #if DEBUG3
-    fprintf(stdout, GRIS_T "[internal_source(): Executant fitxer ...]\n" RESET);
+    fprintf(stderr, GRIS_T "[internal_source(): Executant fitxer ...]\n" RESET);
 #endif
     char aux[COMMAND_LINE_SIZE];
     memset(aux, '\0', sizeof(aux));
@@ -694,12 +694,12 @@ int internal_source(char **args)
             *(fi) = '\0';
         }
 #if DEBUG3
-        fprintf(stdout, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
+        fprintf(stderr, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
 #endif
     }
 
 #if DEBUG3
-    fprintf(stdout, GRIS_T "[internal_source(): Fitxer executat]\n" RESET);
+    fprintf(stderr, GRIS_T "[internal_source(): Fitxer executat]\n" RESET);
 #endif
     return 0;
 }
@@ -707,7 +707,7 @@ int internal_source(char **args)
 int internal_jobs()
 {
 #if DEBUG
-    fprintf(stdout, GRIS_T "[internal_jobs(): Existen %d jobs en bg]\n" RESET, n_job);
+    fprintf(stderr, GRIS_T "[internal_jobs(): Existen %d jobs en bg]\n" RESET, n_job);
 #endif
     // printf("Imprimeix la llista de treballs\n");
     for (int i = 1; i < n_job + 1 && i < N_JOBS; i++)
@@ -725,7 +725,7 @@ int internal_jobs()
 int jobs_list_add(pid_t pid, char estado, char *cmd)
 {
 #if DEBUG
-    fprintf(stdout, GRIS_T "[jobs_list_add(): se va a añadir %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
+    fprintf(stderr, GRIS_T "[jobs_list_add(): se va a añadir %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
 #endif
     // jobs_list[0] es el foreground
     if (n_job + 1 < N_JOBS)
@@ -735,7 +735,7 @@ int jobs_list_add(pid_t pid, char estado, char *cmd)
         strncpy(jobs_list[n_job + 1].cmd, cmd, COMMAND_LINE_SIZE);
         n_job++;
 #if DEBUG
-        fprintf(stdout, GRIS_T "[jobs_list_add(): Añadido %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
+        fprintf(stderr, GRIS_T "[jobs_list_add(): Añadido %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
 #endif
         return 0;
     }
@@ -749,7 +749,7 @@ int jobs_list_add(pid_t pid, char estado, char *cmd)
 int jobs_list_remove(int pos)
 {
 #if DEBUG
-    fprintf(stdout, GRIS_T "[jobs_list_remove(): se va a eliminar %d. Hay %d jobs en bg]\n" RESET, pos, n_job);
+    fprintf(stderr, GRIS_T "[jobs_list_remove(): se va a eliminar %d. Hay %d jobs en bg]\n" RESET, pos, n_job);
 #endif
 
     if (pos > n_job + 1 || pos < 0)
@@ -772,7 +772,7 @@ int jobs_list_remove(int pos)
 
     n_job--;
 #if DEBUG
-    fprintf(stdout, GRIS_T "[jobs_list_remove(): Eliminado %d. Hay %d jobs en bg]\n" RESET, pos, n_job);
+    fprintf(stderr, GRIS_T "[jobs_list_remove(): Eliminado %d. Hay %d jobs en bg]\n" RESET, pos, n_job);
 #endif
     return 0;
 }
@@ -780,14 +780,14 @@ int jobs_list_remove(int pos)
 int jobs_list_find(pid_t pid)
 {
 #if DEBUG
-    fprintf(stdout, GRIS_T "[jobs_list_find(): se va a buscar %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
+    fprintf(stderr, GRIS_T "[jobs_list_find(): se va a buscar %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
 #endif
     for (int i = 1; i < n_job+1 && i < N_JOBS; i++)
     {
         if (jobs_list[i].pid == pid)
         {
 #if DEBUG
-            fprintf(stdout, GRIS_T "[jobs_list_find(): encontrado en %d]\n" RESET, i);
+            fprintf(stderr, GRIS_T "[jobs_list_find(): encontrado en %d]\n" RESET, i);
 #endif
             return i;
         }
@@ -864,7 +864,7 @@ int internal_fg(char **args)
 int internal_bg(char **args)
 {
 #if DEBUG
-        fprintf(stdout, GRIS_T "[internal_bg()→ Aquesta funció reactivará un procés detingut perquè es segueixi executant en segon pla]\n" RESET);
+        fprintf(stderr, GRIS_T "[internal_bg()→ Aquesta funció reactivará un procés detingut perquè es segueixi executant en segon pla]\n" RESET);
 #endif
 
     // Comprovar si hi ha error de sintaxis
@@ -901,7 +901,7 @@ int internal_bg(char **args)
     }
 
 #ifdef DEBUG
-    fprintf(stdout, GRIS_T "[internal_bg()→ señal 18 (SIGCONT) enviada a %d (%s)]\n" RESET, pid, jobs_list[pos].cmd);
+    fprintf(stderr, GRIS_T "[internal_bg()→ señal 18 (SIGCONT) enviada a %d (%s)]\n" RESET, pid, jobs_list[pos].cmd);
 #endif
     
     return 1;
@@ -916,19 +916,19 @@ void reaper(int signum)
 
     while ((ended = waitpid(-1, &status, WNOHANG)) > 0)
     {
-        fprintf(stdout, GRIS_T "[reaper(): loop: %i status %i]\n" RESET, ended, status);
+        fprintf(stderr, GRIS_T "[reaper(): loop: %i status %i]\n" RESET, ended, status);
         if (ended == jobs_list[0].pid)
         {
 #if DEBUG
             // obtenció de les dades de finalització del fill en foreground
             if (WIFEXITED(status))
             {
-                fprintf(stdout, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
+                fprintf(stderr, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
                         jobs_list[0].pid, jobs_list[0].cmd, WEXITSTATUS(status));
             }
             else if (WIFSIGNALED(status))
             {
-                fprintf(stdout, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
+                fprintf(stderr, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
                         jobs_list[0].pid, jobs_list[0].cmd, WTERMSIG(status));
             }
 #endif
@@ -944,12 +944,12 @@ void reaper(int signum)
             // obtenció de les dades de finalització del fill en background
             if (WIFEXITED(status))
             {
-                fprintf(stdout, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
+                fprintf(stderr, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
                         jobs_list[fi].pid, jobs_list[fi].cmd, WEXITSTATUS(status));
             }
             else if (WIFSIGNALED(status))
             {
-                fprintf(stdout, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
+                fprintf(stderr, GRIS_T "[reaper(): Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
                         jobs_list[fi].pid, jobs_list[fi].cmd, WTERMSIG(status));
             }
 #endif
