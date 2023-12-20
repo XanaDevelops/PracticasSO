@@ -41,6 +41,7 @@ int internal_fg(char **args);
 int internal_bg(char **args);
 
 int is_background(char **args);
+int is_output_redirection (char **args);
 int jobs_list_add(pid_t pid, char estado, char *cmd);
 int jobs_list_find(pid_t pid);
 int jobs_list_remove(int pos);
