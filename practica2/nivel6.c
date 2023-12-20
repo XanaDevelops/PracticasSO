@@ -976,7 +976,7 @@ int is_output_redirection (char **args) {
         //Cercam existència del token > seguit de qualque cosa
         if(strcmp(args[cont], ">") == 0 && (args[cont + 1] != NULL)){
         args[cont] = NULL;
-        int fd =  open(args[cont + 1], O_WRONLY | O_CREAT | O_TRUNC, FPERMS);
+        int fd =  open(args[cont + 1], O_CREAT | O_WRONLY, FPERMS);
         if (fd == -1) {
                 perror("is_output_redirection(): open");
                 return -1;
