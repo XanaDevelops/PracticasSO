@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <sys/wait.h>
 #include <signal.h>
-#include <fcntl.h>     /* Modes de opertura de la funció open()*/
+#include <fcntl.h> /* Modes de opertura de la funció open()*/
 
 #define DEBUG 1
 
@@ -30,7 +30,6 @@
 #define CYAN_T "\x1b[36m"
 #define BLANCO_T "\x1b[97m"
 #define NEGRITA "\x1b[1m"
-
 
 #define MENSAJE_DESPEDIDA "\nQue la fuerza te acompañe\n\n"
 
@@ -782,7 +781,7 @@ int jobs_list_find(pid_t pid)
 #if DEBUG
     fprintf(stderr, GRIS_T "[jobs_list_find(): se va a buscar %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
 #endif
-    for (int i = 1; i < n_job+1 && i < N_JOBS; i++)
+    for (int i = 1; i < n_job + 1 && i < N_JOBS; i++)
     {
         if (jobs_list[i].pid == pid)
         {
@@ -852,37 +851,40 @@ int internal_fg(char **args)
 /**
  * Funció internal_bg
  * -----------------------------
- * Reactivar un procés detingut perquè es 
+ * Reactivar un procés detingut perquè es
  * segueixi executant en segon pla
- * 
+ *
  * param: args --> punter al punter dels tokens d'arguments
- * 
+ *
  * return: 0 si hi ha hagut un error (comanda ja en execució o altres),
  *  1 en altre cas.
- * 
-*/
+ *
+ */
 int internal_bg(char **args)
 {
 #if DEBUG
-        fprintf(stderr, GRIS_T "[internal_bg()→ Aquesta funció reactivará un procés detingut perquè es segueixi executant en segon pla]\n" RESET);
+    fprintf(stderr, GRIS_T "[internal_bg()→ Aquesta funció reactivará un procés detingut perquè es segueixi executant en segon pla]\n" RESET);
 #endif
 
     // Comprovar si hi ha error de sintaxis
-    if(!args[1]) {
+    if (!args[1])
+    {
         fprintf(stderr, ROJO_T "Error de sintaxis (Numero de treball ausent). Uso: bg <numero_de_treball>\n" RESET);
         return 0;
     }
 
-    int pos = (int) strtol(args[1], NULL, 10);
+    int pos = (int)strtol(args[1], NULL, 10);
 
     // Comprovar si existeix el treball
-    if(pos <= 0 || pos > n_job) {
+    if (pos <= 0 || pos > n_job)
+    {
         fprintf(stderr, ROJO_T "Error: el treball no existeix\n" RESET);
         return 0;
     }
 
     // Comprovar si el treball ja s'està executant
-    if(jobs_list[pos].estado == 'E') {
+    if (jobs_list[pos].estado == 'E')
+    {
         fprintf(stderr, ROJO_T "Error: el treball ja està en segon pla\n" RESET);
         return 0;
     }
@@ -895,7 +897,8 @@ int internal_bg(char **args)
     strcat(jobs_list[pos].cmd, " &");
 
     // Enviar a jobs_list[pos].pid la senyal SIGCONT
-    if(kill(pid, SIGCONT) == -1) {
+    if (kill(pid, SIGCONT) == -1)
+    {
         perror(ROJO_T "kill");
         return 0;
     }
@@ -903,7 +906,7 @@ int internal_bg(char **args)
 #ifdef DEBUG
     fprintf(stderr, GRIS_T "[internal_bg()→ señal 18 (SIGCONT) enviada a %d (%s)]\n" RESET, pid, jobs_list[pos].cmd);
 #endif
-    
+
     return 1;
 }
 
@@ -961,39 +964,49 @@ void reaper(int signum)
 }
 
 /*
- *  Funcií is_output_redirection 
+ *  Funció: is_output_redirection
  * --------------------
  *  Indica amb una booleana si els arguments s'han de redirigir, a més si s'han de redirigir els modifica.
  *
- * param: args --> punter al punter dels tokens d'arguments
+ *  param: args --> punter al punter dels tokens d'arguments
  *
  *  return: 1 si hi ha d'haver redirecció, sinó 0
  */
-int is_output_redirection (char **args) {
+int is_output_redirection(char **args)
+{
     int cont = 0;
     while (args[cont])
-    {   
-        //Cercam existència del token > seguit de qualque cosa
-        if(strcmp(args[cont], ">") == 0 && (args[cont + 1] != NULL)){
-        args[cont] = NULL;
-        int fd =  open(args[cont + 1], O_CREAT | O_WRONLY, FPERMS);
-        if (fd == -1) {
+    {
+        // Cercam existència del token > seguit de qualque cosa
+        if (strcmp(args[cont], ">") == 0 && (args[cont + 1] != NULL))
+        {
+            args[cont] = NULL;
+            int fd = open(args[cont + 1], O_CREAT | O_WRONLY, FPERMS);
+            if (fd == -1)
+            {
                 perror("is_output_redirection(): open");
                 return -1;
-            }  
+            }
+            //Tancar la sortida estàndard (descriptor 1)
+            close(1);
 
-        
-        
-        if (close(fd) == -1) {
+            int stdoutn = dup(fd);
+            if (dup(fd) == -1)
+            {
+                perror("is_output_redirection(): dup");
+                return -1;
+            }
+
+            if (close(fd) == -1)
+            {
                 perror("is_output_redirection(): close");
                 return -1;
             }
-         return 1;   
+            return 1;
         }
         cont++;
     }
     return 0;
-    
 }
 
 void imprimir_prompt()
