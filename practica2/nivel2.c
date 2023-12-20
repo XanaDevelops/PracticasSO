@@ -60,7 +60,7 @@ int main()
             if (isIn)
             {
 #if DEBUG
-                fprintf(stdout, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
+                fprintf(stderr, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
 #endif
                 continue;
             }
@@ -84,7 +84,7 @@ char *read_line(char *line)
     if (feof(stdin))
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
+        fprintf(stderr, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
 #endif
         clearerr(stdin);
         return NULL;
@@ -113,7 +113,7 @@ int execute_line(char *line)
 
     int n_tokens = parse_args(args, line);
 #if DEBUG
-    fprintf(stdout, GRIS_T "[execute_line(): ntokens = %d]\n", n_tokens);
+    fprintf(stderr, GRIS_T "[execute_line(): ntokens = %d]\n", n_tokens);
 #endif
     return n_tokens; // placeholder
 }
@@ -260,7 +260,7 @@ int parse_args(char **args, char *line)
 #if DEBUG
     for (int i = 0; i < nt + 1; i++)
     {
-        fprintf(stdout, GRIS_T "[parse_args(): token %i: |%s|]\n" RESET, i, *(args + i));
+        fprintf(stderr, GRIS_T "[parse_args(): token %i: |%s|]\n" RESET, i, *(args + i));
     }
 #endif
     return nt;
@@ -279,7 +279,7 @@ int check_internal(char **args)
 {
     char *cmd = *(args);
 #if DEBUG
-    fprintf(stdout, GRIS_T "[check_internal(): comprobando %s]\n" RESET, cmd);
+    fprintf(stderr, GRIS_T "[check_internal(): comprobando %s]\n" RESET, cmd);
 #endif
     const int n_cmd = 7;
     const char *cmds_text[] = {"cd", "export", "source", "fg", "bg", "jobs", "exit"};
@@ -380,8 +380,8 @@ int internal_export(char **args)
     }
 
 #if DEBUG
-    fprintf(stdout, GRIS_T "[internal_export()→ nombre: %s]\n" RESET, variable);
-    fprintf(stdout, GRIS_T "[internal_export()→ valor: %s]\n" RESET, valor);
+    fprintf(stderr, GRIS_T "[internal_export()→ nombre: %s]\n" RESET, variable);
+    fprintf(stderr, GRIS_T "[internal_export()→ valor: %s]\n" RESET, valor);
 #endif
 
     char *antic_valor = getenv(variable);
@@ -389,20 +389,20 @@ int internal_export(char **args)
     if (antic_valor == NULL)
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "[internal_export()→ antiguo valor para %s: (null)]\n" RESET, variable);
+        fprintf(stderr, GRIS_T "[internal_export()→ antiguo valor para %s: (null)]\n" RESET, variable);
 #endif
     }
     else
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "[internal_export()→ antiguo valor para %s: %s]\n" RESET, variable, antic_valor);
+        fprintf(stderr, GRIS_T "[internal_export()→ antiguo valor para %s: %s]\n" RESET, variable, antic_valor);
 #endif
     }
 
     setenv(variable, valor, 1);
 
 #if DEBUG
-    fprintf(stdout, GRIS_T "[internal_export()→ nuevo valor para %s: %s]\n" RESET, variable, valor);
+    fprintf(stderr, GRIS_T "[internal_export()→ nuevo valor para %s: %s]\n" RESET, variable, valor);
 #endif
 
     return 0;

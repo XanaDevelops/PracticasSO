@@ -95,7 +95,7 @@ int main(int argc, char **argsc)
             if (r == 1)
             {
 #if DEBUG
-                fprintf(stdout, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
+                fprintf(stderr, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
 #endif
                 continue;
             }
@@ -119,7 +119,7 @@ char *read_line(char *line)
     if (feof(stdin))
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
+        fprintf(stderr, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
 #endif
         clearerr(stdin);
         return NULL;
@@ -198,8 +198,8 @@ int execute_line(char *line)
 
         // visualització del PID del pare i del fill
 #if DEBUG
-        fprintf(stdout, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), mini_shell);
-        fprintf(stdout, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
+        fprintf(stderr, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), my_shell);
+        fprintf(stderr, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
 #endif
         fprintf(stdout, RESET);
         // fflush(stdout);
@@ -354,7 +354,7 @@ int parse_args(char **args, char *line)
 #if DEBUG
     for (int i = 0; i < nt + 1; i++)
     {
-        fprintf(stdout, GRIS_T "[parse_args(): token %i: |%s|]\n" RESET, i, *(args + i));
+        fprintf(stderr, GRIS_T "[parse_args(): token %i: |%s|]\n" RESET, i, *(args + i));
     }
 #endif
     return nt;
@@ -414,7 +414,7 @@ int check_internal(char **args)
 {
     char *cmd = *(args);
 #if DEBUG
-    fprintf(stdout, GRIS_T "[check_internal(): comprobando %s]\n" RESET, cmd);
+    fprintf(stderr, GRIS_T "[check_internal(): comprobando %s]\n" RESET, cmd);
 #endif
     const int n_cmd = 7;
     const char *cmds_text[] = {"cd", "export", "source", "fg", "bg", "jobs", "exit"};
@@ -515,8 +515,8 @@ int internal_export(char **args)
     }
 
 #if DEBUG
-    fprintf(stdout, GRIS_T "[internal_export(): nombre: %s]\n" RESET, variable);
-    fprintf(stdout, GRIS_T "[internal_export(): valor: %s]\n" RESET, valor);
+    fprintf(stderr, GRIS_T "[internal_export(): nombre: %s]\n" RESET, variable);
+    fprintf(stderr, GRIS_T "[internal_export(): valor: %s]\n" RESET, valor);
 #endif
 
     char *antic_valor = getenv(variable);
@@ -524,20 +524,20 @@ int internal_export(char **args)
     if (antic_valor == NULL)
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "[internal_export(): antic valor per %s: (null)]\n" RESET, variable);
+        fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: (null)]\n" RESET, variable);
 #endif
     }
     else
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, antic_valor);
+        fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, antic_valor);
 #endif
     }
 
     setenv(variable, valor, 1);
 
 #if DEBUG
-    fprintf(stdout, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, valor);
+    fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, valor);
 #endif
 
     return 0;
@@ -624,12 +624,12 @@ void reaper(int signum)
             // obtenció de les dades de finalització del fill
             if (WIFEXITED(status))
             {
-                fprintf(stdout, GRIS_T "[reaper()→Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
+                fprintf(stderr, GRIS_T "[reaper()→Procés fill %d (%s) finalitzat amb exit(), status: %d]\n" RESET,
                         jobs_list[0].pid, jobs_list[0].cmd, WEXITSTATUS(status));
             }
             else if (WIFSIGNALED(status))
             {
-                fprintf(stdout, GRIS_T "[reaper()→Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
+                fprintf(stderr, GRIS_T "[reaper()→Procés fill %d (%s) finalitzat amb senyal, status: %d]\n" RESET,
                         jobs_list[0].pid, jobs_list[0].cmd, WTERMSIG(status));
             }
 #endif

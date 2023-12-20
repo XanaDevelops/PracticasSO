@@ -60,7 +60,7 @@ int main()
             if (isIn)
             {
 #if DEBUG
-                fprintf(stdout, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
+                fprintf(stderr, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
 #endif
                 continue;
             }
@@ -84,7 +84,7 @@ char *read_line(char *line)
     if (feof(stdin))
     {
 #if DEBUG
-        fprintf(stdout, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
+        fprintf(stderr, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
 #endif
         clearerr(stdin);
         return NULL;
@@ -113,7 +113,7 @@ int execute_line(char *line)
 
     int n_tokens = parse_args(args, line);
     #if DEBUG
-    fprintf(stdout, GRIS_T "[execute_line(): ntokens = %d]\n", n_tokens);
+    fprintf(stderr, GRIS_T "[execute_line(): ntokens = %d]\n", n_tokens);
     #endif
     return n_tokens; // placeholder
 }
@@ -132,7 +132,7 @@ int execute_line(char *line)
 int parse_args(char **args, char *line)
 {
 #if DEBUG
-    fprintf(stdout, GRIS_T "[parse_args(): parseando %s]\n" RESET, line);
+    fprintf(stderr, GRIS_T "[parse_args(): parseando %s]\n" RESET, line);
 #endif
     char *token = strtok(line, delim);
 
@@ -145,12 +145,12 @@ int parse_args(char **args, char *line)
             return -1;
         }
 #if DEBUG
-        fprintf(stdout, GRIS_T "[parse_args(): token: %s]\n" RESET, token);
+        fprintf(stderr, GRIS_T "[parse_args(): token: %s]\n" RESET, token);
 #endif
         if (*(token) == '#')
         {
 #if DEBUG
-            fprintf(stdout, GRIS_T "[parse_args(): Comentario detectado -> (null)]\n" RESET);
+            fprintf(stderr, GRIS_T "[parse_args(): Comentario detectado -> (null)]\n" RESET);
 #endif
             *(args + nt) = token;
             break;
@@ -182,7 +182,7 @@ int check_internal(char **args)
 {
     char *cmd = *(args);
 #if DEBUG
-    fprintf(stdout, GRIS_T "[check_internal(): comprobando %s]\n" RESET, cmd);
+    fprintf(stderr, GRIS_T "[check_internal(): comprobando %s]\n" RESET, cmd);
 #endif
     const int n_cmd = 7;
     const char *cmds_text[] = {"cd", "export", "source", "fg", "bg", "jobs", "exit"};
