@@ -789,10 +789,62 @@ int internal_fg(char **args)
     return 0;
 }
 
+/**
+ * Funció internal_bg
+ * -----------------------------
+ * Reactivar un procés detingut perquè es 
+ * segueixi executant en segon pla
+ * 
+ * param: args --> punter al punter dels tokens d'arguments
+ * 
+ * return: 0 si hi ha hagut un error (comanda ja en execució o altres),
+ *  1 en altre cas.
+ * 
+*/
 int internal_bg(char **args)
 {
-    printf("Seguir executant el procés passat per paràmetre però en segon pla\n");
-    return 0;
+#if DEBUG
+        fprintf(stdout, GRIS_T "[internal_bg()→ Aquesta funció reactivará un procés detingut perquè es segueixi executant en segon pla]\n" RESET);
+#endif
+
+    // Comprovar si hi ha error de sintaxis
+    if(!args[1]) {
+        fprintf(stderr, ROJO_T "Error de sintaxis (Numero de treball ausent). Uso: bg <numero_de_treball>\n" RESET);
+        return 0;
+    }
+
+    int pos = (int) strtol(args[1], NULL, 10);
+
+    // Comprovar si existeix el treball
+    if(pos <= 0 || pos > n_job) {
+        fprintf(stderr, ROJO_T "Error: el treball no existeix\n" RESET);
+        return 0;
+    }
+
+    // Comprovar si el treball ja s'està executant
+    if(jobs_list[pos].estado == 'E') {
+        fprintf(stderr, ROJO_T "Error: el treball ja està en segon pla\n" RESET);
+        return 0;
+    }
+
+    // Guardar el PID abans de canviar d'estat
+    pid_t pid = jobs_list[pos].pid;
+
+    // Canviar l'estat del treball a 'E' y afegir " &" al seu cmd
+    jobs_list[pos].estado = 'E';
+    strcat(jobs_list[pos].cmd, " &");
+
+    // Enviar a jobs_list[pos].pid la senyal SIGCONT
+    if(kill(pid, SIGCONT) == -1) {
+        perror(ROJO_T "kill");
+        return 0;
+    }
+
+#ifdef DEBUG
+    fprintf(stdout, GRIS_T "[internal_bg()→ señal 18 (SIGCONT) enviada a %d (%s)]\n" RESET, pid, jobs_list[pos].cmd);
+#endif
+    
+    return 1;
 }
 
 void reaper(int signum)
