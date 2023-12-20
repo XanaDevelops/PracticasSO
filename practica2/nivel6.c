@@ -785,7 +785,12 @@ int jobs_list_find(pid_t pid)
 
 int internal_fg(char **args)
 {
-    printf("Porta el procés passat per paràmetre a primer pla\n");
+    if(args[1]==NULL){
+        fprintf(stderr, ROJO_T "internal_fg() ERROR: Uso $ fg {pid}\n");
+        return -1;
+    }
+    pid_t pid = atoi(args[1]);
+    
     return 0;
 }
 
