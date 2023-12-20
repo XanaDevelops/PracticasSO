@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <fcntl.h>     /* Modes de opertura de la funció open()*/
 
 #define DEBUG 1
 
