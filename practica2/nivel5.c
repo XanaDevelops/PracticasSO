@@ -475,9 +475,10 @@ void ctrlz(int signum)
 #if DEBUG
             fprintf(stdout, GRIS_T "[ctrlz(): %s no és una execució del nostre mini shelll, per tant se li enviarà SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
+            
             // enviar SIGSTOP
             kill(jobs_list[0].pid, SIGSTOP);
-            fprintf(stdout, BLANCO_T "[ctrlz(): se li ha enviat %s a %s. PID: %d]\n" RESET, SIGSTOP, jobs_list[0].cmd, getpid());
+            fprintf(stdout, BLANCO_T "[ctrlz(): se li ha enviat %d a %s. PID: %d]\n" RESET, SIGSTOP, jobs_list[0].cmd, getpid());
 
             jobs_list[0].estado = 'D';
             jobs_list_add(jobs_list[0].pid, jobs_list[0].estado, jobs_list[0].cmd);
