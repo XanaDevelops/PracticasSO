@@ -424,30 +424,33 @@ int parse_args(char **args, char *line)
 void ctrlc(int signum)
 {
     signal(SIGINT, ctrlc);
-#if DEBUG
+    fprintf(stdout, "\n");
+#if DEBUG4
     fprintf(stdout, GRIS_T "[ctrlc(): Interromp execució]\n" RESET);
 #endif
     // mirar si hi ha un procés a foreground
     if (jobs_list[0].pid != 0)
     {
-#if DEBUG
+#if DEBUG4
         fprintf(stdout, GRIS_T "[ctrlc(): %s és procés fill. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
         // mirar si el procés és el nostre shell
         if (strcmp(jobs_list[0].cmd, mini_shell))
         {
-#if DEBUG
+#if DEBUG4
             fprintf(stdout, GRIS_T "[ctrlc(): %s no és una execució del nostre mini shelll, per tant s'interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
             kill(jobs_list[0].pid, SIGTERM);
         }
+        perror("Senyal SIGTERM no enviat pel fet que el procés en foreground és mini_shell");
         pause();
         return;
     }
-#if DEBUG
+#if DEBUG4
     fprintf(stdout, GRIS_T "[ctrlc(): %s no és una execució en foreground, per tant no se la interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
     fflush(stdout);
+    perror("Senyal SIGTERM no enviat pel fet que no hi ha procés en foreground");
     return;
 }
 
@@ -463,7 +466,7 @@ void ctrlz(int signum)
 {
     signal(SIGTSTP, ctrlz);
 
-#if DEBUG
+#if DEBUG5
     fprintf(stdout, GRIS_T "[ctrlz(): El procés %s està en foreground. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
 
@@ -473,7 +476,7 @@ void ctrlz(int signum)
         // Si el procés no és una execució del mini-Shell
         if (strcmp(jobs_list[0].cmd, mini_shell))
         {
-#if DEBUG
+#if DEBUG5
             fprintf(stdout, GRIS_T "[ctrlz(): %s no és una execució del nostre mini shelll, per tant se li enviarà SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
 
@@ -490,16 +493,17 @@ void ctrlz(int signum)
 
             return;
         }
-#if DEBUG
+#if DEBUG5
         fprintf(stdout, GRIS_T "[ctrlz(): %s és el shell, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
+        perror("Señal SIGSTOP no enviada debido a que el proceso en foreground es el shell");
         pause();
         return;
     }
-#if DEBUG
+#if DEBUG5
     fprintf(stdout, GRIS_T "[ctrlz(): %s no és una execució en foreground, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
-
+    perror("Senyal SIGSTOP no enviat pel fet que no hi ha procés en foreground");
     return;
 }
 
@@ -557,7 +561,7 @@ int check_internal(char **args)
  */
 int internal_cd(char **args)
 {
-#if DEBUG
+#if DEBUG2
     fprintf(stdout, GRIS_T "[internal_cd(): Canviant directori...]\n" RESET);
 #endif
     char cwd[COMMAND_LINE_SIZE];
@@ -571,7 +575,7 @@ int internal_cd(char **args)
     {
         strcat(cwd, args[1]);
     }
-#if DEBUG
+#if DEBUG2
     fprintf(stdout, GRIS_T "[internal_cd(): Directori a canviar: %s]\n" RESET, cwd);
 #endif
     if (chdir(cwd) == -1)
@@ -580,7 +584,7 @@ int internal_cd(char **args)
         return -1;
     }
 
-#if DEBUG
+#if DEBUG2
     fprintf(stdout, GRIS_T "[internal_cd(): Directori canviat]\n" RESET);
 #endif
     return 0;
@@ -658,7 +662,7 @@ int internal_export(char **args)
 int internal_source(char **args)
 {
 
-#if DEBUG
+#if DEBUG3
     fprintf(stdout, GRIS_T "[internal_source(): Executant fitxer ...]\n" RESET);
 #endif
     char aux[COMMAND_LINE_SIZE];
@@ -684,12 +688,12 @@ int internal_source(char **args)
         {
             *(fi) = '\0';
         }
-#if DEBUG
+#if DEBUG3
         fprintf(stdout, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
 #endif
     }
 
-#if DEBUG
+#if DEBUG3
     fprintf(stdout, GRIS_T "[internal_source(): Fitxer executat]\n" RESET);
 #endif
     return 0;
@@ -833,7 +837,7 @@ void reaper(int signum)
         {
             int fi = jobs_list_find(ended);
 
-#if DEBUG
+#if DEBUG5
             // obtenció de les dades de finalització del fill en background
             if (WIFEXITED(status))
             {
@@ -851,6 +855,19 @@ void reaper(int signum)
             jobs_list_remove(fi);
         }
     }
+}
+
+/*
+ *  Funcií is_output_redirection 
+ * --------------------
+ *  Indica amb una booleana si els arguments s'han de redirigir, a més si s'han de redirigir els modifica.
+ *
+ * param: args --> punter al punter dels tokens d'arguments
+ *
+ *  return: 1 si hi ha d'haver redirecció, sinó 0
+ */
+int is_output_redirection (char **args) {
+    
 }
 
 void imprimir_prompt()

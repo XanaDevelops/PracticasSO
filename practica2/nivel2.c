@@ -320,7 +320,7 @@ int check_internal(char **args)
  */
 int internal_cd(char **args)
 {
-#if DEBUG
+#if DEBUG2
     fprintf(stdout, GRIS_T "[internal_cd(): Canviant directori...]\n" RESET);
 #endif
     char cwd[COMMAND_LINE_SIZE];
@@ -334,7 +334,7 @@ int internal_cd(char **args)
     {
         strcat(cwd, args[1]);
     }
-#if DEBUG
+#if DEBUG2
     fprintf(stdout, GRIS_T "[internal_cd(): Directori a canviar: %s]\n" RESET, cwd);
 #endif
     if (chdir(cwd) == -1)
@@ -343,7 +343,7 @@ int internal_cd(char **args)
         return -1;
     }
 
-#if DEBUG
+#if DEBUG2
     fprintf(stdout, GRIS_T "[internal_cd(): Directori canviat]\n" RESET);
 #endif
     return 0;

@@ -50,7 +50,7 @@ void imprimir_prompt();
 
 const char *delim = " \t\n\r";
 
-static char mi_shell[COMMAND_LINE_SIZE];
+static char mini_shell[COMMAND_LINE_SIZE];
 char line[COMMAND_LINE_SIZE];
 char aux_line[COMMAND_LINE_SIZE];
 char *args[ARGS_SIZE];
@@ -59,7 +59,7 @@ static struct info_job jobs_list[N_JOBS];
 
 int main(int argc, char **argsc)
 {
-    strcpy(mi_shell, argsc[0]);
+    strcpy(mini_shell, argsc[0]);
     // inicializar jobs_list
     for (int i = 0; i < N_JOBS; i++)
     {
@@ -175,7 +175,7 @@ int execute_line(char *line)
 
         // visualització del PID del pare i del fill
 #if DEBUG
-        fprintf(stdout, GRIS_T "[execute_line()→PID pare: %d (%s)]\n" RESET, getppid(), mi_shell);
+        fprintf(stdout, GRIS_T "[execute_line()→PID pare: %d (%s)]\n" RESET, getppid(), mini_shell);
         fprintf(stdout, GRIS_T "[execute_line()→PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
 #endif
         fprintf(stdout, RESET);
@@ -413,7 +413,7 @@ int check_internal(char **args)
  */
 int internal_cd(char **args)
 {
-#if DEBUG
+#if DEBUG2
     fprintf(stdout, GRIS_T "[internal_cd(): Canviant directori...]\n" RESET);
 #endif
     char cwd[COMMAND_LINE_SIZE];
@@ -427,7 +427,7 @@ int internal_cd(char **args)
     {
         strcat(cwd, args[1]);
     }
-#if DEBUG
+#if DEBUG2
     fprintf(stdout, GRIS_T "[internal_cd(): Directori a canviar: %s]\n" RESET, cwd);
 #endif
     if (chdir(cwd) == -1)
@@ -436,7 +436,7 @@ int internal_cd(char **args)
         return -1;
     }
 
-#if DEBUG
+#if DEBUG2
     fprintf(stdout, GRIS_T "[internal_cd(): Directori canviat]\n" RESET);
 #endif
     return 0;
@@ -514,7 +514,7 @@ int internal_export(char **args)
 int internal_source(char **args)
 {
 
-#if DEBUG
+#if DEBUG3
     fprintf(stdout, GRIS_T "[internal_source(): Executant fitxer ...]\n" RESET);
 #endif
     char aux[COMMAND_LINE_SIZE];
@@ -540,12 +540,12 @@ int internal_source(char **args)
         {
             *(fi) = '\0';
         }
-#if DEBUG
+#if DEBUG3
         fprintf(stdout, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
 #endif
     }
 
-#if DEBUG
+#if DEBUG3
     fprintf(stdout, GRIS_T "[internal_source(): Fitxer executat]\n" RESET);
 #endif
     return 0;
