@@ -10,6 +10,8 @@
 
 #define DEBUG 1
 
+#define DEBUG6 1
+
 #define COMMAND_LINE_SIZE 1024 // max size command line
 #define ARGS_SIZE 64
 #define N_JOBS 64
@@ -41,7 +43,7 @@ int internal_fg(char **args);
 int internal_bg(char **args);
 
 int is_background(char **args);
-int is_output_redirection (char **args);
+int is_output_redirection(char **args);
 int jobs_list_add(pid_t pid, char estado, char *cmd);
 int jobs_list_find(pid_t pid);
 int jobs_list_remove(int pos);
@@ -773,10 +775,13 @@ int jobs_list_find(pid_t pid)
 #if DEBUG
     fprintf(stdout, GRIS_T "[jobs_list_find(): se va a buscar %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
 #endif
-    for (int i = 1; i < n_job + 1 && i < N_JOBS; i++)
+    for (int i = 1; i < n_job+1 && i < N_JOBS; i++)
     {
         if (jobs_list[i].pid == pid)
         {
+#if DEBUG
+            fprintf(stdout, GRIS_T "[jobs_list_find(): encontrado en %d]\n" RESET, i);
+#endif
             return i;
         }
     }
@@ -785,12 +790,55 @@ int jobs_list_find(pid_t pid)
 
 int internal_fg(char **args)
 {
-    if(args[1]==NULL){
-        fprintf(stderr, ROJO_T "internal_fg() ERROR: Uso $ fg {pid}\n");
+    if (args[1] == NULL)
+    {
+        fprintf(stderr, ROJO_T "internal_fg() ERROR: Uso $ fg {pid}\n" RESET);
         return -1;
     }
-    pid_t pid = atoi(args[1]);
-    
+    pid_t val = atoi(args[1]);
+    if (val == 0)
+    {
+        fprintf(stderr, ROJO_T "internal_fg() ERROR: Uso $ fg {pid}\n" RESET);
+        return -1;
+    }
+    int pos = jobs_list_find(val);
+    if (pos > n_job || pos <= 0)
+    {
+        fprintf(stderr, ROJO_T "no existe ese trabajo\n" RESET);
+        return -1;
+    }
+#if DEBUG6
+    fprintf(stderr, GRIS_T "[internal_fg(): activando job %d en pos %d]\n" RESET, val, pos);
+#endif
+    if (jobs_list[pos].estado == 'D')
+    {
+#if DEBUG6
+        fprintf(stderr, GRIS_T "[internal_fg(): estado es 'D']\n" RESET);
+#endif
+        if (kill(jobs_list[pos].pid, SIGCONT))
+        {
+            perror("interal_fg(): kill()");
+            return -1;
+        }
+    }
+    else
+    {
+#if DEBUG6
+        fprintf(stderr, GRIS_T "[internal_fg(): estado es 'E']\n" RESET);
+#endif
+    }
+    strncpy(jobs_list[0].cmd, jobs_list[pos].cmd, COMMAND_LINE_SIZE);
+    jobs_list[0].estado = 'E';
+    char *sym = strchr(jobs_list[0].cmd, '&');
+    if (sym)
+    {
+        *(sym) = '\0';
+    }
+    jobs_list_remove(pos);
+    fprintf(stdout, "fg: %s\n", jobs_list[0].cmd);
+
+    pause();
+
     return 0;
 }
 
