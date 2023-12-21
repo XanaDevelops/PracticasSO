@@ -320,7 +320,7 @@ int check_internal(char **args)
 }
 
 /**
- * Funció: cd
+ * Funció: internal_cd
  * -------------------
  * Cambiar de directori.
  *

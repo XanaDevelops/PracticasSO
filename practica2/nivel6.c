@@ -22,7 +22,6 @@
 #define DEBUG2 0
 #define DEBUG1 0
 
-
 #define COMMAND_LINE_SIZE 1024 // max size command line
 #define ARGS_SIZE 64
 #define N_JOBS 64
@@ -714,6 +713,7 @@ int internal_source(char **args)
 #if DEBUG3
         fprintf(stderr, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
 #endif
+        execute_line(line);
     }
 
 #if DEBUG3
@@ -726,9 +726,9 @@ int internal_source(char **args)
  * Funció: internal_jobs()
  * ---------------------
  * Imprimeix els processos en background
- * 
+ *
  * return: 0 si no hi ha errors.
-*/
+ */
 int internal_jobs()
 {
 #if DEBUG5
@@ -751,14 +751,14 @@ int internal_jobs()
  * Funció: jobs_list_add()
  * ---------------------
  * Afegeix un proces a jobs_list
- * 
+ *
  * param:
- * pid -> pid del procés 
+ * pid -> pid del procés
  * estado -> estat del procés
  * *cmd -> linea de comandes
- * 
+ *
  * return: 0 si no hi ha erorrs.
-*/
+ */
 int jobs_list_add(pid_t pid, char estado, char *cmd)
 {
 #if DEBUG5
@@ -787,11 +787,11 @@ int jobs_list_add(pid_t pid, char estado, char *cmd)
  * Funció: jobs_list_remove()
  * ---------------------
  * Elimina la posició pos de jobs_list[]
- * 
+ *
  * param pos -> posició a eliminar
- * 
+ *
  * return: 0 si s'executa correctament.
-*/
+ */
 int jobs_list_remove(int pos)
 {
 #if DEBUG5
@@ -827,11 +827,11 @@ int jobs_list_remove(int pos)
  * Funció: jobs_list_find()
  * ---------------------
  * Cerca la posició dins jobs_list[] d'un proces
- * 
+ *
  * param pid -> pid del proces a cercar
- * 
+ *
  * return: la posició si existeix, sino -1.
-*/
+ */
 int jobs_list_find(pid_t pid)
 {
 #if DEBUG5
@@ -854,12 +854,12 @@ int jobs_list_find(pid_t pid)
  * Funció: internal_fg()
  * ---------------------
  * Mou a foreground un proces per el seu pid
- * 
+ *
  * param **args -> punter al punter dels tokens d'arguments
  * args[1] -> pid
- * 
+ *
  * return 0 si s'executa correctament.
-*/
+ */
 int internal_fg(char **args)
 {
     if (args[1] == NULL)
@@ -1094,7 +1094,7 @@ void imprimir_prompt()
     else
     // Sino imprimeix path sencer
     {
-        fprintf(stdout, VERDE_T NEGRITA"%s" RESET, cwd);
+        fprintf(stdout, VERDE_T NEGRITA "%s" RESET, cwd);
     }
 
     fprintf(stdout, ROJO_T NEGRITA "$ " RESET);

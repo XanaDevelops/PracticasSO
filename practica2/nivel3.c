@@ -168,7 +168,7 @@ int execute_line(char *line)
 
     // comprovar si es tracata d'un procés fill o pare
     if (child == 0)
-    {   // procés fill
+    { // procés fill
         // cridada al sistema per executar la comanda externa
         execvp(args[0], args);
 
@@ -189,7 +189,7 @@ int execute_line(char *line)
         fprintf(stderr, GRIS_T "[execute_line()→PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
 #endif
         fprintf(stdout, RESET);
-        //fflush(stdout);
+        // fflush(stdout);
         fflush(NULL);
 
         // esperar a rebre la informació del canvi d'estat del fill
@@ -553,6 +553,7 @@ int internal_source(char **args)
 #if DEBUG3
         fprintf(stdout, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
 #endif
+        execute_line(line);
     }
 
 #if DEBUG3
@@ -565,9 +566,9 @@ int internal_source(char **args)
  * Funció: internal_jobs()
  * ---------------------
  * Imprimeix els processos en background
- * 
+ *
  * return: 0 si no hi ha errors.
-*/
+ */
 int internal_jobs()
 {
     printf("Imprimeix la llista de treballs\n");
@@ -578,12 +579,12 @@ int internal_jobs()
  * Funció: internal_fg()
  * ---------------------
  * Mou a foreground un proces per el seu pid
- * 
+ *
  * param **args -> punter al punter dels tokens d'arguments
  * args[1] -> pid
- * 
+ *
  * return 0 si s'executa correctament.
-*/
+ */
 int internal_fg(char **args)
 {
     printf("Porta el procés passat per paràmetre a primer plà\n");
@@ -611,7 +612,7 @@ void imprimir_prompt()
     else
     // Sino imprimeix path sencer
     {
-        fprintf(stdout, VERDE_T NEGRITA"%s" RESET, cwd);
+        fprintf(stdout, VERDE_T NEGRITA "%s" RESET, cwd);
     }
 
     fprintf(stdout, ROJO_T NEGRITA "$ " RESET);

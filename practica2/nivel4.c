@@ -596,6 +596,7 @@ int internal_source(char **args)
 #if DEBUG3
         fprintf(stdout, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
 #endif
+        execute_line(line);
     }
 
 #if DEBUG3
@@ -608,9 +609,9 @@ int internal_source(char **args)
  * Funció: internal_jobs()
  * ---------------------
  * Imprimeix els processos en background
- * 
+ *
  * return: 0 si no hi ha errors.
-*/
+ */
 int internal_jobs()
 {
     printf("Imprimeix la llista de treballs\n");
@@ -621,12 +622,12 @@ int internal_jobs()
  * Funció: internal_fg()
  * ---------------------
  * Mou a foreground un proces per el seu pid
- * 
+ *
  * param **args -> punter al punter dels tokens d'arguments
  * args[1] -> pid
- * 
+ *
  * return 0 si s'executa correctament.
-*/
+ */
 int internal_fg(char **args)
 {
     printf("Porta el procés passat per paràmetre a primer plà\n");
@@ -684,7 +685,7 @@ void imprimir_prompt()
     else
     // Sino imprimeix path sencer
     {
-        fprintf(stdout, VERDE_T NEGRITA"%s" RESET, cwd);
+        fprintf(stdout, VERDE_T NEGRITA "%s" RESET, cwd);
     }
 
     fprintf(stdout, ROJO_T NEGRITA "$ " RESET);
