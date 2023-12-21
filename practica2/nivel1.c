@@ -97,6 +97,7 @@ char *read_line(char *line)
     {
 #if DEBUG1
         fprintf(stderr, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
+        //exit(0);
 #endif
         clearerr(stdin);
         return NULL;
