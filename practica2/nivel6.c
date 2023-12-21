@@ -843,6 +843,7 @@ int internal_fg(char **args)
         fprintf(stderr, GRIS_T "[internal_fg(): estado es 'E']\n" RESET);
 #endif
     }
+    jobs_list[0].pid = jobs_list[pos].pid;
     strncpy(jobs_list[0].cmd, jobs_list[pos].cmd, COMMAND_LINE_SIZE);
     jobs_list[0].estado = 'E';
     char *sym = strchr(jobs_list[0].cmd, '&');
