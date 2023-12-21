@@ -113,7 +113,7 @@ int main(int argc, char **argsc)
         {
             if (r == 1)
             {
-#if DEBUG
+#if DEBUG1
                 fprintf(stderr, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
 #endif
                 continue;
@@ -137,7 +137,7 @@ char *read_line(char *line)
     fgets(line, COMMAND_LINE_SIZE, stdin);
     if (feof(stdin))
     {
-#if DEBUG
+#if DEBUG1
         fprintf(stderr, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
 #endif
         clearerr(stdin);
@@ -247,7 +247,7 @@ int execute_line(char *line)
     else
     { // procés pare
       // visualització del PID del pare i del fill
-#if DEBUG
+#if DEBUG3
         fprintf(stderr, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), mini_shell);
         fprintf(stderr, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, child, line);
 #endif
@@ -413,7 +413,7 @@ int parse_args(char **args, char *line)
     }
 
     *(args + nt) = NULL;
-#if DEBUG
+#if DEBUG2
     for (int i = 0; i < nt + 1; i++)
     {
         fprintf(stderr, GRIS_T "[parse_args(): token %i: |%s|]\n" RESET, i, *(args + i));
@@ -536,7 +536,7 @@ void ctrlz(int signum)
 int check_internal(char **args)
 {
     char *cmd = *(args);
-#if DEBUG
+#if DEBUG1
     fprintf(stderr, GRIS_T "[check_internal(): comprobando %s]\n" RESET, cmd);
 #endif
     const int n_cmd = 7;
@@ -637,7 +637,7 @@ int internal_export(char **args)
         return 1;
     }
 
-#if DEBUG
+#if DEBUG2
     fprintf(stderr, GRIS_T "[internal_export(): nombre: %s]\n" RESET, variable);
     fprintf(stderr, GRIS_T "[internal_export(): valor: %s]\n" RESET, valor);
 #endif
@@ -646,20 +646,20 @@ int internal_export(char **args)
 
     if (antic_valor == NULL)
     {
-#if DEBUG
+#if DEBUG2
         fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: (null)]\n" RESET, variable);
 #endif
     }
     else
     {
-#if DEBUG
+#if DEBUG2
         fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, antic_valor);
 #endif
     }
 
     setenv(variable, valor, 1);
 
-#if DEBUG
+#if DEBUG2
     fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, valor);
 #endif
 
@@ -725,7 +725,7 @@ int internal_source(char **args)
 */
 int internal_jobs()
 {
-#if DEBUG
+#if DEBUG5
     fprintf(stderr, GRIS_T "[internal_jobs(): Existen %d jobs en bg]\n" RESET, n_job);
 #endif
     // printf("Imprimeix la llista de treballs\n");
@@ -755,7 +755,7 @@ int internal_jobs()
 */
 int jobs_list_add(pid_t pid, char estado, char *cmd)
 {
-#if DEBUG
+#if DEBUG5
     fprintf(stderr, GRIS_T "[jobs_list_add(): se va a añadir %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
 #endif
     // jobs_list[0] es el foreground
@@ -765,7 +765,7 @@ int jobs_list_add(pid_t pid, char estado, char *cmd)
         jobs_list[n_job + 1].estado = estado;
         strncpy(jobs_list[n_job + 1].cmd, cmd, COMMAND_LINE_SIZE);
         n_job++;
-#if DEBUG
+#if DEBUG5
         fprintf(stderr, GRIS_T "[jobs_list_add(): Añadido %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
 #endif
         return 0;
@@ -788,7 +788,7 @@ int jobs_list_add(pid_t pid, char estado, char *cmd)
 */
 int jobs_list_remove(int pos)
 {
-#if DEBUG
+#if DEBUG5
     fprintf(stderr, GRIS_T "[jobs_list_remove(): se va a eliminar %d. Hay %d jobs en bg]\n" RESET, pos, n_job);
 #endif
 
@@ -811,7 +811,7 @@ int jobs_list_remove(int pos)
     }
 
     n_job--;
-#if DEBUG
+#if DEBUG5
     fprintf(stderr, GRIS_T "[jobs_list_remove(): Eliminado %d. Hay %d jobs en bg]\n" RESET, pos, n_job);
 #endif
     return 0;
@@ -828,14 +828,14 @@ int jobs_list_remove(int pos)
 */
 int jobs_list_find(pid_t pid)
 {
-#if DEBUG
+#if DEBUG5
     fprintf(stderr, GRIS_T "[jobs_list_find(): se va a buscar %d. Hay %d jobs en bg]\n" RESET, pid, n_job);
 #endif
     for (int i = 1; i < n_job + 1 && i < N_JOBS; i++)
     {
         if (jobs_list[i].pid == pid)
         {
-#if DEBUG
+#if DEBUG5
             fprintf(stderr, GRIS_T "[jobs_list_find(): encontrado en %d]\n" RESET, i);
 #endif
             return i;
@@ -923,7 +923,7 @@ int internal_fg(char **args)
  */
 int internal_bg(char **args)
 {
-#if DEBUG
+#if DEBUG6
     fprintf(stderr, GRIS_T "[internal_bg()→ Aquesta funció reactivará un procés detingut perquè es segueixi executant en segon pla]\n" RESET);
 #endif
 
@@ -964,7 +964,7 @@ int internal_bg(char **args)
         return 0;
     }
 
-#ifdef DEBUG
+#ifdef DEBUG6
     fprintf(stderr, GRIS_T "[internal_bg()→ señal 18 (SIGCONT) enviada a %d (%s)]\n" RESET, pid, jobs_list[pos].cmd);
 #endif
 
@@ -983,7 +983,7 @@ void reaper(int signum)
         fprintf(stderr, GRIS_T "[reaper(): loop: %i status %i]\n" RESET, ended, status);
         if (ended == jobs_list[0].pid)
         {
-#if DEBUG
+#if DEBUG4
             // obtenció de les dades de finalització del fill en foreground
             if (WIFEXITED(status))
             {
