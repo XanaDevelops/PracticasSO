@@ -21,6 +21,9 @@
 **** Observacions per nivells ****
 *   1. El prompt és un placeholder, als següents nivells s'implementa el definitiu.
 *   2. En un principi no tenia el cd avançat, però va ser backporteat.
+*      Aquest cd avançat està disenyat per a ser usat amb cometes dobles o simples, però
+*      no ambdues a la vegada, encara que parse_args() es bastant permisiu amb la combinació
+*      de cometes i espais
 *   3. internal_source va tenir bugs que es varen solucionar més endavant.
 *   4. Debuguear des d'aquest nivell les senyals des de VSC no era posible segons la
 *      configuració, d'aquest, era més rapid usar gdb
