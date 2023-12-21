@@ -1054,8 +1054,8 @@ int is_output_redirection(char **args)
             // Tancar la sortida estàndard (descriptor 1)
             close(1);
 
-            int stdoutn = dup(fd);
-            if (dup(fd) == -1)
+            int stdoutnew = dup(fd);
+            if (stdoutnew == -1)
             {
                 perror(ROJO_T "is_output_redirection(): dup" RESET);
                 return -1;
