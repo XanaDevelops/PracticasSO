@@ -8,9 +8,9 @@
 ***********************************************************************
 ***********************************************************************
 **** Pràctica 2 per *************************************
-*       Josep Ferriol   **********************
-*       Daniel García   *******************
-*       Biel Perelló    **************
+*       Josep Ferriol Font     **********************
+*       Daniel García Vázquez  *******************
+*       Biel Perelló Perelló   **************
 *************************************
 **** Observacions per nivells ****
 *   1. El prompt és un placeholder, als següents nivells s'implementa el definitiu.
