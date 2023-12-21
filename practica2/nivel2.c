@@ -452,20 +452,20 @@ void imprimir_prompt()
     char cwd[COMMAND_LINE_SIZE];
     getcwd(cwd, COMMAND_LINE_SIZE);
 
-    fprintf(stdout, ROJO_T "%s:" RESET, getenv("USER"));
+    fprintf(stdout, ROJO_T NEGRITA "%s:" RESET, getenv("USER"));
 
     // Si esta dins usuari  retorna path relatiu a usuari (carpetes a partir d'usuari)
     if (!strncmp(cwd, getenv("HOME"), strlen(getenv("HOME"))))
     {
-        fprintf(stdout, VERDE_T "~%s" RESET, &cwd[strlen(getenv("HOME"))]);
+        fprintf(stdout, VERDE_T NEGRITA "~%s" RESET, &cwd[strlen(getenv("HOME"))]);
     }
     else
     // Sino imprimeix path sencer
     {
-        fprintf(stdout, VERDE_T "%s" RESET, cwd);
+        fprintf(stdout, VERDE_T NEGRITA"%s" RESET, cwd);
     }
 
-    fprintf(stdout, ROJO_T "$ " RESET);
+    fprintf(stdout, ROJO_T NEGRITA "$ " RESET);
 
     fflush(stdout);
     sleep(0.5);

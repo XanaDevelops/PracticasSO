@@ -284,7 +284,7 @@ int internal_bg(char **args)
 
 void imprimir_prompt()
 {
-    fprintf(stdout, ROJO_T "PROMTP$ " RESET);
+    fprintf(stdout, ROJO_T NEGRITA "PROMTP$ " RESET);
     fflush(stdout);
     sleep(0.5);
 }
