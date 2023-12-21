@@ -265,12 +265,29 @@ int internal_source(char **args)
     return 0;
 }
 
+/**
+ * Funció: internal_jobs()
+ * ---------------------
+ * Imprimeix els processos en background
+ * 
+ * return: 0 si no hi ha errors.
+*/
 int internal_jobs()
 {
     printf("Imprimeix la llista de treballs\n");
     return 0;
 }
 
+/**
+ * Funció: internal_fg()
+ * ---------------------
+ * Mou a foreground un proces per el seu pid
+ * 
+ * param **args -> punter al punter dels tokens d'arguments
+ * args[1] -> pid
+ * 
+ * return 0 si s'executa correctament.
+*/
 int internal_fg(char **args)
 {
     printf("Porta el procés passat per paràmetre a primer plà\n");

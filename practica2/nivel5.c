@@ -703,6 +703,13 @@ int internal_source(char **args)
     return 0;
 }
 
+/**
+ * Funció: internal_jobs()
+ * ---------------------
+ * Imprimeix els processos en background
+ * 
+ * return: 0 si no hi ha errors.
+*/
 int internal_jobs()
 {
 #if DEBUG
@@ -721,6 +728,18 @@ int internal_jobs()
     return 0;
 }
 
+/**
+ * Funció: jobs_list_add()
+ * ---------------------
+ * Afegeix un proces a jobs_list
+ * 
+ * param:
+ * pid -> pid del procés 
+ * estado -> estat del procés
+ * *cmd -> linea de comandes
+ * 
+ * return: 0 si no hi ha erorrs.
+*/
 int jobs_list_add(pid_t pid, char estado, char *cmd)
 {
 #if DEBUG
@@ -745,6 +764,15 @@ int jobs_list_add(pid_t pid, char estado, char *cmd)
     }
 }
 
+/**
+ * Funció: jobs_list_remove()
+ * ---------------------
+ * Elimina la posició pos de jobs_list[]
+ * 
+ * param pos -> posició a eliminar
+ * 
+ * return: 0 si s'executa correctament.
+*/
 int jobs_list_remove(int pos)
 {
 #if DEBUG
@@ -776,6 +804,15 @@ int jobs_list_remove(int pos)
     return 0;
 }
 
+/**
+ * Funció: jobs_list_find()
+ * ---------------------
+ * Cerca la posició dins jobs_list[] d'un proces
+ * 
+ * param pid -> pid del proces a cercar
+ * 
+ * return: la posició si existeix, sino -1.
+*/
 int jobs_list_find(pid_t pid)
 {
 #if DEBUG
@@ -791,6 +828,16 @@ int jobs_list_find(pid_t pid)
     return -1;
 }
 
+/**
+ * Funció: internal_fg()
+ * ---------------------
+ * Mou a foreground un proces per el seu pid
+ * 
+ * param **args -> punter al punter dels tokens d'arguments
+ * args[1] -> pid
+ * 
+ * return 0 si s'executa correctament.
+*/
 int internal_fg(char **args)
 {
     printf("Porta el procés passat per paràmetre a primer pla\n");
