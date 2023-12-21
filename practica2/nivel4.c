@@ -99,7 +99,7 @@ int main(int argc, char **argsc)
         {
             if (r == 1)
             {
-#if DEBUG
+#if DEBUG1
                 fprintf(stderr, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
 #endif
                 continue;
@@ -123,7 +123,7 @@ char *read_line(char *line)
     fgets(line, COMMAND_LINE_SIZE, stdin);
     if (feof(stdin))
     {
-#if DEBUG
+#if DEBUG1
         fprintf(stderr, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
 #endif
         clearerr(stdin);
@@ -202,7 +202,7 @@ int execute_line(char *line)
         strcpy(jobs_list[0].cmd, cline);
 
         // visualització del PID del pare i del fill
-#if DEBUG
+#if DEBUG3
         fprintf(stderr, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), mini_shell);
         fprintf(stderr, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
 #endif
@@ -356,7 +356,7 @@ int parse_args(char **args, char *line)
     }
 
     *(args + nt) = NULL;
-#if DEBUG
+#if DEBUG2
     for (int i = 0; i < nt + 1; i++)
     {
         fprintf(stderr, GRIS_T "[parse_args(): token %i: |%s|]\n" RESET, i, *(args + i));
@@ -418,8 +418,8 @@ void ctrlc(int signum)
 int check_internal(char **args)
 {
     char *cmd = *(args);
-#if DEBUG
-    fprintf(stderr, GRIS_T "[check_internal(): comprobando %s]\n" RESET, cmd);
+#if DEBUG1
+    fprintf(stderr, GRIS_T "[check_internal(): comprovant %s]\n" RESET, cmd);
 #endif
     const int n_cmd = 7;
     const char *cmds_text[] = {"cd", "export", "source", "fg", "bg", "jobs", "exit"};
@@ -506,7 +506,7 @@ int internal_export(char **args)
 
     if (args[1] == NULL)
     {
-        fprintf(stderr, ROJO_T "Error de sintaxis. Uso: export Nombre=Valor\n" RESET);
+        fprintf(stderr, ROJO_T "Error de sintaxis. Ús: export Nom=Valor\n" RESET);
         return 1;
     }
 
@@ -515,11 +515,11 @@ int internal_export(char **args)
 
     if (variable == NULL || valor == NULL)
     {
-        fprintf(stderr, ROJO_T "Error de sintaxis. Uso: export Nombre=Valor\n" RESET);
+        fprintf(stderr, ROJO_T "Error de sintaxis. Ús: export Nom=Valor\n" RESET);
         return 1;
     }
 
-#if DEBUG
+#if DEBUG2
     fprintf(stderr, GRIS_T "[internal_export(): nombre: %s]\n" RESET, variable);
     fprintf(stderr, GRIS_T "[internal_export(): valor: %s]\n" RESET, valor);
 #endif
@@ -528,20 +528,20 @@ int internal_export(char **args)
 
     if (antic_valor == NULL)
     {
-#if DEBUG
+#if DEBUG2
         fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: (null)]\n" RESET, variable);
 #endif
     }
     else
     {
-#if DEBUG
+#if DEBUG2
         fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, antic_valor);
 #endif
     }
 
     setenv(variable, valor, 1);
 
-#if DEBUG
+#if DEBUG2
     fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, valor);
 #endif
 
@@ -625,7 +625,7 @@ void reaper(int signum)
     {
         if (ended == jobs_list[0].pid)
         {
-#if DEBUG
+#if DEBUG4
             // obtenció de les dades de finalització del fill
             if (WIFEXITED(status))
             {

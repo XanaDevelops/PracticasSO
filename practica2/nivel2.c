@@ -64,7 +64,7 @@ int main()
             int isIn = check_internal(args);
             if (isIn)
             {
-#if DEBUG
+#if DEBUG1
                 fprintf(stderr, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
 #endif
                 continue;
@@ -88,7 +88,7 @@ char *read_line(char *line)
     fgets(line, COMMAND_LINE_SIZE, stdin);
     if (feof(stdin))
     {
-#if DEBUG
+#if DEBUG1
         fprintf(stderr, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
 #endif
         clearerr(stdin);
@@ -117,7 +117,7 @@ int execute_line(char *line)
 {
 
     int n_tokens = parse_args(args, line);
-#if DEBUG
+#if DEBUG1
     fprintf(stderr, GRIS_T "[execute_line(): ntokens = %d]\n", n_tokens);
 #endif
     return n_tokens; // placeholder
@@ -262,7 +262,7 @@ int parse_args(char **args, char *line)
     }
 
     *(args + nt) = NULL;
-#if DEBUG
+#if DEBUG2
     for (int i = 0; i < nt + 1; i++)
     {
         fprintf(stderr, GRIS_T "[parse_args(): token %i: |%s|]\n" RESET, i, *(args + i));
@@ -283,8 +283,8 @@ int parse_args(char **args, char *line)
 int check_internal(char **args)
 {
     char *cmd = *(args);
-#if DEBUG
-    fprintf(stderr, GRIS_T "[check_internal(): comprobando %s]\n" RESET, cmd);
+#if DEBUG1
+    fprintf(stderr, GRIS_T "[check_internal(): comprovant %s]\n" RESET, cmd);
 #endif
     const int n_cmd = 7;
     const char *cmds_text[] = {"cd", "export", "source", "fg", "bg", "jobs", "exit"};
@@ -384,30 +384,30 @@ int internal_export(char **args)
         return 1;
     }
 
-#if DEBUG
-    fprintf(stderr, GRIS_T "[internal_export()→ nombre: %s]\n" RESET, variable);
-    fprintf(stderr, GRIS_T "[internal_export()→ valor: %s]\n" RESET, valor);
+#if DEBUG2
+    fprintf(stderr, GRIS_T "[internal_export(): nom: %s]\n" RESET, variable);
+    fprintf(stderr, GRIS_T "[internal_export(): valor: %s]\n" RESET, valor);
 #endif
 
     char *antic_valor = getenv(variable);
 
     if (antic_valor == NULL)
     {
-#if DEBUG
-        fprintf(stderr, GRIS_T "[internal_export()→ antiguo valor para %s: (null)]\n" RESET, variable);
+#if DEBUG2
+        fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: (null)]\n" RESET, variable);
 #endif
     }
     else
     {
-#if DEBUG
-        fprintf(stderr, GRIS_T "[internal_export()→ antiguo valor para %s: %s]\n" RESET, variable, antic_valor);
+#if DEBUG2
+        fprintf(stderr, GRIS_T "[internal_export(): antic valor per %s: %s]\n" RESET, variable, antic_valor);
 #endif
     }
 
     setenv(variable, valor, 1);
 
-#if DEBUG
-    fprintf(stderr, GRIS_T "[internal_export()→ nuevo valor para %s: %s]\n" RESET, variable, valor);
+#if DEBUG2
+    fprintf(stderr, GRIS_T "[internal_export(): nou valor pe %s: %s]\n" RESET, variable, valor);
 #endif
 
     return 0;
@@ -462,7 +462,7 @@ void imprimir_prompt()
     else
     // Sino imprimeix path sencer
     {
-        fprintf(stdout, VERDE_T NEGRITA"%s" RESET, cwd);
+        fprintf(stdout, VERDE_T NEGRITA "%s" RESET, cwd);
     }
 
     fprintf(stdout, ROJO_T NEGRITA "$ " RESET);

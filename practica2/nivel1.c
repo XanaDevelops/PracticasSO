@@ -64,7 +64,7 @@ int main()
             int isIn = check_internal(args);
             if (isIn)
             {
-#if DEBUG
+#if DEBUG1
                 fprintf(stderr, GRIS_T "[main(): Se ha ejecutado comando interno]\n" RESET);
 #endif
                 continue;
@@ -78,7 +78,7 @@ int main()
  * Llegeix una linea per stdin
  *
  * param: line --> punter de la cadena de caràcters on guardar la linea
- * 
+ *
  * return: punter de la cadena de caràcters amb la linea
  */
 char *read_line(char *line)
@@ -88,7 +88,7 @@ char *read_line(char *line)
     fgets(line, COMMAND_LINE_SIZE, stdin);
     if (feof(stdin))
     {
-#if DEBUG
+#if DEBUG1
         fprintf(stderr, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
 #endif
         clearerr(stdin);
@@ -110,16 +110,16 @@ char *read_line(char *line)
  * Executa una linea
  *
  * param: line --> punter de la cadena de caràcters de la linea
- * 
+ *
  * return: número de tokens dins la linea
  */
 int execute_line(char *line)
 {
 
     int n_tokens = parse_args(args, line);
-    #if DEBUG
+#if DEBUG1
     fprintf(stderr, GRIS_T "[execute_line(): ntokens = %d]\n", n_tokens);
-    #endif
+#endif
     return n_tokens; // placeholder
 }
 
@@ -128,15 +128,15 @@ int execute_line(char *line)
  * -------------------
  * Parsea una linea de comandes
  *
- * param:   
+ * param:
  *      args --> punter al punter dels tokens d'arguments
  *      line --> punter de la cadena de caràcters de la linea
- *  
+ *
  * return: número de tokens dins la linea
  */
 int parse_args(char **args, char *line)
 {
-#if DEBUG
+#if DEBUG1
     fprintf(stderr, GRIS_T "[parse_args(): parseando %s]\n" RESET, line);
 #endif
     char *token = strtok(line, delim);
@@ -149,12 +149,12 @@ int parse_args(char **args, char *line)
             fprintf(stderr, ROJO_T "parse_args(): ERROR: demasiados argumentos\n" RESET);
             return -1;
         }
-#if DEBUG
+#if DEBUG1
         fprintf(stderr, GRIS_T "[parse_args(): token: %s]\n" RESET, token);
 #endif
         if (*(token) == '#')
         {
-#if DEBUG
+#if DEBUG1
             fprintf(stderr, GRIS_T "[parse_args(): Comentario detectado -> (null)]\n" RESET);
 #endif
             *(args + nt) = token;
@@ -180,14 +180,14 @@ int parse_args(char **args, char *line)
  * Comprova si es una comanda interna
  *
  * param: args --> punter al punter dels tokens d'arguments
- * 
+ *
  * return: true si es intern, false si no
  */
 int check_internal(char **args)
 {
     char *cmd = *(args);
-#if DEBUG
-    fprintf(stderr, GRIS_T "[check_internal(): comprobando %s]\n" RESET, cmd);
+#if DEBUG1
+    fprintf(stderr, GRIS_T "[check_internal(): comprovant %s]\n" RESET, cmd);
 #endif
     const int n_cmd = 7;
     const char *cmds_text[] = {"cd", "export", "source", "fg", "bg", "jobs", "exit"};
@@ -223,7 +223,7 @@ int check_internal(char **args)
  *
  * param: args --> punter al punter dels tokens d'arguments
  * args[1] -> NOM=VALOR
- * 
+ *
  * return: int 0 si s'executa correctament.
  */
 int internal_cd(char **args)
@@ -239,7 +239,7 @@ int internal_cd(char **args)
  *
  * param: args --> punter al punter dels tokens d'arguments
  * args[1] -> NOM=VALOR
- * 
+ *
  * return: 1 si existeix un error de sintaxi, 0 si s'ha
  * fet l'exportació correctament.
  */
@@ -253,13 +253,14 @@ int internal_export(char **args)
  * Funció: internal_source
  * -------------------
  * Executar comandos des d'un fitxer en el constext actual del shell.
- * 
+ *
  * param: args --> punter al punter dels tokens d'arguments
  * args[1] -> NOM=VALOR
- * 
+ *
  * return: int 0 si s'executa correctament.
  */
-int internal_source(char **args){
+int internal_source(char **args)
+{
     printf("Executar ordres des d'un fitxer en el context actual del shell\n");
     return 0;
 }
