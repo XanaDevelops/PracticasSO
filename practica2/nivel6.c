@@ -9,10 +9,13 @@
 #include <signal.h>
 #include <fcntl.h> /* Modes de opertura de la funció open()*/
 
-#define DEBUG 1
-
 #define DEBUG6 1
-#define DEBUG5 1
+#define DEBUG5 0
+#define DEBUG4 0
+#define DEBUG3 0
+#define DEBUG2 0
+#define DEBUG1 0
+
 
 #define COMMAND_LINE_SIZE 1024 // max size command line
 #define ARGS_SIZE 64
@@ -517,7 +520,7 @@ void ctrlz(int signum)
 #if DEBUG5
     fprintf(stderr, GRIS_T "[ctrlz(): %s no és una execució en foreground, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
-    perror( ROJO_T "Senyal SIGSTOP no enviat pel fet que no hi ha procés en foreground" RESET);
+    perror(ROJO_T "Senyal SIGSTOP no enviat pel fet que no hi ha procés en foreground" RESET);
     return;
 }
 
@@ -971,9 +974,8 @@ void reaper(int signum)
             jobs_list_remove(fi);
         }
     }
-    if(ended == -1){
-
-
+    if (ended == -1)
+    {
     }
 }
 

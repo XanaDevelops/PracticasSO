@@ -8,7 +8,12 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#define DEBUG 1
+#define DEBUG6 0
+#define DEBUG5 1
+#define DEBUG4 0
+#define DEBUG3 0
+#define DEBUG2 0
+#define DEBUG1 0
 
 #define COMMAND_LINE_SIZE 1024 // max size command line
 #define ARGS_SIZE 64
