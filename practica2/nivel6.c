@@ -12,6 +12,7 @@
 #define DEBUG 1
 
 #define DEBUG6 1
+#define DEBUG5 1
 
 #define COMMAND_LINE_SIZE 1024 // max size command line
 #define ARGS_SIZE 64
@@ -448,7 +449,7 @@ void ctrlc(int signum)
             if (kill(jobs_list[0].pid, SIGTERM))
             {
                 perror(ROJO_T "ctrlc: kill" RESET);
-                return -1;
+                return;
             }
         }
         perror(ROJO_T "Senyal SIGTERM no enviat pel fet que el procés en foreground és mini_shell" RESET);
@@ -476,7 +477,7 @@ void ctrlz(int signum)
     signal(SIGTSTP, ctrlz);
 
 #if DEBUG5
-    fprintf(stderr, GRIS_T "[ctrlz(): El procés %s està en foreground. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+    fprintf(stderr, GRIS_T "[ctrlz(): El procés %s està en foreground. PID: %d]\n" RESET, jobs_list[0].cmd, jobs_list[0].pid);
 #endif
 
     // Mirar si el procés està en foreground
@@ -486,16 +487,16 @@ void ctrlz(int signum)
         if (strcmp(jobs_list[0].cmd, mini_shell))
         {
 #if DEBUG5
-            fprintf(stderr, GRIS_T "[ctrlz(): %s no és una execució del nostre mini shelll, per tant se li enviarà SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+            fprintf(stderr, GRIS_T "[ctrlz(): %s no és una execució del nostre mini shelll, per tant se li enviarà SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, jobs_list[0].pid);
 #endif
 
             // enviar SIGSTOP
             if (kill(jobs_list[0].pid, SIGSTOP))
             {
                 perror(ROJO_T "ctrlz: kill" RESET);
-                return -1;
+                return;
             }
-            fprintf(stdout, BLANCO_T "[ctrlz(): se li ha enviat %d a %s. PID: %d]\n" RESET, SIGSTOP, jobs_list[0].cmd, getppid());
+            fprintf(stdout, BLANCO_T "[ctrlz(): se li ha enviat %d a %s. PID: %d]\n" RESET, SIGSTOP, jobs_list[0].cmd, jobs_list[0].pid);
 
             jobs_list[0].estado = 'D';
             jobs_list_add(jobs_list[0].pid, jobs_list[0].estado, jobs_list[0].cmd);
