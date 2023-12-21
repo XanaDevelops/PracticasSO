@@ -302,7 +302,7 @@ int parse_args(char **args, char *line)
     int nt = 0;
 
     nt = 0;
-    bool global_d_comilla = false;
+    bool global_d_comilla = false, any_comilla = false;;
     char tipo_comilla = '\0';
 
     memset(aux_line, '\000', COMMAND_LINE_SIZE);
@@ -312,8 +312,9 @@ int parse_args(char **args, char *line)
     char *token = strtok(line, delim);
     while (token != NULL)
     {
-        //comprobar #
-        if(*(token)=='#'){
+        // comprobar #
+        if (*(token) == '#')
+        {
             break;
         }
         int m = strlen(token);
@@ -326,20 +327,27 @@ int parse_args(char **args, char *line)
             char *p_dc = strchr(token, '\"');
             char *p_sc = strchr(token, '\'');
 
-            if(p_dc!=NULL && p_sc==NULL){
-                sep = p_dc;
-                tipo_comilla = '\"';
-            }else if(p_dc==NULL && p_sc!=NULL){
-                sep = p_sc;
-                tipo_comilla = '\'';
-            }else if(p_sc<p_dc){
-                sep = p_sc;
-                tipo_comilla = '\'';
-            }else{
+            if (p_dc != NULL && p_sc == NULL)
+            {
                 sep = p_dc;
                 tipo_comilla = '\"';
             }
-            
+            else if (p_dc == NULL && p_sc != NULL)
+            {
+                sep = p_sc;
+                tipo_comilla = '\'';
+            }
+            else if (p_sc < p_dc)
+            {
+                sep = p_sc;
+                tipo_comilla = '\'';
+            }
+            else
+            {
+                sep = p_dc;
+                tipo_comilla = '\"';
+            }
+
             if (sep != NULL)
             {
                 global_d_comilla = !global_d_comilla;
@@ -356,6 +364,7 @@ int parse_args(char **args, char *line)
                         }
                         else
                         {
+                            any_comilla=true;
                             global_d_comilla = !global_d_comilla;
                             d_comilla = !d_comilla;
                         }
@@ -427,7 +436,11 @@ int parse_args(char **args, char *line)
                 *(args + nt++) = token;
             }
         }
-
+        if (!global_d_comilla && any_comilla)
+        {
+            fprintf(stderr, ROJO_T "parse_args() " NEGRITA "ERROR:" RESET ROJO_T " Cometes no tancades\n" RESET);
+            return -1;
+        }
         token = strtok(NULL, delim);
         aux_line_index++;
         // testear
@@ -720,7 +733,7 @@ int internal_source(char **args)
     }
     strcpy(aux, args[1]);
     FILE *fp = fopen(aux, "r");
-     if (fp == NULL)
+    if (fp == NULL)
     {
         perror(ROJO_T "internal_source(): Fitxer no s'ha pogut obrir");
         return -1;
@@ -738,7 +751,8 @@ int internal_source(char **args)
 #endif
         execute_line(linia);
     }
-    if (fclose(fp) == EOF) {
+    if (fclose(fp) == EOF)
+    {
         perror(ROJO_T "internal_source(): fclose");
         return -1;
     }

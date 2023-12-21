@@ -152,7 +152,7 @@ int parse_args(char **args, char *line)
     int nt = 0;
 
     nt = 0;
-    bool global_d_comilla = false;
+    bool global_d_comilla = false, any_comilla=false;
     char tipo_comilla = '\0';
 
     memset(aux_line, '\000', COMMAND_LINE_SIZE);
@@ -179,15 +179,19 @@ int parse_args(char **args, char *line)
             if(p_dc!=NULL && p_sc==NULL){
                 sep = p_dc;
                 tipo_comilla = '\"';
+                //any_comilla=true;
             }else if(p_dc==NULL && p_sc!=NULL){
                 sep = p_sc;
                 tipo_comilla = '\'';
+                //any_comilla=true;
             }else if(p_sc<p_dc){
                 sep = p_sc;
                 tipo_comilla = '\'';
+                //any_comilla=true;
             }else{
                 sep = p_dc;
                 tipo_comilla = '\"';
+                //any_comilla=true;
             }
             
             if (sep != NULL)
@@ -206,6 +210,7 @@ int parse_args(char **args, char *line)
                         }
                         else
                         {
+                            any_comilla=true;
                             global_d_comilla = !global_d_comilla;
                             d_comilla = !d_comilla;
                         }
@@ -290,6 +295,10 @@ int parse_args(char **args, char *line)
         }
     }
 
+    if(!global_d_comilla && any_comilla){
+        fprintf(stderr, ROJO_T "parse_args() " NEGRITA "ERROR:" RESET ROJO_T " Cometes no tancades\n" RESET);
+        return -1;
+    }
     *(args + nt) = NULL;
 #if DEBUG2
     for (int i = 0; i < nt + 1; i++)
