@@ -236,7 +236,6 @@ int execute_line(char *line)
  */
 int parse_args(char **args, char *line)
 {
-    bool global_d_comilla = false;
     int aux_line_index = 0, linesize = 0;
 
     if (line == NULL)
@@ -247,7 +246,9 @@ int parse_args(char **args, char *line)
     int nt = 0;
 
     nt = 0;
-    global_d_comilla = false;
+    bool global_d_comilla = false;
+    char tipo_comilla = '\0';
+
     memset(aux_line, '\000', COMMAND_LINE_SIZE);
     aux_line_index = 0;
 
@@ -260,8 +261,26 @@ int parse_args(char **args, char *line)
         {
             // goto next_token;
             int aux_start = aux_line_index;
+            char *sep = NULL;
+
             char *p_dc = strchr(token, '\"');
-            if (p_dc != NULL)
+            char *p_sc = strchr(token, '\'');
+
+            if(p_dc!=NULL && p_sc==NULL){
+                sep = p_dc;
+                tipo_comilla = '\"';
+            }else if(p_dc==NULL && p_sc!=NULL){
+                sep = p_sc;
+                tipo_comilla = '\'';
+            }else if(p_sc<p_dc){
+                sep = p_sc;
+                tipo_comilla = '\'';
+            }else{
+                sep = p_dc;
+                tipo_comilla = '\"';
+            }
+            
+            if (sep != NULL)
             {
                 global_d_comilla = !global_d_comilla;
                 if (global_d_comilla)
@@ -271,7 +290,7 @@ int parse_args(char **args, char *line)
 
                     for (int i = 0; i < m; i++)
                     {
-                        if (c != '\"')
+                        if (c != tipo_comilla)
                         {
                             aux_line[aux_line_index++] = c;
                         }
@@ -301,7 +320,7 @@ int parse_args(char **args, char *line)
                             {
                                 break;
                             }
-                            if (c == '\"')
+                            if (c == tipo_comilla)
                             {
                                 global_d_comilla = !global_d_comilla;
                                 break;

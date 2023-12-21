@@ -9,22 +9,13 @@
 
 
 int main(){
-    char cwd[COMMAND_LINE_SIZE];
-    char newdir[COMMAND_LINE_SIZE];
-    getcwd(cwd, COMMAND_LINE_SIZE);
+    char *test = "hola";
+    char *lol = NULL;
 
-    fprintf(stdout, "%s\n" , cwd);
-    //char *dir = "test dir";
-    char dir[COMMAND_LINE_SIZE];
-    fgets(dir, COMMAND_LINE_SIZE, stdin);
-    fprintf(stdout, "%s\n", dir);
-    strcpy(newdir, cwd);
-    strcat(newdir, "/");
-    strcat(newdir, dir);
-    fprintf(stdout, "%s\n", newdir);
-    int n = chdir(newdir);
-    fprintf(stdout, "chdir %i\n", n);
-    getcwd(cwd, COMMAND_LINE_SIZE);
-    fprintf(stdout, "%s\n" , cwd);
+    if(lol<test){
+        printf("gola");}
+        else{
+            printf("adiso2");
+        }
 
 }
