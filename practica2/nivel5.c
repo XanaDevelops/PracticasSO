@@ -711,7 +711,7 @@ int internal_source(char **args)
     }
     strcpy(aux, args[1]);
     FILE *fp = fopen(aux, "r");
-    if (fp == NULL)
+     if (fp == NULL)
     {
         perror(ROJO_T "internal_source(): Fitxer no s'ha pogut obrir");
         return -1;
@@ -727,8 +727,7 @@ int internal_source(char **args)
 #if DEBUG3
         fprintf(stdout, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
 #endif
-
-        execute_line(line);
+        execute_line(linia);
     }
     if (fclose(fp) == EOF)
     {
