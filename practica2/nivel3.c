@@ -254,6 +254,10 @@ int parse_args(char **args, char *line)
     char *token = strtok(line, delim);
     while (token != NULL)
     {
+        //comprobar #
+        if(*(token)=='#'){
+            break;
+        }
         int m = strlen(token);
         if (token >= line + aux_line_index)
         {
