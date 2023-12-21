@@ -463,7 +463,9 @@ int internal_source(char **args)
 */
 int internal_jobs()
 {
-    printf("Imprimeix la llista de treballs\n");
+#if DEBUG1
+    fprintf(stderr, GRIS_T "[internal_jobs()→ Aquesta funció mistrará el PID dels processos que no estiguin en foreground]\n" RESET);
+#endif    
     return 0;
 }
 
@@ -479,14 +481,29 @@ int internal_jobs()
 */
 int internal_fg(char **args)
 {
-    printf("Porta el procés passat per paràmetre a primer plà\n");
+#if DEBUG1
+    fprintf(stderr, GRIS_T "[internal_fg()→ Aquesta funció mourà un procés en background a foreground\n" RESET);
+#endif    
     return 0;
 }
 
+/**
+ * Funció internal_bg
+ * -----------------------------
+ * Reactivar un procés detingut perquè es
+ * segueixi executant en segon pla
+ *
+ * param: args --> punter al punter dels tokens d'arguments
+ *
+ * return: return 1 si s'ha executat correctament.
+ *
+ */
 int internal_bg(char **args)
 {
-    printf("Seguir executant el procés passat per paràmetre però en segon pla\n");
-    return 0;
+#if DEBUG1
+    fprintf(stderr, GRIS_T "[internal_bg()→ Aquesta funció reactivarà un procés detingut perquè es segueixi executant en segon pla]\n" RESET);
+#endif    
+    return 1;
 }
 
 void imprimir_prompt()

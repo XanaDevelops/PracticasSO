@@ -252,7 +252,7 @@ int execute_line(char *line)
     else
     { // procés pare
       // visualització del PID del pare i del fill
-#if DEBUG3
+#if DEBUG3 | DEBUG4 | DEBUG5
         fprintf(stderr, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), mini_shell);
         fprintf(stderr, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, child, line);
 #endif
