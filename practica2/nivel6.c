@@ -807,6 +807,16 @@ int jobs_list_find(pid_t pid)
     return -1;
 }
 
+/**
+ * Funció: internal_fg()
+ * ---------------------
+ * Mou a foreground un proces per el seu pid
+ * 
+ * param **args -> punter al punter dels tokens d'arguments
+ * args[1] -> pid
+ * 
+ * return 0 si s'executa correctament.
+*/
 int internal_fg(char **args)
 {
     if (args[1] == NULL)
