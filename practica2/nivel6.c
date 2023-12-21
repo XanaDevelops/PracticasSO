@@ -704,21 +704,21 @@ int internal_source(char **args)
 {
 
 #if DEBUG3
-    fprintf(stderr, GRIS_T "[internal_source(): Executant fitxer ...]\n" RESET);
+    fprintf(stdout, GRIS_T "[internal_source(): Executant fitxer ...]\n" RESET);
 #endif
     char aux[COMMAND_LINE_SIZE];
     memset(aux, '\0', sizeof(aux));
 
     if (!args[1])
     {
-        perror(ROJO_T "internal_source(): Fitxer no trobat" RESET);
+        perror(ROJO_T "internal_source(): Fitxer no trobat");
         return -1;
     }
     strcpy(aux, args[1]);
     FILE *fp = fopen(aux, "r");
-    if (!fp)
+     if (fp == NULL)
     {
-        perror(ROJO_T "internal_source(): Fitxer no s'ha pogut obrir" RESET);
+        perror(ROJO_T "internal_source(): Fitxer no s'ha pogut obrir");
         return -1;
     }
     char linia[COMMAND_LINE_SIZE];
@@ -730,13 +730,17 @@ int internal_source(char **args)
             *(fi) = '\0';
         }
 #if DEBUG3
-        fprintf(stderr, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
+        fprintf(stdout, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
 #endif
-        execute_line(line);
+        execute_line(linia);
+    }
+    if (fclose(fp) == EOF) {
+        perror(ROJO_T "internal_source(): fclose");
+        return -1;
     }
 
 #if DEBUG3
-    fprintf(stderr, GRIS_T "[internal_source(): Fitxer executat]\n" RESET);
+    fprintf(stdout, GRIS_T "[internal_source(): Fitxer executat]\n" RESET);
 #endif
     return 0;
 }

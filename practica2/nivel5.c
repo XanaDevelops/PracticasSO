@@ -318,20 +318,27 @@ int parse_args(char **args, char *line)
             char *p_dc = strchr(token, '\"');
             char *p_sc = strchr(token, '\'');
 
-            if(p_dc!=NULL && p_sc==NULL){
-                sep = p_dc;
-                tipo_comilla = '\"';
-            }else if(p_dc==NULL && p_sc!=NULL){
-                sep = p_sc;
-                tipo_comilla = '\'';
-            }else if(p_sc<p_dc){
-                sep = p_sc;
-                tipo_comilla = '\'';
-            }else{
+            if (p_dc != NULL && p_sc == NULL)
+            {
                 sep = p_dc;
                 tipo_comilla = '\"';
             }
-            
+            else if (p_dc == NULL && p_sc != NULL)
+            {
+                sep = p_sc;
+                tipo_comilla = '\'';
+            }
+            else if (p_sc < p_dc)
+            {
+                sep = p_sc;
+                tipo_comilla = '\'';
+            }
+            else
+            {
+                sep = p_dc;
+                tipo_comilla = '\"';
+            }
+
             if (sep != NULL)
             {
                 global_d_comilla = !global_d_comilla;
@@ -692,7 +699,7 @@ int internal_source(char **args)
 {
 
 #if DEBUG3
-    fprintf(stderr, GRIS_T "[internal_source(): Executant fitxer ...]\n" RESET);
+    fprintf(stdout, GRIS_T "[internal_source(): Executant fitxer ...]\n" RESET);
 #endif
     char aux[COMMAND_LINE_SIZE];
     memset(aux, '\0', sizeof(aux));
@@ -704,7 +711,7 @@ int internal_source(char **args)
     }
     strcpy(aux, args[1]);
     FILE *fp = fopen(aux, "r");
-    if (!fp)
+     if (fp == NULL)
     {
         perror(ROJO_T "internal_source(): Fitxer no s'ha pogut obrir");
         return -1;
@@ -718,13 +725,18 @@ int internal_source(char **args)
             *(fi) = '\0';
         }
 #if DEBUG3
-        fprintf(stderr, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
+        fprintf(stdout, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
 #endif
-        execute_line(line);
+        execute_line(linia);
+    }
+    if (fclose(fp) == EOF)
+    {
+        perror(ROJO_T "internal_source(): fclose");
+        return -1;
     }
 
 #if DEBUG3
-    fprintf(stderr, GRIS_T "[internal_source(): Fitxer executat]\n" RESET);
+    fprintf(stdout, GRIS_T "[internal_source(): Fitxer executat]\n" RESET);
 #endif
     return 0;
 }
