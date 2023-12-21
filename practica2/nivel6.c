@@ -732,8 +732,7 @@ int internal_source(char **args)
 #if DEBUG3
         fprintf(stdout, GRIS_T "[internal_source(): Executam línia %s]\n" RESET, linia);
 #endif
-
-        execute_line(line);
+        execute_line(linia);
     }
     if (fclose(fp) == EOF) {
         perror(ROJO_T "internal_source(): fclose");
