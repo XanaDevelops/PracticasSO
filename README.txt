@@ -17,7 +17,7 @@
 *   my_shell.c                   *
 *   Makefile                     *
 *   README.txt                   *
-^*********************************
+**********************************
 **** Observacions per nivells ****
 *   1. El prompt és un placeholder, als següents nivells s'implementa el definitiu.
 *   2. En un principi no tenia el cd avançat, però va ser backporteat.
