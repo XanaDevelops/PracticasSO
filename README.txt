@@ -14,7 +14,7 @@
 *************************************
 **** A la carpeta s'inclou *******
 *   nivel1-6.c                   *
-*   mi_shell.c                   *
+*   my_shell.c                   *
 *   Makefile                     *
 *   README.txt                   *
 ^*********************************
