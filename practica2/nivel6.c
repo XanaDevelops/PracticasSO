@@ -218,7 +218,7 @@ int execute_line(char *line)
     // error al crear el fill
     if (child == -1)
     {
-        perror(ROJO_T "fork");
+        perror(ROJO_T "execute_line: fork" RESET);
         return -1;
     }
 
@@ -445,9 +445,13 @@ void ctrlc(int signum)
 #if DEBUG4
             fprintf(stderr, GRIS_T "[ctrlc(): %s no és una execució del nostre mini shelll, per tant s'interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
-            kill(jobs_list[0].pid, SIGTERM);
+            if (kill(jobs_list[0].pid, SIGTERM))
+            {
+                perror(ROJO_T "ctrlc: kill" RESET);
+                return -1;
+            }
         }
-        perror("Senyal SIGTERM no enviat pel fet que el procés en foreground és mini_shell");
+        perror(ROJO_T "Senyal SIGTERM no enviat pel fet que el procés en foreground és mini_shell" RESET);
         pause();
         return;
     }
@@ -455,7 +459,7 @@ void ctrlc(int signum)
     fprintf(stderr, GRIS_T "[ctrlc(): %s no és una execució en foreground, per tant no se la interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
     fflush(stdout);
-    perror("Senyal SIGTERM no enviat pel fet que no hi ha procés en foreground");
+    perror(ROJO_T "Senyal SIGTERM no enviat pel fet que no hi ha procés en foreground" RESET);
     return;
 }
 
@@ -486,8 +490,12 @@ void ctrlz(int signum)
 #endif
 
             // enviar SIGSTOP
-            kill(jobs_list[0].pid, SIGSTOP);
-            fprintf(stdout, BLANCO_T "[ctrlz(): se li ha enviat %d a %s. PID: %d]\n" RESET, SIGSTOP, jobs_list[0].cmd, getpid());
+            if (kill(jobs_list[0].pid, SIGSTOP))
+            {
+                perror(ROJO_T "ctrlz: kill" RESET);
+                return -1;
+            }
+            fprintf(stdout, BLANCO_T "[ctrlz(): se li ha enviat %d a %s. PID: %d]\n" RESET, SIGSTOP, jobs_list[0].cmd, getppid());
 
             jobs_list[0].estado = 'D';
             jobs_list_add(jobs_list[0].pid, jobs_list[0].estado, jobs_list[0].cmd);
@@ -501,14 +509,14 @@ void ctrlz(int signum)
 #if DEBUG5
         fprintf(stderr, GRIS_T "[ctrlz(): %s és el shell, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
-        perror("Señal SIGSTOP no enviada debido a que el proceso en foreground es el shell");
+        perror(ROJO_T "Señal SIGSTOP no enviada debido a que el proceso en foreground es el shell" RESET);
         pause();
         return;
     }
 #if DEBUG5
     fprintf(stderr, GRIS_T "[ctrlz(): %s no és una execució en foreground, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
-    perror("Senyal SIGSTOP no enviat pel fet que no hi ha procés en foreground");
+    perror( ROJO_T "Senyal SIGSTOP no enviat pel fet que no hi ha procés en foreground" RESET);
     return;
 }
 
@@ -585,7 +593,7 @@ int internal_cd(char **args)
 #endif
     if (chdir(cwd) == -1)
     {
-        perror(ROJO_T "chdir(): Directori no trobat");
+        perror(ROJO_T "chdir(): Directori no trobat" RESET);
         return -1;
     }
 
@@ -675,14 +683,14 @@ int internal_source(char **args)
 
     if (!args[1])
     {
-        perror(ROJO_T "internal_source(): Fitxer no trobat");
+        perror(ROJO_T "internal_source(): Fitxer no trobat" RESET);
         return -1;
     }
     strcpy(aux, args[1]);
     FILE *fp = fopen(aux, "r");
     if (!fp)
     {
-        perror(ROJO_T "internal_source(): Fitxer no s'ha pogut obrir");
+        perror(ROJO_T "internal_source(): Fitxer no s'ha pogut obrir" RESET);
         return -1;
     }
     char linia[COMMAND_LINE_SIZE];
@@ -824,7 +832,7 @@ int internal_fg(char **args)
 #endif
         if (kill(jobs_list[pos].pid, SIGCONT))
         {
-            perror("interal_fg(): kill()");
+            perror(ROJO_T "interal_fg(): kill()" RESET);
             return -1;
         }
     }
@@ -900,7 +908,7 @@ int internal_bg(char **args)
     // Enviar a jobs_list[pos].pid la senyal SIGCONT
     if (kill(pid, SIGCONT) == -1)
     {
-        perror(ROJO_T "kill");
+        perror(ROJO_T "internal_bg: kill" RESET);
         return 0;
     }
 
@@ -962,6 +970,10 @@ void reaper(int signum)
             jobs_list_remove(fi);
         }
     }
+    if(ended == -1){
+
+
+    }
 }
 
 /*
@@ -985,22 +997,22 @@ int is_output_redirection(char **args)
             int fd = open(args[cont + 1], O_CREAT | O_WRONLY, FPERMS);
             if (fd == -1)
             {
-                perror("is_output_redirection(): open");
+                perror(ROJO_T "is_output_redirection(): open" RESET);
                 return -1;
             }
-            //Tancar la sortida estàndard (descriptor 1)
+            // Tancar la sortida estàndard (descriptor 1)
             close(1);
 
             int stdoutn = dup(fd);
             if (dup(fd) == -1)
             {
-                perror("is_output_redirection(): dup");
+                perror(ROJO_T "is_output_redirection(): dup" RESET);
                 return -1;
             }
 
             if (close(fd) == -1)
             {
-                perror("is_output_redirection(): close");
+                perror(ROJO_T "is_output_redirection(): close" RESET);
                 return -1;
             }
             return 1;
