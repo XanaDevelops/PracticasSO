@@ -175,7 +175,7 @@ int execute_line(char *line)
 
         // visualització del PID del pare i del fill
 #if DEBUG
-        fprintf(stderr, GRIS_T "[execute_line()→PID pare: %d (%s)]\n" RESET, getppid(), mi_shell);
+        fprintf(stderr, GRIS_T "[execute_line()→PID pare: %d (%s)]\n" RESET, getppid(), mini_shell);
         fprintf(stderr, GRIS_T "[execute_line()→PID fill: %d (%s)]\n" RESET, getpid(), jobs_list[0].cmd);
 #endif
         fprintf(stdout, RESET);
