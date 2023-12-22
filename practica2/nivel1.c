@@ -4,7 +4,6 @@
  * i Biel Perelló Perelló
  */
 
-
 #define _POSIX_C_SOURCE 200112L
 
 #include <stdio.h>
@@ -97,7 +96,7 @@ char *read_line(char *line)
     {
 #if DEBUG1
         fprintf(stderr, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
-        //exit(0);
+        // exit(0);
 #endif
         clearerr(stdin);
         return NULL;
@@ -147,6 +146,7 @@ int parse_args(char **args, char *line)
 #if DEBUG1
     fprintf(stderr, GRIS_T "[parse_args(): parseando %s]\n" RESET, line);
 #endif
+    int line_l = strlen(line);
     char *token = strtok(line, delim);
 
     int nt = 0;
@@ -168,17 +168,46 @@ int parse_args(char **args, char *line)
             *(args + nt) = token;
             break;
         }
+#if DEBUG1
+        fprintf(stderr, GRIS_T "[parse_args(): ultimo caracter-> %c]\n" RESET, *(token + strlen(token) - 1));
+#endif
+        while (true)
+        {
+            if (*(token + strlen(token) - 1) == '\\')
+            {
+                if (*(token + strlen(token)) == '\0')
+                {
+                    char *auxt = token;
+                    auxt = strtok(NULL, delim);
+                    if(auxt==NULL){
+                        break;
+                    }
+                    *(token + strlen(token) - 1) = ' ';
+                    if (token + strlen(token) < line + line_l)
+                    {
+                        *(token + strlen(token)) = '\0';
+                    }else{
+                        break;
+                    }
+
+                    strcat(token, auxt);
+                    // estamos en "\ ""
+                }
+            }else{
+                break;
+            }
+        }
         *(args + nt++) = token;
         token = strtok(NULL, delim);
     }
 
     *(args + nt) = NULL;
-    /*
+#if DEBUG1
     for (int i = 0; i < nt + 1; i++)
     {
-        printf("ARGS: %s\n", *(args + i));
-    }*/
-
+        fprintf(stderr, GRIS_T "[parse_args(): ARGS: %s]\n", *(args + i));
+    }
+#endif
     return nt;
 }
 
@@ -277,14 +306,14 @@ int internal_source(char **args)
  * Funció: internal_jobs
  * ---------------------
  * Imprimeix els processos en background
- * 
+ *
  * return: 0 si no hi ha errors.
-*/
+ */
 int internal_jobs()
 {
 #if DEBUG1
     fprintf(stderr, GRIS_T "[internal_jobs()→ Aquesta funció mistrará el PID dels processos que no estiguin en foreground]\n" RESET);
-#endif    
+#endif
     return 0;
 }
 
@@ -302,7 +331,7 @@ int internal_fg(char **args)
 {
 #if DEBUG1
     fprintf(stderr, GRIS_T "[internal_fg()→ Aquesta funció mourà un procés en background a foreground\n" RESET);
-#endif    
+#endif
     return 0;
 }
 
@@ -321,7 +350,7 @@ int internal_bg(char **args)
 {
 #if DEBUG1
     fprintf(stderr, GRIS_T "[internal_bg()→ Aquesta funció reactivarà un procés detingut perquè es segueixi executant en segon pla]\n" RESET);
-#endif    
+#endif
     return 1;
 }
 
