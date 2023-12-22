@@ -179,21 +179,26 @@ int parse_args(char **args, char *line)
                 {
                     char *auxt = token;
                     auxt = strtok(NULL, delim);
-                    if(auxt==NULL){
+                    if (auxt == NULL)
+                    {
                         break;
                     }
                     *(token + strlen(token) - 1) = ' ';
                     if (token + strlen(token) < line + line_l)
                     {
                         *(token + strlen(token)) = '\0';
-                    }else{
+                    }
+                    else
+                    {
                         break;
                     }
 
                     strcat(token, auxt);
                     // estamos en "\ ""
                 }
-            }else{
+            }
+            else
+            {
                 break;
             }
         }
