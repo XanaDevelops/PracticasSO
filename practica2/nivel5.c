@@ -50,6 +50,7 @@ int internal_source(char **args);
 int internal_jobs();
 int internal_fg(char **args);
 int internal_bg(char **args);
+void internal_exit();
 
 int is_background(char **args);
 int jobs_list_add(pid_t pid, char estado, char *cmd);
@@ -143,7 +144,7 @@ char *read_line(char *line)
         fprintf(stderr, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
 #endif
         clearerr(stdin);
-        return NULL;
+        internal_exit();
     }
 
     if (line != NULL)
@@ -987,4 +988,16 @@ void imprimir_prompt()
 
     fflush(stdout);
     sleep(0.5);
+}
+
+/**
+ * Funció internal_exit
+ * -----------------------------
+ * Mostra el missatge de acomiadament i surt de l'execució
+ *
+ */
+void internal_exit()
+{
+    printf(MENSAJE_DESPEDIDA);
+    exit(0);
 }

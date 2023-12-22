@@ -20,6 +20,7 @@
 **********************************
 **** Observacions per nivells ****
 *   1. El prompt és un placeholder, als següents nivells s'implementa el definitiu.
+*      Aquest nivell te el parse_args que detecta '\ ', però no va ser portat als nivells posteriors.
 *   2. En un principi no tenia el cd avançat, però va ser backporteat.
 *      Aquest cd avançat està disenyat per a ser usat amb cometes dobles o simples, però
 *      no ambdues a la vegada, encara que parse_args() es bastant permisiu amb la combinació

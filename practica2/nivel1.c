@@ -47,8 +47,9 @@ int internal_source(char **args);
 int internal_jobs();
 int internal_fg(char **args);
 int internal_bg(char **args);
-
+void internal_exit();
 void imprimir_prompt();
+void internal_exit();
 
 const char *delim = " \t\n\r";
 
@@ -96,10 +97,9 @@ char *read_line(char *line)
     {
 #if DEBUG1
         fprintf(stderr, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
-        // exit(0);
 #endif
         clearerr(stdin);
-        return NULL;
+        internal_exit();
     }
 
     if (line != NULL)
@@ -244,8 +244,8 @@ int check_internal(char **args)
                 internal_jobs();
                 break;
             case 6:
-                printf(MENSAJE_DESPEDIDA);
-                exit(0);
+                internal_exit();
+                break;
 
             default:
                 cmds[i](args);
@@ -364,4 +364,16 @@ void imprimir_prompt()
     fprintf(stdout, ROJO_T NEGRITA "PROMTP$ " RESET);
     fflush(stdout);
     sleep(0.5);
+}
+
+/**
+ * Funció internal_exit
+ * -----------------------------
+ * Mostra el missatge de acomiadament i surt de l'execució
+ *
+ */
+void internal_exit()
+{
+    printf(MENSAJE_DESPEDIDA);
+    exit(0);
 }
