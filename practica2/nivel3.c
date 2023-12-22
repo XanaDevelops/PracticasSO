@@ -255,8 +255,9 @@ int parse_args(char **args, char *line)
     char *token = strtok(line, delim);
     while (token != NULL)
     {
-        //comprobar #
-        if(*(token)=='#'){
+        // comprobar #
+        if (*(token) == '#')
+        {
             break;
         }
         int m = strlen(token);
@@ -306,7 +307,7 @@ int parse_args(char **args, char *line)
                         }
                         else
                         {
-                            any_comilla=true;
+                            any_comilla = true;
                             global_d_comilla = !global_d_comilla;
                             d_comilla = !d_comilla;
                         }
@@ -390,7 +391,8 @@ int parse_args(char **args, char *line)
             }
         }
     }
-    if(!global_d_comilla && any_comilla){
+    if (!global_d_comilla && any_comilla)
+    {
         fprintf(stderr, ROJO_T "parse_args() " NEGRITA "ERROR:" RESET ROJO_T " Cometes no tancades\n" RESET);
         return -1;
     }
@@ -614,7 +616,7 @@ int internal_jobs()
 {
 #if DEBUG1
     fprintf(stderr, GRIS_T "[internal_jobs()→ Aquesta funció mistrará el PID dels processos que no estiguin en foreground]\n" RESET);
-#endif    
+#endif
     return 0;
 }
 
@@ -632,7 +634,7 @@ int internal_fg(char **args)
 {
 #if DEBUG1
     fprintf(stderr, GRIS_T "[internal_fg()→ Aquesta funció mourà un procés en background a foreground\n" RESET);
-#endif    
+#endif
     return 0;
 }
 
@@ -651,7 +653,7 @@ int internal_bg(char **args)
 {
 #if DEBUG1
     fprintf(stderr, GRIS_T "[internal_bg()→ Aquesta funció reactivarà un procés detingut perquè es segueixi executant en segon pla]\n" RESET);
-#endif    
+#endif
     return 1;
 }
 

@@ -361,7 +361,7 @@ int parse_args(char **args, char *line)
                         }
                         else
                         {
-                            any_comilla=true;
+                            any_comilla = true;
                             global_d_comilla = !global_d_comilla;
                             d_comilla = !d_comilla;
                         }
@@ -891,7 +891,7 @@ int internal_fg(char **args)
 {
 #if DEBUG1
     fprintf(stderr, GRIS_T "[internal_fg()→ Aquesta funció mourà un procés en background a foreground\n" RESET);
-#endif    
+#endif
     return 0;
 }
 
@@ -910,7 +910,7 @@ int internal_bg(char **args)
 {
 #if DEBUG1
     fprintf(stderr, GRIS_T "[internal_bg()→ Aquesta funció reactivarà un procés detingut perquè es segueixi executant en segon pla]\n" RESET);
-#endif    
+#endif
     return 1;
 }
 
