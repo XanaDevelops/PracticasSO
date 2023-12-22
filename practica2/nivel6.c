@@ -970,10 +970,6 @@ int internal_fg(char **args)
  */
 int internal_bg(char **args)
 {
-#if DEBUG6
-    fprintf(stderr, GRIS_T "[internal_bg()→ Aquesta funció reactivará un procés detingut perquè es segueixi executant en segon pla]\n" RESET);
-#endif
-
     // Comprovar si hi ha error de sintaxis
     if (!args[1])
     {
