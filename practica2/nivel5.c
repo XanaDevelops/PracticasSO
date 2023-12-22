@@ -907,7 +907,6 @@ void reaper(int signum)
 
     while ((ended = waitpid(-1, &status, WNOHANG)) > 0)
     {
-        fprintf(stderr, GRIS_T "[reaper(): loop: %i status %i]\n" RESET, ended, status);
         if (ended == jobs_list[0].pid)
         {
 #if DEBUG4
