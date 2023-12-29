@@ -46,21 +46,21 @@ int main(int argc, char *argv[]){
 void create_threads(){
     for (int i = 0; i < NUM_THREADS; i++)
     {
-        pthread_create(pthreads[i], NULL, worker, NULL);
+        pthread_create(&pthreads[i], NULL, worker, NULL);
         fprintf(stderr, GRIS_T "[create_threads(): reado pthread %lu]" RESET, pthreads[i]);
     }
     
 }
 
 void *worker(void *ptr){
-    int valor;
+    int *valor;
     for (int i = 0; i < N; i++)
     {
         pthread_mutex_lock(&mutex);
         valor = my_stack_pop(stack);
-        valor++;
+        *valor+=1;
         my_stack_push(stack, valor);
         pthread_mutex_unlock(&mutex);
     }
-    
+    return 0;
 }

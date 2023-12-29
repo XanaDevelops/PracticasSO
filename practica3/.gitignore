@@ -1,3 +1,5 @@
 stack_counters
 reader
 my_lib
+test
+test.c
