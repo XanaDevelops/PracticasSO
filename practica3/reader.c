@@ -5,3 +5,13 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
+
+#include <limits.h>
+#include "my_lib.h"
+
+int main(int argc, char *argv[])
+{
+    
+    return 0;
+}
+
