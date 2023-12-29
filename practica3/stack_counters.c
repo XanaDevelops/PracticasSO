@@ -9,8 +9,8 @@
 #include <pthread.h>
 #include "my_lib.h"
 
-#define NUM_THREADS = 10
-#define N = 10000000
+#define NUM_THREADS 10
+#define N 10000000
 
 void stack_init();
 void create_threads();
@@ -19,7 +19,12 @@ void stack_end();
 //reader.c
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_t pthreads[NUM_THREADS];
 
 int main(int argc, char *argv[]){
     return 0;
+}
+
+void create_threads(){
+
 }
