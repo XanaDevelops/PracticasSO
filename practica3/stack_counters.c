@@ -25,7 +25,7 @@
 #define BLANCO_T "\x1b[97m"
 #define NEGRITA "\x1b[1m"
 
-void stack_init();
+void stack_init(const char *filename);
 void create_threads();
 void *worker(void *ptr);
 void stack_end();
@@ -37,10 +37,64 @@ pthread_t pthreads[NUM_THREADS];
 struct my_stack *stack;
 
 int main(int argc, char *argv[]){
+    // Verificar si se ha pasado el nombre del fichero por consola
+    if (argc != 2) {
+        fprintf(stderr, "Sintaxis incorrecta. Uso: ./programa <nombre_fichero>\n");
+        exit(EXIT_FAILURE);
+    }
 
+    // Inicializar la pila
+    stack_init(argv[1]);
     create_threads();
+    
 
     return 0;
+}
+
+void stack_init(const char *filename){
+    // Verificar si el nombre del fichero se ha pasado por consola
+    if (!filename){
+        fprintf(stderr, "Sintaxis incorrecta. Uso: ./programa <nombre_fichero>\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Verificar si la pila ya existe
+    int file_exists = access(filename, F_OK);
+    if (file_exists == -1){
+        // Si no existe, crearla e inicializarla con punteros a 0
+        stack = my_stack_init(NUM_THREADS);
+
+        for (int i = 0; i < NUM_THREADS; i++)
+        {
+            int *data = (int *)malloc(sizeof(int));
+            *data = 0;
+            my_stack_push(stack, data);
+        }
+
+        // Guardar la pila en el fichero
+        my_stack_write(stack, filename);
+
+        // Liberar memoria
+        int bytes = my_stack_purge(stack);
+        fprintf(stdout, "Released Bytes: %d \n", bytes);
+    }
+    else {
+        // Si ya existe, cargar la pila desde el fichero en la variable global
+        stack = my_stack_read(filename);
+
+        // Comprobar si la pila tiene menos de 10 elementos o ninguno
+        int current_size = my_stack_len(stack);
+
+        if (current_size < NUM_THREADS){
+            // Agregar los restantes individualmente con punteros apuntando a cero
+            for (int i = 0; i < NUM_THREADS - current_size; i++)
+            {
+                int *data = (int *)malloc(sizeof(int));
+                *data = 0;
+                my_stack_push(stack, data);
+            }
+        }
+    }
 }
 
 void create_threads(){
