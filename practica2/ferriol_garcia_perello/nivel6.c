@@ -13,9 +13,10 @@
 #include <stdbool.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <fcntl.h> /* Modes de opertura de la funció open()*/
 
-#define DEBUG6 0
-#define DEBUG5 1
+#define DEBUG6 1
+#define DEBUG5 0
 #define DEBUG4 0
 #define DEBUG3 0
 #define DEBUG2 0
@@ -24,6 +25,7 @@
 #define COMMAND_LINE_SIZE 1024 // max size command line
 #define ARGS_SIZE 64
 #define N_JOBS 64
+#define FPERMS 0666
 
 #define RESET "\033[0m"
 #define NEGRO_T "\x1b[30m"
@@ -53,6 +55,7 @@ int internal_bg(char **args);
 void internal_exit();
 
 int is_background(char **args);
+int is_output_redirection(char **args);
 int jobs_list_add(pid_t pid, char estado, char *cmd);
 int jobs_list_find(pid_t pid);
 int jobs_list_remove(int pos);
@@ -225,7 +228,7 @@ int execute_line(char *line)
     // error al crear el fill
     if (child == -1)
     {
-        perror(ROJO_T "fork");
+        perror(ROJO_T "execute_line: fork" RESET);
         return -1;
     }
 
@@ -239,6 +242,7 @@ int execute_line(char *line)
         // ignorar la senyal SIGTSTP (Ctrl + Z)
         signal(SIGTSTP, SIG_IGN);
 
+        is_output_redirection(args);
         // cridada al sistema per executar la comanda externa
         execvp(args[0], args);
 
@@ -269,6 +273,7 @@ int execute_line(char *line)
         }
         else
         { // background
+            fprintf(stdout, "[%d] %c   %s\n", child, 'E', line);
             jobs_list_add(child, 'E', line);
         }
 
@@ -300,6 +305,7 @@ int parse_args(char **args, char *line)
 
     nt = 0;
     bool global_d_comilla = false, any_comilla = false;
+    ;
     char tipo_comilla = '\0';
 
     memset(aux_line, '\000', COMMAND_LINE_SIZE);
@@ -433,7 +439,11 @@ int parse_args(char **args, char *line)
                 *(args + nt++) = token;
             }
         }
-
+        if (!global_d_comilla && any_comilla)
+        {
+            fprintf(stderr, ROJO_T "parse_args() " NEGRITA "ERROR:" RESET ROJO_T " Cometes no tancades\n" RESET);
+            return -1;
+        }
         token = strtok(NULL, delim);
         aux_line_index++;
         // testear
@@ -445,11 +455,7 @@ int parse_args(char **args, char *line)
             }
         }
     }
-    if (!global_d_comilla && any_comilla)
-    {
-        fprintf(stderr, ROJO_T "parse_args() " NEGRITA "ERROR:" RESET ROJO_T " Cometes no tancades\n" RESET);
-        return -1;
-    }
+
     *(args + nt) = NULL;
 #if DEBUG2
     for (int i = 0; i < nt + 1; i++)
@@ -479,25 +485,29 @@ void ctrlc(int signum)
     if (jobs_list[0].pid != 0)
     {
 #if DEBUG4
-        fprintf(stdout, GRIS_T "[ctrlc(): %s és procés fill. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+        fprintf(stderr, GRIS_T "[ctrlc(): %s és procés fill. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
         // mirar si el procés és el nostre shell
         if (strcmp(jobs_list[0].cmd, mini_shell))
         {
 #if DEBUG4
-            fprintf(stdout, GRIS_T "[ctrlc(): %s no és una execució del nostre mini shelll, per tant s'interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+            fprintf(stderr, GRIS_T "[ctrlc(): %s no és una execució del nostre mini shelll, per tant s'interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
-            kill(jobs_list[0].pid, SIGTERM);
+            if (kill(jobs_list[0].pid, SIGTERM))
+            {
+                perror(ROJO_T "ctrlc: kill" RESET);
+                return;
+            }
         }
-        perror("Senyal SIGTERM no enviat pel fet que el procés en foreground és mini_shell");
+        perror(ROJO_T "Senyal SIGTERM no enviat pel fet que el procés en foreground és mini_shell" RESET);
         pause();
         return;
     }
 #if DEBUG4
-    fprintf(stdout, GRIS_T "[ctrlc(): %s no és una execució en foreground, per tant no se la interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+    fprintf(stderr, GRIS_T "[ctrlc(): %s no és una execució en foreground, per tant no se la interromprà. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
     fflush(stdout);
-    perror("Senyal SIGTERM no enviat pel fet que no hi ha procés en foreground");
+    perror(ROJO_T "Senyal SIGTERM no enviat pel fet que no hi ha procés en foreground" RESET);
     return;
 }
 
@@ -514,7 +524,7 @@ void ctrlz(int signum)
     signal(SIGTSTP, ctrlz);
 
 #if DEBUG5
-    fprintf(stdout, GRIS_T "[ctrlz(): El procés %s està en foreground. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+    fprintf(stderr, GRIS_T "[ctrlz(): El procés %s està en foreground. PID: %d]\n" RESET, jobs_list[0].cmd, jobs_list[0].pid);
 #endif
 
     // Mirar si el procés està en foreground
@@ -524,12 +534,16 @@ void ctrlz(int signum)
         if (strcmp(jobs_list[0].cmd, mini_shell))
         {
 #if DEBUG5
-            fprintf(stdout, GRIS_T "[ctrlz(): %s no és una execució del nostre mini shelll, per tant se li enviarà SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+            fprintf(stderr, GRIS_T "[ctrlz(): %s no és una execució del nostre mini shelll, per tant se li enviarà SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, jobs_list[0].pid);
 #endif
 
             // enviar SIGSTOP
-            kill(jobs_list[0].pid, SIGSTOP);
-            fprintf(stdout, BLANCO_T "[ctrlz(): se li ha enviat %d a %s. PID: %d]\n" RESET, SIGSTOP, jobs_list[0].cmd, getpid());
+            if (kill(jobs_list[0].pid, SIGSTOP))
+            {
+                perror(ROJO_T "ctrlz: kill" RESET);
+                return;
+            }
+            fprintf(stdout, BLANCO_T "[ctrlz(): se li ha enviat %d a %s. PID: %d]\n" RESET, SIGSTOP, jobs_list[0].cmd, jobs_list[0].pid);
 
             jobs_list[0].estado = 'D';
             jobs_list_add(jobs_list[0].pid, jobs_list[0].estado, jobs_list[0].cmd);
@@ -541,16 +555,16 @@ void ctrlz(int signum)
             return;
         }
 #if DEBUG5
-        fprintf(stdout, GRIS_T "[ctrlz(): %s és el shell, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+        fprintf(stderr, GRIS_T "[ctrlz(): %s és el shell, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
-        perror("Señal SIGSTOP no enviada debido a que el proceso en foreground es el shell");
+        perror(ROJO_T "Señal SIGSTOP no enviada debido a que el proceso en foreground es el shell" RESET);
         pause();
         return;
     }
 #if DEBUG5
-    fprintf(stdout, GRIS_T "[ctrlz(): %s no és una execució en foreground, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
+    fprintf(stderr, GRIS_T "[ctrlz(): %s no és una execució en foreground, per tant no s'ha enviat SIGSTOP. PID: %d]\n" RESET, jobs_list[0].cmd, getpid());
 #endif
-    perror("Senyal SIGSTOP no enviat pel fet que no hi ha procés en foreground");
+    perror(ROJO_T "Senyal SIGSTOP no enviat pel fet que no hi ha procés en foreground" RESET);
     return;
 }
 
@@ -609,7 +623,7 @@ int check_internal(char **args)
 int internal_cd(char **args)
 {
 #if DEBUG2
-    fprintf(stdout, GRIS_T "[internal_cd(): Canviant directori...]\n" RESET);
+    fprintf(stderr, GRIS_T "[internal_cd(): Canviant directori...]\n" RESET);
 #endif
     char cwd[COMMAND_LINE_SIZE];
     memset(cwd, '\0', sizeof(cwd));
@@ -623,16 +637,16 @@ int internal_cd(char **args)
         strcat(cwd, args[1]);
     }
 #if DEBUG2
-    fprintf(stdout, GRIS_T "[internal_cd(): Directori a canviar: %s]\n" RESET, cwd);
+    fprintf(stderr, GRIS_T "[internal_cd(): Directori a canviar: %s]\n" RESET, cwd);
 #endif
     if (chdir(cwd) == -1)
     {
-        perror(ROJO_T "chdir(): Directori no trobat");
+        perror(ROJO_T "chdir(): Directori no trobat" RESET);
         return -1;
     }
 
 #if DEBUG2
-    fprintf(stdout, GRIS_T "[internal_cd(): Directori canviat]\n" RESET);
+    fprintf(stderr, GRIS_T "[internal_cd(): Directori canviat]\n" RESET);
 #endif
     return 0;
 }
@@ -871,6 +885,9 @@ int jobs_list_find(pid_t pid)
     {
         if (jobs_list[i].pid == pid)
         {
+#if DEBUG5
+            fprintf(stderr, GRIS_T "[jobs_list_find(): encontrado en %d]\n" RESET, i);
+#endif
             return i;
         }
     }
@@ -889,9 +906,56 @@ int jobs_list_find(pid_t pid)
  */
 int internal_fg(char **args)
 {
-#if DEBUG1
-    fprintf(stderr, GRIS_T "[internal_fg()→ Aquesta funció mourà un procés en background a foreground\n" RESET);
+    if (args[1] == NULL)
+    {
+        fprintf(stderr, ROJO_T "internal_fg() ERROR: Uso $ fg {pid}\n" RESET);
+        return -1;
+    }
+    pid_t val = atoi(args[1]);
+    if (val == 0)
+    {
+        fprintf(stderr, ROJO_T "internal_fg() ERROR: Uso $ fg {pid}\n" RESET);
+        return -1;
+    }
+    int pos = jobs_list_find(val);
+    if (pos > n_job || pos <= 0)
+    {
+        fprintf(stderr, ROJO_T "no existe ese trabajo\n" RESET);
+        return -1;
+    }
+#if DEBUG6
+    fprintf(stderr, GRIS_T "[internal_fg(): activando job %d en pos %d]\n" RESET, val, pos);
 #endif
+    if (jobs_list[pos].estado == 'D')
+    {
+#if DEBUG6
+        fprintf(stderr, GRIS_T "[internal_fg(): estado es 'D']\n" RESET);
+#endif
+        if (kill(jobs_list[pos].pid, SIGCONT))
+        {
+            perror(ROJO_T "interal_fg(): kill()" RESET);
+            return -1;
+        }
+    }
+    else
+    {
+#if DEBUG6
+        fprintf(stderr, GRIS_T "[internal_fg(): estado es 'E']\n" RESET);
+#endif
+    }
+    jobs_list[0].pid = jobs_list[pos].pid;
+    strncpy(jobs_list[0].cmd, jobs_list[pos].cmd, COMMAND_LINE_SIZE);
+    jobs_list[0].estado = 'E';
+    char *sym = strchr(jobs_list[0].cmd, '&');
+    if (sym)
+    {
+        *(sym) = '\0';
+    }
+    jobs_list_remove(pos);
+    fprintf(stdout, "fg: %s\n", jobs_list[0].cmd);
+
+    pause();
+
     return 0;
 }
 
@@ -903,14 +967,53 @@ int internal_fg(char **args)
  *
  * param: args --> punter al punter dels tokens d'arguments
  *
- * return: return 1 si s'ha executat correctament.
+ * return: 0 si hi ha hagut un error (comanda ja en execució o altres),
+ *  1 en altre cas.
  *
  */
 int internal_bg(char **args)
 {
-#if DEBUG1
-    fprintf(stderr, GRIS_T "[internal_bg()→ Aquesta funció reactivarà un procés detingut perquè es segueixi executant en segon pla]\n" RESET);
+    // Comprovar si hi ha error de sintaxis
+    if (!args[1])
+    {
+        fprintf(stderr, ROJO_T "Error de sintaxis (Numero de treball ausent). Uso: bg <numero_de_treball>\n" RESET);
+        return 0;
+    }
+
+    int pos = (int)strtol(args[1], NULL, 10);
+
+    // Comprovar si existeix el treball
+    if (pos <= 0 || pos > n_job)
+    {
+        fprintf(stderr, ROJO_T "Error: el treball no existeix\n" RESET);
+        return 0;
+    }
+
+    // Comprovar si el treball ja s'està executant
+    if (jobs_list[pos].estado == 'E')
+    {
+        fprintf(stderr, ROJO_T "Error: el treball ja està en segon pla\n" RESET);
+        return 0;
+    }
+
+    // Guardar el PID abans de canviar d'estat
+    pid_t pid = jobs_list[pos].pid;
+
+    // Canviar l'estat del treball a 'E' y afegir " &" al seu cmd
+    jobs_list[pos].estado = 'E';
+    strcat(jobs_list[pos].cmd, " &");
+
+    // Enviar a jobs_list[pos].pid la senyal SIGCONT
+    if (kill(pid, SIGCONT) == -1)
+    {
+        perror(ROJO_T "internal_bg: kill" RESET);
+        return 0;
+    }
+
+#ifdef DEBUG6
+    fprintf(stderr, GRIS_T "[internal_bg()→ señal 18 (SIGCONT) enviada a %d (%s)]\n" RESET, pid, jobs_list[pos].cmd);
 #endif
+
     return 1;
 }
 
@@ -964,6 +1067,55 @@ void reaper(int signum)
             jobs_list_remove(fi);
         }
     }
+    if (ended == -1)
+    {
+    }
+}
+
+/*
+ *  Funció: is_output_redirection
+ * --------------------
+ *  Indica amb una booleana si els arguments s'han de redirigir, a més si s'han de redirigir els modifica.
+ *
+ *  param: args --> punter al punter dels tokens d'arguments
+ *
+ *  return: 1 si hi ha d'haver redirecció, sinó 0
+ */
+int is_output_redirection(char **args)
+{
+    int cont = 0;
+    while (args[cont])
+    {
+        // Cercam existència del token > seguit de qualque cosa
+        if (strcmp(args[cont], ">") == 0 && (args[cont + 1] != NULL))
+        {
+            args[cont] = NULL;
+            int fd = open(args[cont + 1], O_CREAT | O_WRONLY, FPERMS);
+            if (fd == -1)
+            {
+                perror(ROJO_T "is_output_redirection(): open" RESET);
+                return -1;
+            }
+            // Tancar la sortida estàndard (descriptor 1)
+            close(1);
+
+            int stdoutnew = dup(fd);
+            if (stdoutnew == -1)
+            {
+                perror(ROJO_T "is_output_redirection(): dup" RESET);
+                return -1;
+            }
+
+            if (close(fd) == -1)
+            {
+                perror(ROJO_T "is_output_redirection(): close" RESET);
+                return -1;
+            }
+            return 1;
+        }
+        cont++;
+    }
+    return 0;
 }
 
 void imprimir_prompt()

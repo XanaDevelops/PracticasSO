@@ -1,1 +1,2 @@
 # PracticasSO
+veure README.txt

@@ -52,6 +52,7 @@ int internal_source(char **args);
 int internal_jobs();
 int internal_fg(char **args);
 int internal_bg(char **args);
+void internal_exit();
 
 int is_background(char **args);
 int is_output_redirection(char **args);
@@ -146,7 +147,7 @@ char *read_line(char *line)
         fprintf(stderr, GRIS_T "\n[read_line(): detectado EOF]\n" RESET);
 #endif
         clearerr(stdin);
-        return NULL;
+        internal_exit();
     }
 
     if (line != NULL)
@@ -252,7 +253,7 @@ int execute_line(char *line)
     else
     { // procés pare
       // visualització del PID del pare i del fill
-#if DEBUG3
+#if DEBUG3 | DEBUG4 | DEBUG5
         fprintf(stderr, GRIS_T "[execute_line(): PID pare: %d (%s)]\n" RESET, getppid(), mini_shell);
         fprintf(stderr, GRIS_T "[execute_line(): PID fill: %d (%s)]\n" RESET, child, line);
 #endif
@@ -302,7 +303,8 @@ int parse_args(char **args, char *line)
     int nt = 0;
 
     nt = 0;
-    bool global_d_comilla = false;
+    bool global_d_comilla = false, any_comilla = false;
+    ;
     char tipo_comilla = '\0';
 
     memset(aux_line, '\000', COMMAND_LINE_SIZE);
@@ -312,6 +314,11 @@ int parse_args(char **args, char *line)
     char *token = strtok(line, delim);
     while (token != NULL)
     {
+        // comprobar #
+        if (*(token) == '#')
+        {
+            break;
+        }
         int m = strlen(token);
         if (token >= line + aux_line_index)
         {
@@ -322,20 +329,27 @@ int parse_args(char **args, char *line)
             char *p_dc = strchr(token, '\"');
             char *p_sc = strchr(token, '\'');
 
-            if(p_dc!=NULL && p_sc==NULL){
-                sep = p_dc;
-                tipo_comilla = '\"';
-            }else if(p_dc==NULL && p_sc!=NULL){
-                sep = p_sc;
-                tipo_comilla = '\'';
-            }else if(p_sc<p_dc){
-                sep = p_sc;
-                tipo_comilla = '\'';
-            }else{
+            if (p_dc != NULL && p_sc == NULL)
+            {
                 sep = p_dc;
                 tipo_comilla = '\"';
             }
-            
+            else if (p_dc == NULL && p_sc != NULL)
+            {
+                sep = p_sc;
+                tipo_comilla = '\'';
+            }
+            else if (p_sc < p_dc)
+            {
+                sep = p_sc;
+                tipo_comilla = '\'';
+            }
+            else
+            {
+                sep = p_dc;
+                tipo_comilla = '\"';
+            }
+
             if (sep != NULL)
             {
                 global_d_comilla = !global_d_comilla;
@@ -352,6 +366,7 @@ int parse_args(char **args, char *line)
                         }
                         else
                         {
+                            any_comilla = true;
                             global_d_comilla = !global_d_comilla;
                             d_comilla = !d_comilla;
                         }
@@ -423,7 +438,11 @@ int parse_args(char **args, char *line)
                 *(args + nt++) = token;
             }
         }
-
+        if (!global_d_comilla && any_comilla)
+        {
+            fprintf(stderr, ROJO_T "parse_args() " NEGRITA "ERROR:" RESET ROJO_T " Cometes no tancades\n" RESET);
+            return -1;
+        }
         token = strtok(NULL, delim);
         aux_line_index++;
         // testear
@@ -716,7 +735,7 @@ int internal_source(char **args)
     }
     strcpy(aux, args[1]);
     FILE *fp = fopen(aux, "r");
-     if (fp == NULL)
+    if (fp == NULL)
     {
         perror(ROJO_T "internal_source(): Fitxer no s'ha pogut obrir");
         return -1;
@@ -735,7 +754,8 @@ int internal_source(char **args)
 #endif
         execute_line(linia);
     }
-    if (fclose(fp) == EOF) {
+    if (fclose(fp) == EOF)
+    {
         perror(ROJO_T "internal_source(): fclose");
         return -1;
     }
@@ -953,10 +973,6 @@ int internal_fg(char **args)
  */
 int internal_bg(char **args)
 {
-#if DEBUG6
-    fprintf(stderr, GRIS_T "[internal_bg()→ Aquesta funció reactivará un procés detingut perquè es segueixi executant en segon pla]\n" RESET);
-#endif
-
     // Comprovar si hi ha error de sintaxis
     if (!args[1])
     {
@@ -1010,7 +1026,6 @@ void reaper(int signum)
 
     while ((ended = waitpid(-1, &status, WNOHANG)) > 0)
     {
-        fprintf(stderr, GRIS_T "[reaper(): loop: %i status %i]\n" RESET, ended, status);
         if (ended == jobs_list[0].pid)
         {
 #if DEBUG4
@@ -1125,4 +1140,16 @@ void imprimir_prompt()
 
     fflush(stdout);
     sleep(0.5);
+}
+
+/**
+ * Funció internal_exit
+ * -----------------------------
+ * Mostra el missatge de acomiadament i surt de l'execució
+ *
+ */
+void internal_exit()
+{
+    printf(MENSAJE_DESPEDIDA);
+    exit(0);
 }
