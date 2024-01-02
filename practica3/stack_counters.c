@@ -118,3 +118,19 @@ void *worker(void *ptr){
     }
     return 0;
 }
+
+void stack_end() {
+    // Esperar a que todos los hilos terminen
+    for (int i = 0; i < NUM_THREADS; i++) {
+        pthread_join(pthreads[i], NULL);
+    }
+
+    // Guardar la pila en un fichero
+    my_stack_write(stack, "output_stack.txt");
+
+    // Liberar espacio de la pila
+    my_stack_purge(stack);
+
+    // Finalizar los hilos
+    pthread_exit(NULL);
+}
