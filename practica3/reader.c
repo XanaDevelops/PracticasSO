@@ -16,6 +16,10 @@ int main(int argc, char *argv[])
 {
     /*Reconstrucció pila dins memòria*/
     struct my_stack *pila;
+     if (argv[1] == NULL) { 
+        perror("reader(): Pila inexistente [argv[1] == NULL]");
+        return -1;
+    }
     pila = my_stack_read(argv[1]);
 
     /*Declaració dades a imprimir*/
