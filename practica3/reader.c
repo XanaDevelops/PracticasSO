@@ -16,9 +16,10 @@ int main(int argc, char *argv[])
 {
     /*Reconstrucció pila dins memòria*/
     struct my_stack *pila;
-     if (argv[1] == NULL) { 
-       fprint("reader(): Pila inexistente [argv[1] == NULL]");
-        return -1;
+    if (argv[1] == NULL)
+    {
+        fprint("reader(): Pila inexistente [argv[1] == NULL]");
+        return EXIT_FAILURE;
     }
     pila = my_stack_read(argv[1]);
 
@@ -29,8 +30,13 @@ int main(int argc, char *argv[])
     int max = 0;
     int num = my_stack_len(pila);
     printf("\nLlargaria: %d\n", num);
+    if (num <= 0)
+    {
+        fprint("reader(): Pila buida [llargaria = 0]");
+        return EXIT_FAILURE;
+    }
 
-    /*Si la pila té més de 10 elements, els 
+    /*Si la pila té més de 10 elements, els
     càlculs només tindran en compte els 10 primers*/
     if (num > SHOW)
     {
@@ -39,19 +45,21 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < num; i++)
     {
-        element = (int) my_stack_pop(pila);
+        element = (int)my_stack_pop(pila);
         printf("%d- %d\n", i, element);
 
         /*Actualització dades*/
-        sum +=element;
-        if(element > max){
+        sum += element;
+        if (element > max)
+        {
             max = element;
         }
-        if(element < min){
+        if (element < min)
+        {
             min = element;
         }
     }
-    printf("RESUM:\n Suma: %d \n Mínim: %d \n Màxim: %d \n Mitja: %d\n", sum, min, max, ((int) (sum/num)));
+    printf("RESUM:\n Suma: %d \n Mínim: %d \n Màxim: %d \n Mitja: %d\n", sum, min, max, ((int)(sum / num)));
 
     return 0;
 }
