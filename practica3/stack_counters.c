@@ -8,6 +8,7 @@
 
 #include <pthread.h>
 #include "my_lib.h"
+#include <stdio.h>
 
 #define NUM_THREADS 10
 #define N 10000000
@@ -101,7 +102,7 @@ void create_threads(){
     for (int i = 0; i < NUM_THREADS; i++)
     {
         pthread_create(&pthreads[i], NULL, worker, NULL);
-        fprintf(stderr, GRIS_T "[create_threads(): reado pthread %lu]" RESET, pthreads[i]);
+        fprintf(stderr, GRIS_T "[create_threads(): reado pthread %lu]\n" RESET, pthreads[i]);
     }
     
 }
@@ -112,7 +113,9 @@ void *worker(void *ptr){
     {
         pthread_mutex_lock(&mutex);
         valor = my_stack_pop(stack);
+        fprintf(stderr, GRIS_T "Valor leido %i\n" RESET, *valor);
         *valor+=1;
+        fprintf(stderr, GRIS_T "Valor escrito %i\n" RESET, *valor);
         my_stack_push(stack, valor);
         pthread_mutex_unlock(&mutex);
     }
