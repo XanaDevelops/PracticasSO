@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     pila = my_stack_read(argv[1]);
 
     /*Declaració dades a imprimir*/
-    int element;
+    int element = 0;
     int sum = 0;
     int min = INT_MAX;
     int max = 0;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < num; i++)
     {
-        element = (int)my_stack_pop(pila);
+        element = ((int) my_stack_pop(pila));
         printf("%d- %d\n", i, element);
 
         /*Actualització dades*/
