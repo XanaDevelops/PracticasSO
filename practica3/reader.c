@@ -8,6 +8,7 @@
 
 #include <limits.h>
 #include "my_lib.h"
+#include <stdio.h>
 
 /*Màxim dels elements que es mostraran*/
 #define SHOW 10
@@ -18,7 +19,7 @@ int main(int argc, char *argv[])
     struct my_stack *pila;
     if (argv[1] == NULL)
     {
-        fprint("reader(): Pila inexistente [argv[1] == NULL]");
+        printf("reader(): Pila inexistente [argv[1] == NULL]");
         return EXIT_FAILURE;
     }
     pila = my_stack_read(argv[1]);
@@ -32,7 +33,7 @@ int main(int argc, char *argv[])
     printf("\nLlargaria: %d\n", num);
     if (num <= 0)
     {
-        fprint("reader(): Pila buida [llargaria = 0]");
+        printf("reader(): Pila buida [llargaria = 0]");
         return EXIT_FAILURE;
     }
 
