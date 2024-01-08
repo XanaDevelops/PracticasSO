@@ -189,6 +189,9 @@ void stack_end()
     // Guardar la pila en un fichero
     my_stack_write(stack, filename);
 
+    // Imprimir la información sobre los elementos escritos en el fichero
+    fprintf(stdout, "Written elements from stack to file: %d\n", my_stack_len(stack));
+    
     // Liberar espacio de la pila
     int bytes = my_stack_purge(stack);
     fprintf(stdout, "Released bytes: %d\n", bytes);
