@@ -92,7 +92,7 @@ void stack_init()
             *data = 0;
             my_stack_push(stack, data);
         }
-        /**
+
         // Imprimir nuevo tamaño de la pila
         fprintf(stdout, "new stack length: %d\n", NUM_THREADS);
 
@@ -166,7 +166,7 @@ void *worker(void *ptr)
     pthread_exit(NULL);
 }
 
-void stack_end(const char *filename)
+void stack_end()
 {
     // Esperar a que todos los hilos terminen
     for (int i = 0; i < NUM_THREADS; i++)
