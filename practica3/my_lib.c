@@ -1,5 +1,5 @@
-/**ENTREGA 1
- * versió: 30/10/32
+/**ENTREGA 3
+ * versió: 08/01/24
  * autors: Josep Ferriol Font, Daniel García Vázquez
  * i Biel Perelló Perelló
  */
@@ -9,6 +9,19 @@
  * de una pila
  */
 #include "my_lib.h"
+
+#define RESET "\033[0m"
+#define NEGRO_T "\x1b[30m"
+#define NEGRO_F "\x1b[40m"
+#define GRIS_T "\x1b[90m" // #define GRIS_T "\x1b[94m"
+#define ROJO_T "\x1b[31m"
+#define VERDE_T "\x1b[32m"
+#define AMARILLO_T "\x1b[33m"
+#define AZUL_T "\x1b[34m"
+#define MAGENTA_T "\x1b[35m"
+#define CYAN_T "\x1b[36m"
+#define BLANCO_T "\x1b[97m"
+#define NEGRITA "\x1b[1m"
 
 /*REPTE 1*/
 #define FPERMS 0666
@@ -362,7 +375,7 @@ struct my_stack *my_stack_read(char *filename)
     int fitxer = open(filename, O_RDONLY);
     if (fitxer == -1)
     {
-        perror("ERROR: Fitxer no es pot obrir");
+        perror(ROJO_T "ERROR: Fitxer no es pot obrir" RESET);
         return NULL;
     }
     /*Miram la mida del fitxer per inincialtzar pila*/

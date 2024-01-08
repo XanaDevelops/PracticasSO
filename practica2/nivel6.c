@@ -18,7 +18,7 @@
 #define DEBUG6 1
 #define DEBUG5 0
 #define DEBUG4 0
-#define DEBUG3 0
+#define DEBUG3 1
 #define DEBUG2 0
 #define DEBUG1 0
 
@@ -741,7 +741,8 @@ int internal_source(char **args)
         return -1;
     }
     char linia[COMMAND_LINE_SIZE];
-    while (fgets(linia, COMMAND_LINE_SIZE, fp))
+    
+    while (fgets(linia, COMMAND_LINE_SIZE, fp) != NULL)
     {
         char *fi = strrchr(linia, '\n');
         if (fi)
