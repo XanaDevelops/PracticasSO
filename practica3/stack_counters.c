@@ -10,8 +10,8 @@
 #include "my_lib.h"
 #include <stdio.h>
 
-#define NUM_THREADS 10
-#define N 10000000
+#define NUM_THREADS 3
+#define N 5
 
 #define RESET "\033[0m"
 #define NEGRO_T "\x1b[30m"
@@ -26,42 +26,49 @@
 #define BLANCO_T "\x1b[97m"
 #define NEGRITA "\x1b[1m"
 
-void stack_init(const char *filename);
+void stack_init();
 void create_threads();
 void *worker(void *ptr);
 void stack_end();
-//reader.c
+// reader.c
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_t pthreads[NUM_THREADS];
 
 struct my_stack *stack;
+char *filename;
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[])
+{
     // Verificar si se ha pasado el nombre del fichero por consola
-    if (argc != 2) {
-        fprintf(stderr, "Sintaxis incorrecta. Uso: ./programa <nombre_fichero>\n");
+    if (argc != 2)
+    {
+        fprintf(stderr, ROJO_T "Sintaxis incorrecta. USO: ./stack_counters <stack_file>\n" RESET);
         exit(EXIT_FAILURE);
     }
 
     // Inicializar la pila
-    stack_init(argv[1]);
+    filename = argv[1];
+    stack_init();
     create_threads();
-    
+    stack_end();
 
     return 0;
 }
 
-void stack_init(const char *filename){
+void stack_init()
+{
     // Verificar si el nombre del fichero se ha pasado por consola
-    if (!filename){
-        fprintf(stderr, "Sintaxis incorrecta. Uso: ./programa <nombre_fichero>\n");
+    if (!filename)
+    {
+        fprintf(stderr, ROJO_T "Sintaxis incorrecta. USO: ./stack_counters <stack_file>\n" RESET);
         exit(EXIT_FAILURE);
     }
 
     // Verificar si la pila ya existe
     int file_exists = access(filename, F_OK);
-    if (file_exists == -1){
+    if (file_exists == -1)
+    {
         // Si no existe, crearla e inicializarla con punteros a 0
         stack = my_stack_init(NUM_THREADS);
 
@@ -71,22 +78,25 @@ void stack_init(const char *filename){
             *data = 0;
             my_stack_push(stack, data);
         }
-
+        /**
         // Guardar la pila en el fichero
         my_stack_write(stack, filename);
 
         // Liberar memoria
         int bytes = my_stack_purge(stack);
         fprintf(stdout, "Released Bytes: %d \n", bytes);
+        **/
     }
-    else {
+    else
+    {
         // Si ya existe, cargar la pila desde el fichero en la variable global
         stack = my_stack_read(filename);
 
         // Comprobar si la pila tiene menos de 10 elementos o ninguno
         int current_size = my_stack_len(stack);
 
-        if (current_size < NUM_THREADS){
+        if (current_size < NUM_THREADS)
+        {
             // Agregar los restantes individualmente con punteros apuntando a cero
             for (int i = 0; i < NUM_THREADS - current_size; i++)
             {
@@ -98,38 +108,47 @@ void stack_init(const char *filename){
     }
 }
 
-void create_threads(){
+void create_threads()
+{
     for (int i = 0; i < NUM_THREADS; i++)
     {
         pthread_create(&pthreads[i], NULL, worker, NULL);
-        fprintf(stderr, GRIS_T "[create_threads(): reado pthread %lu]\n" RESET, pthreads[i]);
+        fprintf(stderr, GRIS_T "[create_threads(): creado pthread %lu]\n" RESET, pthreads[i]);
     }
-    
 }
 
-void *worker(void *ptr){
+void *worker(void *ptr)
+{
     int *valor;
-    for (int i = 0; i < N; i++)
+    int i;
+    for (i = 0; i < N; i++)
     {
         pthread_mutex_lock(&mutex);
         valor = my_stack_pop(stack);
-        fprintf(stderr, GRIS_T "Valor leido %i\n" RESET, *valor);
-        *valor+=1;
-        fprintf(stderr, GRIS_T "Valor escrito %i\n" RESET, *valor);
+        pthread_mutex_unlock(&mutex);
+        //fprintf(stdout, GRIS_T "(%d) %lu Valor leido %i %lu\n" RESET, i, pthread_self(), *valor, valor);
+        *valor += 1;
+        //fprintf(stdout, GRIS_T "(%d) %lu Valor escrito %i %lu\n" RESET, i, pthread_self(), *valor, valor);
+        //sleep(0.001);
+        pthread_mutex_lock(&mutex);
         my_stack_push(stack, valor);
         pthread_mutex_unlock(&mutex);
+        
     }
-    return 0;
+    //fprintf(stdout, GRIS_T "SAYONARA %lu con i %d siendo max N=%i\n"RESET, pthread_self(), i, N);
+    pthread_exit(NULL);
 }
 
-void stack_end() {
+void stack_end()
+{
     // Esperar a que todos los hilos terminen
-    for (int i = 0; i < NUM_THREADS; i++) {
+    for (int i = 0; i < NUM_THREADS; i++)
+    {
         pthread_join(pthreads[i], NULL);
     }
 
     // Guardar la pila en un fichero
-    my_stack_write(stack, "output_stack.txt");
+    my_stack_write(stack, filename);
 
     // Liberar espacio de la pila
     my_stack_purge(stack);
