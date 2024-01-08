@@ -10,8 +10,8 @@
 #include "my_lib.h"
 #include <stdio.h>
 
-#define NUM_THREADS 3
-#define N 5
+#define NUM_THREADS 10
+#define N 1000000
 
 #define RESET "\033[0m"
 #define NEGRO_T "\x1b[30m"
@@ -56,6 +56,12 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+/**
+ * Funció: void stack_init()
+ * --------------------------
+ * Iniciatlitza la pila, creant-la o carregant-la en memòria
+ *  
+*/
 void stack_init()
 {
     // Verificar si el nombre del fichero se ha pasado por consola
@@ -78,30 +84,19 @@ void stack_init()
         fprintf(stdout, "initial stack length: %d\n" RESET, my_stack_len(stack));
         fprintf(stdout, "initial stack content:\n" RESET);
 
-        // Imprimir contenido inicial de la pila
-        struct my_stack_node *current_node = stack->top;
-        while (current_node != NULL) {
-            fprintf(stdout, "%d\n", *(int *)current_node->data);
-            current_node = current_node->next;
-        }
-
-        fprintf(stdout, "stack content for treatment:\n");
-
+        // Inicializat pila
         for (int i = 0; i < NUM_THREADS; i++) {
             int *data = (int *)malloc(sizeof(int));
+            if(data==NULL){
+                perror("ERROR: malloc() al init pila");
+            }
             *data = 0;
             my_stack_push(stack, data);
+            fprintf(stdout, "%d\n", *data);
         }
 
         // Imprimir nuevo tamaño de la pila
         fprintf(stdout, "new stack length: %d\n", NUM_THREADS);
-
-        // Guardar la pila en el fichero
-        my_stack_write(stack, filename);
-
-        // Liberar memoria
-        int bytes = my_stack_purge(stack);
-        fprintf(stdout, "Released Bytes: %d \n", bytes);
     }
     else
     {
@@ -124,39 +119,61 @@ void stack_init()
 
         if (current_size < NUM_THREADS)
         {
+            fprintf(stdout, "Adding %d elements\n", NUM_THREADS - current_size);
             // Agregar los restantes individualmente con punteros apuntando a cero
             for (int i = 0; i < NUM_THREADS - current_size; i++)
             {
                 int *data = (int *)malloc(sizeof(int));
+                if(data==NULL){
+                    perror("ERROR: malloc() add missing data");
+                }
                 *data = 0;
                 my_stack_push(stack, data);
+                fprintf(stdout, "%d\n", *data);
             }
+            fprintf(stdout, "new stack length: %d\n", my_stack_len(stack));
         }
     }
 }
 
+/**
+ * Funció: void create_threads()
+ * --------------------------
+ * Crea els fils
+ *  
+*/
 void create_threads()
 {
     for (int i = 0; i < NUM_THREADS; i++)
     {
         pthread_create(&pthreads[i], NULL, worker, NULL);
-        fprintf(stderr, GRIS_T "[create_threads(): creado pthread %lu]\n" RESET, pthreads[i]);
+        fprintf(stdout, GRIS_T "[create_threads(): creado pthread %lu]\n" RESET, pthreads[i]);
     }
 }
 
+/**
+ * Funció: void *worker()
+ * --------------------------
+ * Funció per als threads, accedeix amb un semàfor la pila
+ *  
+ * params: void *ptr
+*/
 void *worker(void *ptr)
 {
     int *valor;
     int i;
     for (i = 0; i < N; i++)
     {
+        //secció critica pop
         pthread_mutex_lock(&mutex);
         valor = my_stack_pop(stack);
         pthread_mutex_unlock(&mutex);
+        
         //fprintf(stdout, GRIS_T "(%d) %lu Valor leido %i %lu\n" RESET, i, pthread_self(), *valor, valor);
         *valor += 1;
         //fprintf(stdout, GRIS_T "(%d) %lu Valor escrito %i %lu\n" RESET, i, pthread_self(), *valor, valor);
-        //sleep(0.001);
+
+        //secció critica push
         pthread_mutex_lock(&mutex);
         my_stack_push(stack, valor);
         pthread_mutex_unlock(&mutex);
@@ -166,6 +183,12 @@ void *worker(void *ptr)
     pthread_exit(NULL);
 }
 
+/**
+ * Funció: void stack_end()
+ * --------------------------
+ * Espera als fils i imprimeix el resultat
+ *  
+*/
 void stack_end()
 {
     // Esperar a que todos los hilos terminen
@@ -196,6 +219,4 @@ void stack_end()
     int bytes = my_stack_purge(stack);
     fprintf(stdout, "Released bytes: %d\n", bytes);
 
-    // Finalizar los hilos
-    pthread_exit(NULL);
 }

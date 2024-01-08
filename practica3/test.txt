@@ -1,86 +1,244 @@
 make: Nothing to be done for 'all'.
 [H[2J[3J./stack_counters #########################################
 ./reader ####################################################
-reader(): Pila inexistente [argv[1] == NULL]./reader s ####################################################
+./reader s ####################################################
 
-Llargaria: -1
-reader(): Pila buida [llargaria = 0]
 time ./stack_counters s0 # pila inexistente ######################
+Threads: 10, Iterations: 1000000
+[0mstack->size: 4
+[0minitial stack length: 0
+[0minitial stack content:
+[0m0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+new stack length: 10
+[90m[create_threads(): creado pthread 139843862713920]
+[0m[90m[create_threads(): creado pthread 139843854321216]
+[0m[90m[create_threads(): creado pthread 139843845928512]
+[0m[90m[create_threads(): creado pthread 139843837535808]
+[0m[90m[create_threads(): creado pthread 139843829143104]
+[0m[90m[create_threads(): creado pthread 139843820750400]
+[0m[90m[create_threads(): creado pthread 139843812357696]
+[0m[90m[create_threads(): creado pthread 139843598284352]
+[0m[90m[create_threads(): creado pthread 139843589891648]
+[0m[90m[create_threads(): creado pthread 139843581498944]
+[0mstack content after threads iterations:
+1025641
+993303
+1029218
+1012513
+1017672
+1043056
+1041394
+958906
+964111
+914186
+stack length: 10
+Written elements from stack to file: 10
+Released bytes: 276
 
 ./reader s0 ####################################################
-
 Llargaria: 10
-0- -1180735968
-1- -1180736064
-2- -1180736160
-3- -1180736256
-4- -1180736352
-5- -1180736448
-6- -1180736544
-7- -1180736640
-8- -1180736736
-9- -1180736832
+0- 1025641
+1- 993303
+2- 1029218
+3- 1012513
+4- 1017672
+5- 1043056
+6- 1041394
+7- 958906
+8- 964111
+9- 914186
 RESUM:
- Suma: 1077537888 
- Mínim: -1180736832 
- Màxim: 0 
- Mitja: 107753788
+ Suma: 10000000 
+ Mínim: 914186 
+ Màxim: 1043056 
+ Mitja: 1000000
 
 time ./stack_counters s0 # 2ª ejecución misma pila ###############
+Threads: 10, Iterations: 1000000
+[0moriginal stack content:
+1025641
+993303
+1029218
+1012513
+1017672
+1043056
+1041394
+958906
+964111
+914186
+original stack length: 10
+[90m[create_threads(): creado pthread 139706851817024]
+[0m[90m[create_threads(): creado pthread 139706843424320]
+[0m[90m[create_threads(): creado pthread 139706763310656]
+[0m[90m[create_threads(): creado pthread 139706754917952]
+[0m[90m[create_threads(): creado pthread 139706746525248]
+[0m[90m[create_threads(): creado pthread 139706738132544]
+[0m[90m[create_threads(): creado pthread 139706729739840]
+[0m[90m[create_threads(): creado pthread 139706721347136]
+[0m[90m[create_threads(): creado pthread 139706712954432]
+[0m[90m[create_threads(): creado pthread 139706360657472]
+[0mstack content after threads iterations:
+2054122
+1972903
+2055081
+2032254
+2019132
+2030760
+2065881
+1924196
+1975352
+1870319
+stack length: 10
+Written elements from stack to file: 10
+Released bytes: 276
 
 ./reader s0 ####################################################
-
 Llargaria: 10
-0- 1597040160
-1- 1597040064
-2- 1597039968
-3- 1597039872
-4- 1597039776
-5- 1597039680
-6- 1597039584
-7- 1597039488
-8- 1597039392
-9- 1597039296
+0- 2054122
+1- 1972903
+2- 2055081
+3- 2032254
+4- 2019132
+5- 2030760
+6- 2065881
+7- 1924196
+8- 1975352
+9- 1870319
 RESUM:
- Suma: -1209471904 
- Mínim: 1597039296 
- Màxim: 1597040160 
- Mitja: -120947190
+ Suma: 20000000 
+ Mínim: 1870319 
+ Màxim: 2065881 
+ Mitja: 2000000
 
 ./stack_counters s1-14el #####################################
+Threads: 10, Iterations: 1000000
+[0moriginal stack content:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+original stack length: 14
+[90m[create_threads(): creado pthread 140716593079872]
+[0m[90m[create_threads(): creado pthread 140716584687168]
+[0m[90m[create_threads(): creado pthread 140716576294464]
+[0m[90m[create_threads(): creado pthread 140716567901760]
+[0m[90m[create_threads(): creado pthread 140716559509056]
+[0m[90m[create_threads(): creado pthread 140716349060672]
+[0m[90m[create_threads(): creado pthread 140716340667968]
+[0m[90m[create_threads(): creado pthread 140716332275264]
+[0m[90m[create_threads(): creado pthread 140716323882560]
+[0m[90m[create_threads(): creado pthread 140716315489856]
+[0mstack content after threads iterations:
+1032639
+995608
+980291
+1023168
+1026399
+1005152
+974325
+1003447
+964633
+994338
+0
+0
+0
+0
+stack length: 14
+Written elements from stack to file: 14
+Released bytes: 296
 
 ./reader s1-14el ###############################################
-
 Llargaria: 14
-0- -1875630176
-1- -1875630272
-2- -1875630368
-3- -1875630464
-4- -1875630560
-5- -1875630656
-6- -1875630752
-7- -1875630848
-8- -1875630944
-9- -1875631040
+0- 1032639
+1- 995608
+2- 980291
+3- 1023168
+4- 1026399
+5- 1005152
+6- 974325
+7- 1003447
+8- 964633
+9- 994338
 RESUM:
- Suma: -1576436896 
- Mínim: -1875631040 
- Màxim: 0 
- Mitja: -157643689
+ Suma: 10000000 
+ Mínim: 964633 
+ Màxim: 1032639 
+ Mitja: 1000000
 
 ./stack_counters s2-6el ####################################################
+Threads: 10, Iterations: 1000000
+[0moriginal stack content:
+0
+0
+0
+0
+0
+0
+original stack length: 6
+Adding 4 elements
+0
+0
+0
+0
+new stack length: 10
+[90m[create_threads(): creado pthread 140259747788352]
+[0m[90m[create_threads(): creado pthread 140259739395648]
+[0m[90m[create_threads(): creado pthread 140259731002944]
+[0m[90m[create_threads(): creado pthread 140259722610240]
+[0m[90m[create_threads(): creado pthread 140259714217536]
+[0m[90m[create_threads(): creado pthread 140259705824832]
+[0m[90m[create_threads(): creado pthread 140259697432128]
+[0m[90m[create_threads(): creado pthread 140259689039424]
+[0m[90m[create_threads(): creado pthread 140259337696832]
+[0m[90m[create_threads(): creado pthread 140259329304128]
+[0mstack content after threads iterations:
+1011048
+1020748
+988509
+969898
+998902
+1047625
+979540
+975154
+1012826
+995750
+stack length: 10
+Written elements from stack to file: 10
+Released bytes: 216
 
 ./reader s2-6el ####################################################
-
-Llargaria: 6
-0- 773915808
-1- 773915712
-2- 773915616
-3- 773915520
-4- 773915424
-5- 773915328
+Llargaria: 10
+0- 1011048
+1- 1020748
+2- 988509
+3- 969898
+4- 998902
+5- 1047625
+6- 979540
+7- 975154
+8- 1012826
+9- 995750
 RESUM:
- Suma: 348526112 
- Mínim: 773915328 
- Màxim: 773915808 
- Mitja: 58087685
+ Suma: 10000000 
+ Mínim: 969898 
+ Màxim: 1047625 
+ Mitja: 1000000

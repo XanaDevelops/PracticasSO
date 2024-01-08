@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
         }
         return EXIT_FAILURE;
     }
-    printf("\nLlargaria: %d\n", num);
+    printf("Llargaria: %d\n", num);
 
     /*Si la pila té més de 10 elements, els
     càlculs només tindran en compte els 10 primers*/
