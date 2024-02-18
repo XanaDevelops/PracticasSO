@@ -26,7 +26,7 @@ int main(int argc, char **argv)
     }
 
     // montamos disco
-    if (bmount(*(argv+1)) == FALLO)
+    if (bmount(*(argv + 1)) == FALLO)
     {
         return FALLO;
     }
@@ -38,8 +38,12 @@ int main(int argc, char **argv)
         perror(RED "ERROR");
         return FALLO;
     }
-    for (unsigned int i = 0; i < nbloque; i++)
+    memset(buffer, '\0', BLOCKSIZE);
+    for (int i = 0; i < nbloque; i++)
     {
+#if DEBUG1
+        fprintf(stderr, GRAY "[main() -> escribiendo bloque %d]\n" RESET, i);
+#endif
         bwrite(i, buffer);
     }
     free(buffer);
