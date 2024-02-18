@@ -1,7 +1,54 @@
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "bloques.h"
 
-int main(int argc, char const *argv[])
+#define DEBUG1 1
+
+int main(int argc, char **argv)
 {
-    
-    return 0;
+    // comprobamos argumentos de consola
+    if (argc < 3)
+    {
+        fprintf(stderr, RED "ARGUMENTOS INSUFICIENTES: Uso: ./mi_mkfs {nombre_disco} {nº bloques}\n" RESET);
+        return FALLO;
+    }
+
+    // comprobamos numero bloques
+    int nbloque = atoi(*(argv + 2));
+#if DEBUG1
+    fprintf(stderr, GRAY "nbloques: %d\n" RESET, nbloque);
+#endif
+    if (nbloque <= 0)
+    {
+        fprintf(stderr, RED "ARGUMENTO INVALIDO: nºBloques > 0\n" RESET);
+        return FALLO;
+    }
+
+    // montamos disco
+    if (bmount(*(argv+1)) == FALLO)
+    {
+        return FALLO;
+    }
+
+    // escribimos disco
+    unsigned char *buffer = malloc(BLOCKSIZE);
+    if (!buffer)
+    {
+        perror(RED "ERROR");
+        return FALLO;
+    }
+    for (unsigned int i = 0; i < nbloque; i++)
+    {
+        bwrite(i, buffer);
+    }
+    free(buffer);
+
+    /*  DESCOMENTAR AL IMPLEMENTAR
+        //desmontamos disco
+        if(bumount()){
+            return FALLO;
+        }
+    */
+    return EXITO;
 }
