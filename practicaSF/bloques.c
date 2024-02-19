@@ -2,12 +2,14 @@
 
 static int descriptor = 0;
 
-int bmount(const char *camino) {
+int bmount(const char *camino)
+{
     // Abrir el fichero como lectura y escritura, creándolo si no existe
     descriptor = open(camino, O_RDWR | O_CREAT, 0666);
 
     // Comprobar si ha habido un error al abrir el fichero
-    if(descriptor == -1) {
+    if (descriptor == -1)
+    {
         // Gestión de error
         perror(RED "Error");
         printf(RESET);
@@ -19,14 +21,30 @@ int bmount(const char *camino) {
     return descriptor;
 }
 
-int bwrite(unsigned int nbloque, const void *buf) {
+int bumount(int descriptor)
+{
+    if (close(descriptor) == 0)
+    {
+        return EXITO;
+    }
+    else
+    {
+        // Gestón del error
+        perror("Error al cerrar");
+        return FALLO;
+    }
+}
+
+int bwrite(unsigned int nbloque, const void *buf)
+{
     // Calcular el desplazamiento del dispositivo virtual
-    off_t desplazamiento = nbloque*BLOCKSIZE;
+    off_t desplazamiento = nbloque * BLOCKSIZE;
 
     // Mover el puntero al desplazamiento calculado
     off_t puntero = lseek(descriptor, desplazamiento, SEEK_SET);
 
-    if(puntero == -1) {
+    if (puntero == -1)
+    {
         // Gestión de error
         perror(RED "Error");
         printf(RESET);
@@ -36,7 +54,8 @@ int bwrite(unsigned int nbloque, const void *buf) {
     // Escribir el contenido del buffer en el bloque especificado
     size_t numBytes = write(descriptor, buf, BLOCKSIZE);
 
-    if(numBytes == -1) {
+    if (numBytes == -1)
+    {
         // Gestión de error
         perror(RED "Error");
         printf(RESET);
