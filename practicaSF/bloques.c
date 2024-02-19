@@ -65,3 +65,33 @@ int bwrite(unsigned int nbloque, const void *buf)
     // Devolver el número de bytes escrito en el fichero
     return numBytes;
 }
+
+int bread(unsigned int nbloque, void *buf)
+{
+     // Calcular el desplazamiento del dispositivo virtual
+    off_t desplazamiento = nbloque * BLOCKSIZE;
+
+     // Mover el puntero al desplazamiento calculado
+    off_t puntero = lseek(descriptor, desplazamiento, SEEK_SET);
+
+      if (puntero == -1)
+    {
+        // Gestión de error
+        perror(RED "Error Leer");
+         //printf(RESET);
+        return FALLO;
+    }
+
+    size_t numBytes = read(descriptor, buf, BLOCKSIZE);
+
+     if (numBytes == -1)
+    {
+        // Gestión de error
+        perror(RED "Error Leer");
+         //printf(RESET);
+        return FALLO;
+    }
+
+   // Devolver el número de bytes que se ha podido leer
+    return numBytes;
+}
