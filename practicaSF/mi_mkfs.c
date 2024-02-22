@@ -48,11 +48,11 @@ int main(int argc, char **argv)
     }
     free(buffer);
 
-    /*  DESCOMENTAR AL IMPLEMENTAR
-        //desmontamos disco
-        if(bumount()){
-            return FALLO;
-        }
-    */
+    // desmontamos disco
+    if (bumount())
+    {
+        return FALLO;
+    }
+
     return EXITO;
 }

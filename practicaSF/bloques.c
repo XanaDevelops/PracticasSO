@@ -21,7 +21,7 @@ int bmount(const char *camino)
     return descriptor;
 }
 
-int bumount(int descriptor)
+int bumount()
 {
     if (close(descriptor) == 0)
     {
