@@ -30,7 +30,7 @@ int bumount()
     else
     {
         // Gestón del error
-        perror("Error al cerrar");
+        perror("Error");
         return FALLO;
     }
 }
@@ -77,7 +77,7 @@ int bread(unsigned int nbloque, void *buf)
       if (puntero == -1)
     {
         // Gestión de error
-        perror(RED "Error Leer");
+        perror(RED "Error");
          //printf(RESET);
         return FALLO;
     }
@@ -87,7 +87,7 @@ int bread(unsigned int nbloque, void *buf)
      if (numBytes == -1)
     {
         // Gestión de error
-        perror(RED "Error Leer");
+        perror(RED "Error");
          //printf(RESET);
         return FALLO;
     }
