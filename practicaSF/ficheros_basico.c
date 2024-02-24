@@ -85,3 +85,36 @@ int initMB() {
 
     return EXITO;
 }
+
+int tamAI(unsigned int ninodos){
+    int tam = (ninodos*INODOSIZE)/BLOCKSIZE;
+    if ((ninodos*INODOSIZE)%BLOCKSIZE != 0){
+        tam++;
+    }
+    return tam;
+}
+
+int initSB(unsigned int nbloques, unsigned int ninodos){
+    struct superbloque sb;
+    //inicializar
+    sb.posPrimerBloqueMB = posSB + tamSB;
+    sb.posUltimoBloqueMB = sb.posPrimerBloqueMB + tamMB(nbloques) - 1;
+    sb.posPrimerBloqueAI = sb.posUltimoBloqueMB + 1;
+    sb.posUltimoBloqueAI = sb.posPrimerBloqueAI + tamAI(ninodos) - 1;
+    sb.posPrimerBloqueDatos = sb.posUltimoBloqueAI + 1;
+    sb.posUltimoBloqueDatos = nbloques-1;
+    sb.posInodoRaiz = 0;
+    sb.posPrimerInodoLibre = 0;
+    sb.cantBloquesLibres = nbloques;
+    sb.cantInodosLibres = ninodos;
+    sb.totBloques = nbloques;
+    sb.totInodos = ninodos;
+
+    //escribir
+    if(bwrite(posSB, &sb)==FALLO){
+        return FALLO;
+    }
+
+    return EXITO;
+
+}

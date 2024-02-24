@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "bloques.h"
+#include "ficheros_basico.h"
 
 #define DEBUG1 1
 
