@@ -87,10 +87,16 @@ int initMB() {
 }
 
 int tamAI(unsigned int ninodos){
+    // Calcular el número de bytes necesarios para representar el array de inodos
     int tam = (ninodos*INODOSIZE)/BLOCKSIZE;
+
+     // Si el número de bytes necessarios no caben en un número exacto de bloques,
+    // significa que necesitamos un bloque adicional para cubrir los bytes restantes.
     if ((ninodos*INODOSIZE)%BLOCKSIZE != 0){
         tam++;
     }
+
+     // Devolver el tamaño calculado
     return tam;
 }
 
