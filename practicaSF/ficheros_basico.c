@@ -1,4 +1,6 @@
+#include <limits.h>
 #include "ficheros_basico.h"
+
 
 #define DEBUG2 1
 
@@ -158,7 +160,7 @@ int initAI()
     }
 
     // Declarar un buffer
-    struct inodo inodos[BLOCKSIZE / INODOSIZE]
+    struct inodo inodos[BLOCKSIZE / INODOSIZE];
 
     // Contador de inodos
     int contInodos = SB.posPrimerInodoLibre + 1;
