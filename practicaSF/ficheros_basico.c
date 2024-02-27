@@ -194,3 +194,4 @@ int initAI()
             return FALLO;
         }
     }
+}
