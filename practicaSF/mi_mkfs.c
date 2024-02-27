@@ -50,11 +50,12 @@ int main(int argc, char **argv)
     }
     free(buffer);
 
-    initMB();
-    if(initSB(nbloque, nbloque/4)==FALLO){
+    if (initSB(nbloque, nbloque / 4) == FALLO)
+    {
         fprintf(stderr, RED "main(): ERROR: initSB()\n" RESET);
         errorExit();
     }
+    initMB();
     initAI();
 
     // desmontamos disco
@@ -66,7 +67,8 @@ int main(int argc, char **argv)
     return EXITO;
 }
 
-void errorExit(){
+void errorExit()
+{
     bumount();
     exit(FALLO);
 }
