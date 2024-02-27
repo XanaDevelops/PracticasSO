@@ -173,10 +173,10 @@ int initAI()
             return FALLO;
         }
         // Iterar para cada bloque de inodos (desde el primer bloque hasta el último)
-        for (int i = SB.posPrimerBloqueAI; i <= SB.posUltimoBloqueAI; i++)
+        for (int j = SB.posPrimerBloqueAI; j <= SB.posUltimoBloqueAI; j++)
         {
             // Leer el bloque de inodos i en el dispositivo virtual
-            leer_bloque_inodos(i, inodos);
+            leer_bloque_inodos(j, inodos);
 
             // Enlazar los inodos
             // Si no es el último, inicialmente enlazamos cada uno apunta con el siguiente
