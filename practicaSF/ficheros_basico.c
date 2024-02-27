@@ -1,5 +1,7 @@
 #include "ficheros_basico.h"
 
+#define DEBUG2 1
+
 int tamMB(unsigned int nbloques) {
     // Calcular el número de bytes necesarios para representar el mapa de bits
     // Dividir este número por el tamaño de bloque para obtener el número de bloques necesarios.
@@ -116,11 +118,19 @@ int initSB(unsigned int nbloques, unsigned int ninodos){
     sb.totBloques = nbloques;
     sb.totInodos = ninodos;
 
+#if DEBUG2
+    fprintf(stderr, GRAY "[initSB() -> sb.posPrimerBloqueMB es %d\n]" RESET, sb.posPrimerBloqueMB);
+#endif
+
     //escribir
     if(bwrite(posSB, &sb)==FALLO){
         return FALLO;
     }
 
     return EXITO;
+}
 
+
+int initAI(){
+    
 }

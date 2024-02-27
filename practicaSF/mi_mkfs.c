@@ -5,6 +5,8 @@
 
 #define DEBUG1 1
 
+void errorExit();
+
 int main(int argc, char **argv)
 {
     // comprobamos argumentos de consola
@@ -42,11 +44,18 @@ int main(int argc, char **argv)
     for (int i = 0; i < nbloque; i++)
     {
 #if DEBUG1
-        fprintf(stderr, GRAY "[main() -> escribiendo bloque %d]\n" RESET, i);
+        fprintf(stderr, GRAY "[main() -> inicializando bloque %d]\n" RESET, i);
 #endif
         bwrite(i, buffer);
     }
     free(buffer);
+
+    initMB();
+    if(initSB(nbloque, nbloque/4)==FALLO){
+        fprintf(stderr, RED "main(): ERROR: initSB()\n" RESET);
+        errorExit();
+    }
+    initAI();
 
     // desmontamos disco
     if (bumount())
@@ -55,4 +64,9 @@ int main(int argc, char **argv)
     }
 
     return EXITO;
+}
+
+void errorExit(){
+    bumount();
+    exit(FALLO);
 }
