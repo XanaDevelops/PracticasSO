@@ -176,7 +176,7 @@ int initAI()
         for (int j = SB.posPrimerBloqueAI; j <= SB.posUltimoBloqueAI; j++)
         {
             // Leer el bloque de inodos i en el dispositivo virtual
-            leer_bloque_inodos(j, inodos);
+            bread(j, inodos);
 
             // Enlazar los inodos
             // Si no es el último, inicialmente enlazamos cada uno apunta con el siguiente
