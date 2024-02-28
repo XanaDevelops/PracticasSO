@@ -27,7 +27,7 @@ int initMB()
     struct superbloque SB;
     if (bread(posSB, &SB) == -1)
     {
-        perror("Error");
+        fprintf(stderr, RED "Error en la lectura del superbloque\n" RESET);
         return FALLO;
     }
 
@@ -55,7 +55,7 @@ int initMB()
         {
             if (bwrite(SB.posPrimerBloqueMB + i, bufferMB) == -1)
             {
-                perror("Error");
+                fprintf(stderr, RED "Error en escribir el bloque\n" RESET);
                 return FALLO;
             }
         }
@@ -95,7 +95,7 @@ int initMB()
         // Escribir el último bloque del mapa de bits en el dispositivo virtual
         if (bwrite(SB.posPrimerBloqueMB + bloquesOcupados, bufferMB) == -1)
         {
-            perror("Error");
+            fprintf(stderr, RED "Error en escribir el último bloque\n" RESET);
             return FALLO;
         }
     }
