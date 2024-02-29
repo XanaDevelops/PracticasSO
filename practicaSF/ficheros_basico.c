@@ -205,3 +205,21 @@ int initAI()
 
     return EXITO;
 }
+
+
+/**
+ * Encuentra el primer bloque libre,
+ * lo ocupa y devuelve su posición.
+*/
+int reservar_bloque(){
+    struct superbloque sb;
+    if(bread(posSB, &sb)){
+        fprintf(stderr, RED "ERROR: reservar_bloque(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+    if(sb.cantBloquesLibres==0){
+        fprintf(stderr, RED "ERROR: reservar_bloque(): no hay bloques libres!!\n" RESET);
+        return FALLO;
+    }
+
+}
