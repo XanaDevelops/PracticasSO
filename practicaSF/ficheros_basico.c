@@ -411,9 +411,42 @@ int reservar_bloque()
 #if DEBUG3
     fprintf(stderr, GRAY "reservar_bloque(): nBloque:%d\n" RESET, nbloque);
 #endif
+
+    //guardar valores
+    sb.cantBloquesLibres--;
+    if(bwrite(posSB, &sb)){
+        fprintf(stderr, RED "reservar_bloque: ERROR guardar SB\n" RESET);
+        free(bufferAux);
+        free(bufferMB);
+        return FALLO;
+    }
+    //reservar en MB
+    escribir_bit(nbloque,1);
+    //limpiar bloque
+    memset(bufferAux, 0, BLOCKSIZE);
+    bwrite(nbloque, bufferAux);
+
     free(bufferAux);
     free(bufferMB);
     return nbloque;
+}
+int reservar_inodo(unsigned char tipo, unsigned char permisos){
+    int numInodo = FALLO;
+
+#if DEBUG3
+    fprintf(stderr, GRAY "reservar_inodo(): inicio reserva inodo\n" RESET);
+#endif
+    struct superbloque sb;
+    if (bread(posSB, &sb))
+    {
+        fprintf(stderr, RED "ERROR: reservar_inodo(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+    if(sb.cantInodosLibres==0){
+        fprintf(stderr, RED "ERROR: reservar_inodo(): No hay inodos libres\n" RESET);
+        return FALLO;
+    }
+    return numInodo;
 }
 
 int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
