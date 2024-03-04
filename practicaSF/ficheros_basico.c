@@ -27,7 +27,7 @@ int initMB()
     struct superbloque SB;
     if (bread(posSB, &SB) == -1)
     {
-        perror("Error");
+        fprintf("Error al leer SB");
         return FALLO;
     }
 
@@ -55,7 +55,7 @@ int initMB()
         {
             if (bwrite(SB.posPrimerBloqueMB + i, bufferMB) == -1)
             {
-                perror("Error");
+                fprintf("Error al leer Bloque");
                 return FALLO;
             }
         }
@@ -95,7 +95,7 @@ int initMB()
         // Escribir el último bloque del mapa de bits en el dispositivo virtual
         if (bwrite(SB.posPrimerBloqueMB + bloquesOcupados, bufferMB) == -1)
         {
-            perror("Error");
+             fprintf("Error al escribir Bloque");
             return FALLO;
         }
     }
@@ -155,7 +155,7 @@ int initAI()
     struct superbloque SB;
     if (bread(posSB, &SB) == -1)
     {
-        perror("Error leer superbloque");
+         fprintf("Error al leer SB");
         return FALLO;
     }
 
@@ -171,15 +171,15 @@ int initAI()
         // Leer un bloque en el array de inodos
         if (bread(i, inodos) == -1)
         {
-            perror("Error leer bloque");
+            fprintf("Error leer bloque");
             return FALLO;
         }
         // Iterar para cada bloque de inodos (desde el primer bloque hasta el último)
         for (int j = SB.posPrimerBloqueAI; j <= SB.posUltimoBloqueAI; j++)
         {
-            // Leer el bloque de inodos i en el dispositivo virtual
-            bread(j, inodos);
-
+            
+            inodos[j].tipo = 'l';
+            
             // Enlazar los inodos
             // Si no es el último, inicialmente enlazamos cada uno apunta con el siguiente
             if (contInodos < SB.totInodos)
