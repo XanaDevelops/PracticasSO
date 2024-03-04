@@ -40,6 +40,7 @@ int main(int argc, char **argv)
         perror(RED "ERROR");
         return FALLO;
     }
+
     memset(buffer, '\0', BLOCKSIZE);
     for (int i = 0; i < nbloque; i++)
     {

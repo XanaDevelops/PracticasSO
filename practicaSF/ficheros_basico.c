@@ -156,7 +156,7 @@ int initAI()
     struct superbloque SB;
     if (bread(posSB, &SB) == -1)
     {
-        perror("Error leer superbloque");
+          fprintf(stderr, RED "ERROR: initAI(): No se ha podido leer SB\n" RESET);
         return FALLO;
     }
 
@@ -172,13 +172,12 @@ int initAI()
         // Leer un bloque en el array de inodos
         if (bread(i, inodos) == -1)
         {
-            fprintf("Error leer bloque");
+            fprintf(stderr, RED "ERROR: initAI(): No se ha podido leer el bloque en el dispositivo\n" RESET);
             return FALLO;
         }
         // Iterar para cada bloque de inodos (desde el primer bloque hasta el último)
-        for (int j = SB.posPrimerBloqueAI; j <= SB.posUltimoBloqueAI; j++)
+        for (int j = 0; j < BLOCKSIZE / INODOSIZE;  j++)
         {
-            
             inodos[j].tipo = 'l';
             
             // Enlazar los inodos
@@ -199,7 +198,7 @@ int initAI()
         // Escribir bloque AI actualizado
         if (bwrite(i, inodos) == FALLO)
         {
-            perror("Error escribir bloque");
+            fprintf(stderr, RED "ERROR: initAI(): No se ha podido escribir el bloque en el dispositivo\n" RESET);
             return FALLO;
         }
     }
