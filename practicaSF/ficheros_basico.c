@@ -3,6 +3,7 @@
 
 
 #define DEBUG2 1
+#define DEBUG3 1
 
 int tamMB(unsigned int nbloques)
 {
@@ -27,7 +28,7 @@ int initMB()
     struct superbloque SB;
     if (bread(posSB, &SB) == -1)
     {
-        fprintf("Error al leer SB");
+        fprintf(stderr, RED "ERROR: initMB(): No se ha podido leer SB\n" RESET);
         return FALLO;
     }
 
@@ -55,7 +56,7 @@ int initMB()
         {
             if (bwrite(SB.posPrimerBloqueMB + i, bufferMB) == -1)
             {
-                fprintf("Error al leer Bloque");
+                fprintf(stderr, RED "ERROR: initMB(): No se ha podido escribir el bloque en el dispositivo\n" RESET);
                 return FALLO;
             }
         }
@@ -95,7 +96,7 @@ int initMB()
         // Escribir el último bloque del mapa de bits en el dispositivo virtual
         if (bwrite(SB.posPrimerBloqueMB + bloquesOcupados, bufferMB) == -1)
         {
-             fprintf("Error al escribir Bloque");
+            fprintf(stderr, RED "ERROR: initMB(): No se ha podido escribir el bloque en el dispositivo\n" RESET);
             return FALLO;
         }
     }
@@ -155,7 +156,7 @@ int initAI()
     struct superbloque SB;
     if (bread(posSB, &SB) == -1)
     {
-         fprintf("Error al leer SB");
+        perror("Error leer superbloque");
         return FALLO;
     }
 
@@ -203,5 +204,315 @@ int initAI()
         }
     }
 
+    return EXITO;
+}
+
+int escribir_bit(unsigned int nbloque, unsigned int bit)
+{
+    // Leer el superbloque para obtener la información del sistema de archivos
+    struct superbloque SB;
+    if (bread(posSB, &SB) == -1)
+    {
+        fprintf(stderr, RED "ERROR: escribir_bit(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    // Calcular que byte contiene el bit que representa el bloque nbloque en MB
+    int posbyte = nbloque / 8;
+    // Calcular la posición del bit dentro del byte
+    int posbit = nbloque % 8;
+    // Hallar en que bloque del MB se encuentra el byte
+    int nbloqueMB = posbyte / BLOCKSIZE;
+    // Obtener la posición absoluta en el dispositivo virtual del bloque
+    int nbloqueabs = SB.posPrimerBloqueMB + nbloqueMB;
+
+    // Declarar un buffer para almacenar el bloque que contiene el bit a escribir
+    char bufferMB[BLOCKSIZE];
+
+    // Leer el bloque físico que contiene el bit y cargar su contenido en bufferMB
+    if (bread(nbloqueabs, bufferMB) == -1)
+    {
+        fprintf(stderr, RED "ERROR: escribir_bit(): No se ha podido leer el bloque %d del dispositivo\n" RESET, nbloqueabs);
+        return FALLO;
+    }
+
+    // Localizar la posición del byte indicado que contiene el bit a escribir en el bloque
+    posbyte = posbyte % BLOCKSIZE;
+    // Declarar mascara para poder modificar el bit
+    unsigned char mascara = 128;
+    // Desplazar la mascara tantos bits como indica posbit
+    mascara >>= posbit;
+
+    // Comprobar si se debe escribir un 1 o un 0 en el bit deseado
+    if (bit == 1)
+    {
+        // Realizar una operación OR para preservar los otros bits y solo modificar el indicado con un 1
+        bufferMB[posbyte] |= mascara;
+    }
+    else if (bit == 0)
+    {
+        // Realizar una operación AND para preservar los otros bits y solo modificar el indicado con un 0
+        bufferMB[posbyte] &= ~mascara;
+    }
+
+    // Escribir el bufferMB con el bit modificado en la posición nbloqueabs
+    if (bwrite(nbloqueabs, bufferMB) == -1)
+    {
+        fprintf(stderr, RED "ERROR: escribir_bit(): No se ha podido escribir en el bloque %d del dispositivo\n" RESET, nbloqueabs);
+        return FALLO;
+    }
+
+    // Devolver el número de bloque absoluto si se ha realizado con éxito la escritura
+    return nbloqueabs;
+}
+
+char leer_bit(unsigned int nbloque)
+{
+    // Leer el superbloque para obtener la información del sistema de archivos
+    struct superbloque SB;
+    if (bread(posSB, &SB) == -1)
+    {
+        fprintf(stderr, RED "ERROR: leer_bit(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    // Calcular que byte contiene el bit que representa el bloque nbloque en MB
+    int posbyte = nbloque / 8;
+    // Calcular la posición del bit dentro del byte
+    int posbit = nbloque % 8;
+    // Hallar en que bloque del MB se encuentra el byte
+    int nbloqueMB = posbyte / BLOCKSIZE;
+    // Obtener la posición absoluta en el dispositivo virtual del bloque
+    int nbloqueabs = SB.posPrimerBloqueMB + nbloqueMB;
+
+    // Declarar un buffer para almacenar el bloque que contiene el bit a leer
+    char bufferMB[BLOCKSIZE];
+
+    // Leer el bloque físico que contiene el bit y cargar su contenido en bufferMB
+    if (bread(nbloqueabs, bufferMB) == -1)
+    {
+        fprintf(stderr, RED "ERROR: leer_bit(): No se ha podido leer el bloque %d del dispositivo\n" RESET, nbloqueabs);
+        return FALLO;
+    }
+
+    // Localizar la posición del byte indicado que contiene el bit a leer en el bloque
+    posbyte = posbyte % BLOCKSIZE;
+    // Declarar mascara para poder leer el bit
+    unsigned char mascara = 128;
+    // Desplazar la mascara tantos bits como indica posbit
+    mascara >>= posbit;
+    // Operador AND sobre la mascara para obtener el valor del bit a leer
+    mascara &= bufferMB[posbyte];
+    // Desplazar bits a la derecha para dejar el valor del bit en el extremo derecho
+    mascara >>= (7 - posbit);
+
+#if DEBUG3
+    fprintf(stderr, GRAY "[leerbit(%d) -> posbyte: %d, posbyte (ajustado): %d, posbit: %d, nbloqueMB: %d, nbloqueabs: %d]\n]" RESET,
+            nbloque, nbloque / 8, posbyte, posbit, nbloqueMB, nbloqueabs);
+#endif
+
+    // Devolver el valor leído del bit
+    return mascara;
+}
+
+/**
+ * Encuentra el primer bloque libre,
+ * lo ocupa y devuelve su posición.
+ */
+int reservar_bloque()
+{
+#if DEBUG3
+    fprintf(stderr, GRAY "reservar_bloque(): inicio reserva bloque\n" RESET);
+#endif
+    struct superbloque sb;
+    if (bread(posSB, &sb))
+    {
+        fprintf(stderr, RED "ERROR: reservar_bloque(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+    if (sb.cantBloquesLibres == 0)
+    {
+        fprintf(stderr, RED "ERROR: reservar_bloque(): no hay bloques libres!!\n" RESET);
+        return FALLO;
+    }
+
+#if DEBUG3
+    fprintf(stderr, GRAY "reservar_bloque(): superbloque reporta %d bloques libres\n" RESET, sb.cantBloquesLibres);
+#endif
+
+    unsigned char *bufferAux = malloc(BLOCKSIZE);
+    if (bufferAux == NULL)
+    {
+        perror(RED "reservar_bloque(): ERROR malloc() bufferAux\n" RESET);
+        free(bufferAux);
+        return FALLO;
+    }
+    memset(bufferAux, 255, BLOCKSIZE);
+
+    unsigned char *bufferMB = malloc(BLOCKSIZE);
+    if (bufferMB == NULL)
+    {
+        perror(RED "reservar_bloque(): ERROR malloc() bufferMB\n" RESET);
+        free(bufferAux);
+        free(bufferMB);
+        return FALLO;
+    }
+
+    unsigned int nBloqueMB = 0;
+#if DEBUG3
+    fprintf(stderr, GRAY "reservar_bloque(): ultimoMB:%d\n" RESET, sb.posUltimoBloqueMB);
+#endif
+    // buscar bloque
+    while (nBloqueMB < sb.posUltimoBloqueMB)
+    {
+#if DEBUG3
+        fprintf(stderr, GRAY "reservar_bloque(): comprobando nBloqueMB:%d\n" RESET, nBloqueMB);
+#endif
+        bread(nBloqueMB, bufferMB);
+        if (memcmp(bufferAux, bufferMB, BLOCKSIZE))
+        {
+#if DEBUG3
+            fprintf(stderr, GRAY "reservar_bloque(): bloqueMB:%d diferente de aux\n" RESET, nBloqueMB);
+#endif
+            break;
+        }
+        nBloqueMB++;
+    }
+    // buscar byte
+    int posbyte;
+    for (posbyte = 0; posbyte < BLOCKSIZE; posbyte++)
+    {
+        if (bufferMB[posbyte] == 255)
+        {
+#if DEBUG3
+            fprintf(stderr, GRAY "reservar_bloque(): posByte:%d diferente de 255\n" RESET, posbyte);
+#endif
+            break;
+        }
+    }
+    // buscar bit
+    unsigned char mask = 128;
+    int posbit;
+    for (posbit = 0; posbit < 8; posbit++)
+    {
+        if (bufferMB[posbyte] & mask)
+        {
+            bufferMB[posbyte] <<= 1;
+        }
+        else
+        {
+#if DEBUG3
+            fprintf(stderr, GRAY "reservar_bloque(): posBit:%d diferente de mask\n" RESET, posbit);
+#endif
+            break;
+        }
+    }
+
+    int nbloque = (nBloqueMB * BLOCKSIZE + posbyte) * 8 + posbit;
+#if DEBUG3
+    fprintf(stderr, GRAY "reservar_bloque(): nBloque:%d\n" RESET, nbloque);
+#endif
+
+    //guardar valores
+    sb.cantBloquesLibres--;
+    if(bwrite(posSB, &sb)){
+        fprintf(stderr, RED "reservar_bloque: ERROR guardar SB\n" RESET);
+        free(bufferAux);
+        free(bufferMB);
+        return FALLO;
+    }
+    //reservar en MB
+    escribir_bit(nbloque,1);
+    //limpiar bloque
+    memset(bufferAux, 0, BLOCKSIZE);
+    bwrite(nbloque, bufferAux);
+
+    free(bufferAux);
+    free(bufferMB);
+    return nbloque;
+}
+int reservar_inodo(unsigned char tipo, unsigned char permisos){
+    fprintf(stderr, YELLOW "WARNING: reservar_inodo INCOMPLETO\n" RESET);
+    
+    int posInodoReservado;
+
+#if DEBUG3
+    fprintf(stderr, GRAY "reservar_inodo(): inicio reserva inodo\n" RESET);
+#endif
+    struct superbloque sb;
+    if (bread(posSB, &sb))
+    {
+        fprintf(stderr, RED "ERROR: reservar_inodo(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+    if(sb.cantInodosLibres==0){
+        fprintf(stderr, RED "ERROR: reservar_inodo(): No hay inodos libres\n" RESET);
+        return FALLO;
+    }
+
+    struct inodo inodoReservado;
+    posInodoReservado = sb.posPrimerInodoLibre; //TODO: no se exactamente como va, mañana lo miro....
+
+    inodoReservado.tipo = tipo;
+    inodoReservado.permisos = permisos;
+    inodoReservado.nlinks = 1;
+    inodoReservado.tamEnBytesLog = 0;
+    inodoReservado.atime = time(NULL);
+    inodoReservado.ctime = time(NULL);
+    inodoReservado.mtime = time(NULL);
+    inodoReservado.numBloquesOcupados = 0;
+
+    for(int i=0;i<sizeof(inodoReservado.punterosDirectos)/sizeof(unsigned int);i++){
+        inodoReservado.punterosDirectos[i]=0;
+    }
+    for(int i=0;i<sizeof(inodoReservado.punterosIndirectos)/sizeof(unsigned int);i++){
+        inodoReservado.punterosIndirectos[i]=0;
+    }
+
+    escribir_inodo(posInodoReservado, &inodoReservado);
+    sb.cantInodosLibres--;
+    bwrite(posSB, &sb);
+
+    return posInodoReservado;
+}
+
+int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
+{
+    // Leer el superbloque para obtener la información del sistema de archivos
+    struct superbloque SB;
+    if (bread(posSB, &SB) == -1)
+    {
+        fprintf(stderr, RED "ERROR: escribir_inodo(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    // Declarar buffer de lectura de array de inodos
+    struct inodo inodos[BLOCKSIZE / INODOSIZE];
+
+    // Calcular el numero de bloque dentro del array de inodos del inodo solicitado
+    int nbloqueAI = (ninodo * INODOSIZE) / BLOCKSIZE;
+    // Obtener posición absoluta del bloque en el dispositivo virtual
+    int nbloqueabs = nbloqueAI + SB.posPrimerBloqueAI;
+
+    // Lectura del bloque que contiene el numero de inodo a escribir
+    if (bread(nbloqueabs, inodos) == -1)
+    {
+        fprintf(stderr, RED "ERROR: escribir_inodo(): No se ha podido leer el bloque %d del dispositivo\n" RESET, nbloqueabs);
+        return FALLO;
+    }
+
+    // Calcular la posición del inodo a escribir dentro del array de inodos
+    int posinodo = ninodo % (BLOCKSIZE / INODOSIZE);
+    // Escribir el contenido del inodo pasado por parámetro en la posición correspondiente
+    inodos[posinodo] = *inodo;
+
+    // Escribir el buffer inodos modificado en el dispositivo virtual
+    if (bwrite(nbloqueabs, inodos) == -1)
+    {
+        fprintf(stderr, RED "ERROR: escribir_inodo(): No se ha podido escribir en el bloque %d del dispositivo\n" RESET, nbloqueabs);
+        return FALLO;
+    }
+
+    // Devolver EXITO en caso de operación correcta
     return EXITO;
 }
