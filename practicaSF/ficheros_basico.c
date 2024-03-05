@@ -101,8 +101,10 @@ int initMB()
         }
     }
 
+    // Restar cantidad de bloques libres
     SB.cantBloquesLibres = SB.cantBloquesLibres - bloquesMetaDatos;
 
+    // Salvar el campo SuperBloque
     if(bwrite(posSB, &SB) == -1) {
         fprintf(stderr, RED "ERROR: initMB(): No se ha podido salvar SB\n" RESET);
             return FALLO;
