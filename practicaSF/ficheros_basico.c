@@ -101,6 +101,13 @@ int initMB()
         }
     }
 
+    SB.cantBloquesLibres = SB.cantBloquesLibres - bloquesMetaDatos;
+
+    if(bwrite(posSB, &SB) == -1) {
+        fprintf(stderr, RED "ERROR: initMB(): No se ha podido salvar SB\n" RESET);
+            return FALLO;
+    }
+
     return EXITO;
 }
 
