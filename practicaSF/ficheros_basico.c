@@ -439,6 +439,12 @@ int reservar_bloque()
     free(bufferMB);
     return nbloque;
 }
+
+int liberar_bloque(unsigned int nbloque){
+
+    
+}
+
 int reservar_inodo(unsigned char tipo, unsigned char permisos){
     fprintf(stderr, YELLOW "WARNING: reservar_inodo INCOMPLETO\n" RESET);
     
