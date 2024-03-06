@@ -4,6 +4,7 @@
 #include "ficheros_basico.h"
 
 #define DEBUG1 1
+#define DEBUG3 1
 
 void errorExit();
 
@@ -56,8 +57,18 @@ int main(int argc, char **argv)
         fprintf(stderr, RED "main(): ERROR: initSB()\n" RESET);
         errorExit();
     }
-    initMB();
-    initAI();
+    if(initMB()==FALLO){
+        errorExit();
+    }
+    if(initAI()==FALLO){
+        errorExit();
+    }
+
+    //creamos directorio raiz
+    if(reservar_inodo('d',7) == FALLO){
+        fprintf(stderr, RED "ERROR: main(): no se ha podido crear inodo raiz");
+        return FALLO;
+    }
 
     // desmontamos disco
     if (bumount())
