@@ -545,7 +545,7 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo)
     // Calcular la posición del inodo a escribir dentro del array de inodos
     int posinodo = ninodo % (BLOCKSIZE / INODOSIZE);
 
-    inodo = inodos[posinodo];
+    *inodo = inodos[posinodo];
 
     // Devolver EXITO en caso de operación correcta
     return EXITO;
@@ -566,6 +566,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
         fprintf(stderr, RED "ERROR: reservar_inodo(): No se ha podido leer SB\n" RESET);
         return FALLO;
     }
+    
     if (sb.cantInodosLibres == 0)
     {
         fprintf(stderr, RED "ERROR: reservar_inodo(): No hay inodos libres\n" RESET);
