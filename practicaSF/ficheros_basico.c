@@ -450,7 +450,8 @@ int reservar_bloque()
 }
 
 /**
- * Mediante escribir_bit actualizamos el MB y liberamos un bloque
+ * Mediante escribir_bit actualiza MB,
+ *  libera un bloque y devuelve su posición.
  */
 int liberar_bloque(unsigned int nbloque)
 {
