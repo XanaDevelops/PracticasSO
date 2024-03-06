@@ -472,9 +472,53 @@ int liberar_bloque(unsigned int nbloque)
         fprintf(stderr, RED "liberar_bloque: ERROR guardar SB\n" RESET);
         return FALLO;
     }
-
     return nbloque;
 }
+
+//*******************************************INODOS***********************************************
+
+int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
+{
+    // Leer el superbloque para obtener la información del sistema de archivos
+    struct superbloque SB;
+    if (bread(posSB, &SB) == -1)
+    {
+        fprintf(stderr, RED "ERROR: escribir_inodo(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    // Declarar buffer de lectura de array de inodos
+    struct inodo inodos[BLOCKSIZE / INODOSIZE];
+
+    // Calcular el numero de bloque dentro del array de inodos del inodo solicitado
+    int nbloqueAI = (ninodo * INODOSIZE) / BLOCKSIZE;
+    // Obtener posición absoluta del bloque en el dispositivo virtual
+    int nbloqueabs = nbloqueAI + SB.posPrimerBloqueAI;
+
+    // Lectura del bloque que contiene el numero de inodo a escribir
+    if (bread(nbloqueabs, inodos) == -1)
+    {
+        fprintf(stderr, RED "ERROR: escribir_inodo(): No se ha podido leer el bloque %d del dispositivo\n" RESET, nbloqueabs);
+        return FALLO;
+    }
+
+    // Calcular la posición del inodo a escribir dentro del array de inodos
+    int posinodo = ninodo % (BLOCKSIZE / INODOSIZE);
+    // Escribir el contenido del inodo pasado por parámetro en la posición correspondiente
+    inodos[posinodo] = *inodo;
+
+    // Escribir el buffer inodos modificado en el dispositivo virtual
+    if (bwrite(nbloqueabs, inodos) == -1)
+    {
+        fprintf(stderr, RED "ERROR: escribir_inodo(): No se ha podido escribir en el bloque %d del dispositivo\n" RESET, nbloqueabs);
+        return FALLO;
+    }
+    // Devolver EXITO en caso de operación correcta
+    return EXITO;
+
+}
+
+int leer_inodo(unsigned int ninodo, struct inodo *inodo){}
 
 int reservar_inodo(unsigned char tipo, unsigned char permisos)
 {
@@ -523,45 +567,4 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     bwrite(posSB, &sb);
 
     return posInodoReservado;
-}
-
-int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
-{
-    // Leer el superbloque para obtener la información del sistema de archivos
-    struct superbloque SB;
-    if (bread(posSB, &SB) == -1)
-    {
-        fprintf(stderr, RED "ERROR: escribir_inodo(): No se ha podido leer SB\n" RESET);
-        return FALLO;
-    }
-
-    // Declarar buffer de lectura de array de inodos
-    struct inodo inodos[BLOCKSIZE / INODOSIZE];
-
-    // Calcular el numero de bloque dentro del array de inodos del inodo solicitado
-    int nbloqueAI = (ninodo * INODOSIZE) / BLOCKSIZE;
-    // Obtener posición absoluta del bloque en el dispositivo virtual
-    int nbloqueabs = nbloqueAI + SB.posPrimerBloqueAI;
-
-    // Lectura del bloque que contiene el numero de inodo a escribir
-    if (bread(nbloqueabs, inodos) == -1)
-    {
-        fprintf(stderr, RED "ERROR: escribir_inodo(): No se ha podido leer el bloque %d del dispositivo\n" RESET, nbloqueabs);
-        return FALLO;
-    }
-
-    // Calcular la posición del inodo a escribir dentro del array de inodos
-    int posinodo = ninodo % (BLOCKSIZE / INODOSIZE);
-    // Escribir el contenido del inodo pasado por parámetro en la posición correspondiente
-    inodos[posinodo] = *inodo;
-
-    // Escribir el buffer inodos modificado en el dispositivo virtual
-    if (bwrite(nbloqueabs, inodos) == -1)
-    {
-        fprintf(stderr, RED "ERROR: escribir_inodo(): No se ha podido escribir en el bloque %d del dispositivo\n" RESET, nbloqueabs);
-        return FALLO;
-    }
-
-    // Devolver EXITO en caso de operación correcta
-    return EXITO;
 }
