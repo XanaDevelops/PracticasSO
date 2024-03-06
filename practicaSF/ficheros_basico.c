@@ -515,10 +515,41 @@ int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
     }
     // Devolver EXITO en caso de operación correcta
     return EXITO;
-
 }
 
-int leer_inodo(unsigned int ninodo, struct inodo *inodo){}
+int leer_inodo(unsigned int ninodo, struct inodo *inodo)
+{
+    // Leer el superbloque para obtener la información del sistema de archivos
+    struct superbloque SB;
+    if (bread(posSB, &SB) == -1)
+    {
+        fprintf(stderr, RED "ERROR: leer_inodo(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    // Calcular el numero de bloque dentro del array de inodos del inodo solicitado
+    int nbloqueAI = (ninodo * INODOSIZE) / BLOCKSIZE;
+    // Obtener posición absoluta del bloque en el dispositivo virtual
+    int nbloqueabs = nbloqueAI + SB.posPrimerBloqueAI;
+
+    // Declarar buffer de lectura de array de inodos
+    struct inodo inodos[BLOCKSIZE / INODOSIZE];
+
+    // Lectura del bloque que contiene el numero de inodo a escribir
+    if (bread(nbloqueabs, inodos) == -1)
+    {
+        fprintf(stderr, RED "ERROR: leer_inodo(): No se ha podido leer el bloque %d del dispositivo\n" RESET, nbloqueabs);
+        return FALLO;
+    }
+
+    // Calcular la posición del inodo a escribir dentro del array de inodos
+    int posinodo = ninodo % (BLOCKSIZE / INODOSIZE);
+
+    inodo = inodos[posinodo];
+
+    // Devolver EXITO en caso de operación correcta
+    return EXITO;
+}
 
 int reservar_inodo(unsigned char tipo, unsigned char permisos)
 {
