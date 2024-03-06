@@ -3,7 +3,7 @@
 
 
 #define DEBUG2 1
-#define DEBUG3 1
+#define DEBUG3 0
 
 int tamMB(unsigned int nbloques)
 {
@@ -355,6 +355,7 @@ int reservar_bloque()
         free(bufferAux);
         return FALLO;
     }
+
     memset(bufferAux, 255, BLOCKSIZE);
 
     unsigned char *bufferMB = malloc(BLOCKSIZE);
@@ -386,6 +387,7 @@ int reservar_bloque()
         }
         nBloqueMB++;
     }
+
     // buscar byte
     int posbyte;
     for (posbyte = 0; posbyte < BLOCKSIZE; posbyte++)
@@ -398,6 +400,7 @@ int reservar_bloque()
             break;
         }
     }
+
     // buscar bit
     unsigned char mask = 128;
     int posbit;
@@ -429,8 +432,10 @@ int reservar_bloque()
         free(bufferMB);
         return FALLO;
     }
+
     //reservar en MB
     escribir_bit(nbloque,1);
+
     //limpiar bloque
     memset(bufferAux, 0, BLOCKSIZE);
     bwrite(nbloque, bufferAux);
@@ -440,9 +445,29 @@ int reservar_bloque()
     return nbloque;
 }
 
-int liberar_bloque(unsigned int nbloque){
 
+/**
+ * Mediante escribir_bit actualizamos el MB y liberamos un bloque
+ */
+int liberar_bloque(unsigned int nbloque){
+    //leer superbloque
+     struct superbloque sb;
+    if (bread(posSB, &sb))
+    {
+        fprintf(stderr, RED "ERROR: liberar_bloque(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+    //liberar bloque en el mapa de bits
+    escribir_bit(nbloque,0);
+
+    //Modificar el nº de bloques libres y salvar SB
+    sb.cantBloquesLibres++;
+    if(bwrite(posSB, &sb)){
+        fprintf(stderr, RED "liberar_bloque: ERROR guardar SB\n" RESET);
+        return FALLO;
+    }
     
+    return nbloque;
 }
 
 int reservar_inodo(unsigned char tipo, unsigned char permisos){
@@ -489,6 +514,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
 
     return posInodoReservado;
 }
+
 
 int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
 {
