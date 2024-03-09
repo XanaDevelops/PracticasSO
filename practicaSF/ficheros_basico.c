@@ -439,6 +439,8 @@ int reservar_bloque()
     free(bufferMB);
     return nbloque;
 }
+
+
 int reservar_inodo(unsigned char tipo, unsigned char permisos){
     fprintf(stderr, YELLOW "WARNING: reservar_inodo INCOMPLETO\n" RESET);
     
@@ -523,4 +525,77 @@ int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
 
     // Devolver EXITO en caso de operación correcta
     return EXITO;
+}
+
+int obtener_nRangoBL(struct inodo *inodo, unsigned int nblogico, unsigned int *ptr) 
+{
+
+}
+
+int obtener_indice(unsigned int nblogico, int nivel_punteros) 
+{
+    // Comprobar en que puntero de bloques y nivel se encuentra el bloque lógico y devolver su índice.
+    if (nblogico < DIRECTOS) {
+        // Devolver el índice directo de la lista de punteros
+        return nblogico;
+    } else if (nblogico < INDIRECTOS0) {
+        // Devolver el índice menos los bloques directos anteriores
+        return nblogico - DIRECTOS;
+    } else if (nblogico < INDIRECTOS1) {
+        if (nivel_punteros == 2) {
+            // Devolver el índice del bloque que se encuentra en el nivel más alto 
+            return (nblogico - INDIRECTOS0) / NPUNTEROS;
+        } else if (nivel_punteros == 1) {
+            // Devolver el índice del bloque que se encuenctra en el nivel más bajo
+            return (nblogico - INDIRECTOS0) % NPUNTEROS;
+        }
+    } else if (nblogico < INDIRECTOS2) {
+        if (nivel_punteros == 3) {
+            // Devolver el índice del bloque que se encuentra en el nivel más alto
+            return (nblogico - INDIRECTOS1) / (NPUNTEROS*NPUNTEROS);
+        } else if (nivel_punteros == 2) {
+            // Devolver el índice del bloque que se encuentra en el nivel medio
+            return ((nblogico - INDIRECTOS1) % (NPUNTEROS*NPUNTEROS)) / NPUNTEROS;
+        } else if (nivel_punteros == 1) {
+            // Devolver el índice del bloque que se encuentra en el nivel más bajo
+            return ((nblogico - INDIRECTOS1) % (NPUNTEROS*NPUNTEROS)) % NPUNTEROS;
+        }
+    }
+}
+
+int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned char reservar)
+{
+    // Declarar variables para los cálculos pertinentes
+    unsigned int ptr, ptr_ant;
+    int nRangoBL, nivel_punteros, indice;
+    unsigned int buffer[NPUNTEROS];
+
+    // Inicializar los punteros a bloque lógicos
+    ptr = 0;
+    ptr_ant = 0;
+
+    // Obtener el rango de bloque lógico en el que nos encontramos
+    nRangoBL = obtener_nRangoBL(inodo, nblogico, &ptr);
+    nivel_punteros = nRangoBL;
+
+    // Iterar para cada nivel de punteros indirectos
+    while(nivel_punteros > 0) {
+        // No cuelgan bloque de punteros
+        if (ptr == 0) {
+            if (reservar == 0) {
+                // Bloque inexistente
+                return -1;
+            } else {
+                // Reservar bloques de punteros
+                ptr = reservar_bloque();
+                // Aumentar el número de bloque ocupados por el indodo
+                inodo -> numBloquesOcupados++;
+                // Almacenar la fecha actual en el inodo
+                inodo -> ctime = time(NULL);
+            }
+
+        }
+    }
+
+
 }
