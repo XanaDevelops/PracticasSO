@@ -47,7 +47,7 @@ int main(int argc, char **argv)
         fprintf(stderr, RED "ERROR: initAI(): No se ha podido leer el bloque en el dispositivo\n" RESET);
         return FALLO;
     }
-    int cont = 0;
+ /*   int cont = 0;
     struct inodo inodo = inodos[0];
     while (cont != SB.totInodos)
     {
@@ -56,6 +56,6 @@ int main(int argc, char **argv)
         contInodos = (aux / num) + SB.posPrimerBloqueAI;
         bread(contInodos, inodos);
         inodo = inodos[aux % num];
-    }
+    }*/
      printf("\n");
 }
