@@ -557,6 +557,62 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo)
     return EXITO;
 }
 
+
+int reservar_inodo(unsigned char tipo, unsigned char permisos)
+{
+    fprintf(stderr, YELLOW "WARNING: reservar_inodo INCOMPLETO\n" RESET);
+
+    int posInodoReservado;
+
+#if DEBUG3
+    fprintf(stderr, GRAY "reservar_inodo(): inicio reserva inodo\n" RESET);
+#endif
+    struct superbloque sb;
+    if (bread(posSB, &sb))
+    {
+        fprintf(stderr, RED "ERROR: reservar_inodo(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+    
+    if (sb.cantInodosLibres == 0)
+    {
+        fprintf(stderr, RED "ERROR: reservar_inodo(): No hay inodos libres\n" RESET);
+        return FALLO;
+    }
+
+    struct inodo inodoReservado;
+    posInodoReservado = sb.posPrimerInodoLibre; // TODO: no se exactamente como va, mañana lo miro....
+
+    
+    leer_inodo(posInodoReservado, &inodoReservado);
+
+    //inicializar
+    inodoReservado.tipo = tipo;
+    inodoReservado.permisos = permisos;
+    inodoReservado.nlinks = 1;
+    inodoReservado.tamEnBytesLog = 0;
+    inodoReservado.atime = time(NULL);
+    inodoReservado.ctime = time(NULL);
+    inodoReservado.mtime = time(NULL);
+    inodoReservado.numBloquesOcupados = 0;
+
+    for (int i = 1; i < sizeof(inodoReservado.punterosDirectos) / sizeof(unsigned int); i++)
+    {
+        inodoReservado.punterosDirectos[i] = 0;
+    }
+    for (int i = 0; i < sizeof(inodoReservado.punterosIndirectos) / sizeof(unsigned int); i++)
+    {
+        inodoReservado.punterosIndirectos[i] = 0;
+    }
+
+    escribir_inodo(posInodoReservado, &inodoReservado);
+    sb.cantInodosLibres--;
+    sb.posPrimerInodoLibre++; //Esta bien?
+    bwrite(posSB, &sb);
+
+    return posInodoReservado;
+}
+
 int obtener_nRangoBL(struct inodo *inodo, unsigned int nblogico, unsigned int *ptr) 
 {
 
@@ -626,59 +682,4 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
 
         }
     }
-
-
-int reservar_inodo(unsigned char tipo, unsigned char permisos)
-{
-    fprintf(stderr, YELLOW "WARNING: reservar_inodo INCOMPLETO\n" RESET);
-
-    int posInodoReservado;
-
-#if DEBUG3
-    fprintf(stderr, GRAY "reservar_inodo(): inicio reserva inodo\n" RESET);
-#endif
-    struct superbloque sb;
-    if (bread(posSB, &sb))
-    {
-        fprintf(stderr, RED "ERROR: reservar_inodo(): No se ha podido leer SB\n" RESET);
-        return FALLO;
-    }
-    
-    if (sb.cantInodosLibres == 0)
-    {
-        fprintf(stderr, RED "ERROR: reservar_inodo(): No hay inodos libres\n" RESET);
-        return FALLO;
-    }
-
-    struct inodo inodoReservado;
-    posInodoReservado = sb.posPrimerInodoLibre; // TODO: no se exactamente como va, mañana lo miro....
-
-    
-    leer_inodo(posInodoReservado, &inodoReservado);
-
-    //inicializar
-    inodoReservado.tipo = tipo;
-    inodoReservado.permisos = permisos;
-    inodoReservado.nlinks = 1;
-    inodoReservado.tamEnBytesLog = 0;
-    inodoReservado.atime = time(NULL);
-    inodoReservado.ctime = time(NULL);
-    inodoReservado.mtime = time(NULL);
-    inodoReservado.numBloquesOcupados = 0;
-
-    for (int i = 1; i < sizeof(inodoReservado.punterosDirectos) / sizeof(unsigned int); i++)
-    {
-        inodoReservado.punterosDirectos[i] = 0;
-    }
-    for (int i = 0; i < sizeof(inodoReservado.punterosIndirectos) / sizeof(unsigned int); i++)
-    {
-        inodoReservado.punterosIndirectos[i] = 0;
-    }
-
-    escribir_inodo(posInodoReservado, &inodoReservado);
-    sb.cantInodosLibres--;
-    sb.posPrimerInodoLibre++; //Esta bien?
-    bwrite(posSB, &sb);
-
-    return posInodoReservado;
 }
