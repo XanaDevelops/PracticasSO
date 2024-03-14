@@ -454,7 +454,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
     fprintf(stderr, YELLOW "WARNING: reservar_inodo INCOMPLETO\n" RESET);
     
     int posInodoReservado;
-
+}
 /**
  * Mediante escribir_bit actualiza MB,
  *  libera un bloque y devuelve su posición.
