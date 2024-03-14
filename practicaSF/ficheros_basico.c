@@ -642,6 +642,7 @@ int obtener_indice(unsigned int nblogico, int nivel_punteros)
     }
 }
 
+/*
 int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned char reservar)
 {
     // Declarar variables para los cálculos pertinentes
@@ -677,3 +678,4 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
         }
     }
 }
+/*
