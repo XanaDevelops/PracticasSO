@@ -557,7 +557,6 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo)
     return EXITO;
 }
 
-
 int reservar_inodo(unsigned char tipo, unsigned char permisos)
 {
     fprintf(stderr, YELLOW "WARNING: reservar_inodo INCOMPLETO\n" RESET);
