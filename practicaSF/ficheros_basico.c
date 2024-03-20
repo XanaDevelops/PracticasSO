@@ -566,7 +566,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
         fprintf(stderr, RED "ERROR: reservar_inodo(): No se ha podido leer SB\n" RESET);
         return FALLO;
     }
-    
+
     if (sb.cantInodosLibres == 0)
     {
         fprintf(stderr, RED "ERROR: reservar_inodo(): No hay inodos libres\n" RESET);
@@ -576,10 +576,9 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     struct inodo inodoReservado;
     posInodoReservado = sb.posPrimerInodoLibre; // TODO: no se exactamente como va, mañana lo miro....
 
-    
     leer_inodo(posInodoReservado, &inodoReservado);
 
-    //inicializar
+    // inicializar
     inodoReservado.tipo = tipo;
     inodoReservado.permisos = permisos;
     inodoReservado.nlinks = 1;
@@ -600,46 +599,84 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
 
     escribir_inodo(posInodoReservado, &inodoReservado);
     sb.cantInodosLibres--;
-    sb.posPrimerInodoLibre++; //Esta bien?
+    sb.posPrimerInodoLibre++; // Esta bien?
     bwrite(posSB, &sb);
 
     return posInodoReservado;
 }
 
-/*
-int obtener_nRangoBL(struct inodo *inodo, unsigned int nblogico, unsigned int *ptr) 
+int obtener_nRangoBL(struct inodo *inodo, unsigned int nblogico, unsigned int *ptr)
 {
-
+    if (nblogico < DIRECTOS)
+    {
+        *ptr = inodo->punterosDirectos[nblogico];
+        return 0;
+    }
+    else if (nblogico < INDIRECTOS0)
+    {
+        *ptr : = inodo->punterosIndirectos[0];
+        return 1;
+    }
+    else if (nblogico < INDIRECTOS1)
+    {
+        *ptr : = inodo->punterosIndirectos[1];
+        return 2;
+    }
+    else if (nblogico < INDIRECTOS2)
+    {
+        *ptr : = inodo->punterosIndirectos[2];
+        return 3;
+    }
+    else
+    {
+        *ptr = 0;
+        perror("Bloque lógico fuera de rango");
+        return FALLO;
+    }
 }
-*/
 
-int obtener_indice(unsigned int nblogico, int nivel_punteros) 
+int obtener_indice(unsigned int nblogico, int nivel_punteros)
 {
     // Comprobar en que puntero de bloques y nivel se encuentra el bloque lógico y devolver su índice.
-    if (nblogico < DIRECTOS) {
+    if (nblogico < DIRECTOS)
+    {
         // Devolver el índice directo de la lista de punteros
         return nblogico;
-    } else if (nblogico < INDIRECTOS0) {
+    }
+    else if (nblogico < INDIRECTOS0)
+    {
         // Devolver el índice menos los bloques directos anteriores
         return nblogico - DIRECTOS;
-    } else if (nblogico < INDIRECTOS1) {
-        if (nivel_punteros == 2) {
-            // Devolver el índice del bloque que se encuentra en el nivel más alto 
+    }
+    else if (nblogico < INDIRECTOS1)
+    {
+        if (nivel_punteros == 2)
+        {
+            // Devolver el índice del bloque que se encuentra en el nivel más alto
             return (nblogico - INDIRECTOS0) / NPUNTEROS;
-        } else if (nivel_punteros == 1) {
+        }
+        else if (nivel_punteros == 1)
+        {
             // Devolver el índice del bloque que se encuenctra en el nivel más bajo
             return (nblogico - INDIRECTOS0) % NPUNTEROS;
         }
-    } else if (nblogico < INDIRECTOS2) {
-        if (nivel_punteros == 3) {
+    }
+    else if (nblogico < INDIRECTOS2)
+    {
+        if (nivel_punteros == 3)
+        {
             // Devolver el índice del bloque que se encuentra en el nivel más alto
-            return (nblogico - INDIRECTOS1) / (NPUNTEROS*NPUNTEROS);
-        } else if (nivel_punteros == 2) {
+            return (nblogico - INDIRECTOS1) / (NPUNTEROS * NPUNTEROS);
+        }
+        else if (nivel_punteros == 2)
+        {
             // Devolver el índice del bloque que se encuentra en el nivel medio
-            return ((nblogico - INDIRECTOS1) % (NPUNTEROS*NPUNTEROS)) / NPUNTEROS;
-        } else if (nivel_punteros == 1) {
+            return ((nblogico - INDIRECTOS1) % (NPUNTEROS * NPUNTEROS)) / NPUNTEROS;
+        }
+        else if (nivel_punteros == 1)
+        {
             // Devolver el índice del bloque que se encuentra en el nivel más bajo
-            return ((nblogico - INDIRECTOS1) % (NPUNTEROS*NPUNTEROS)) % NPUNTEROS;
+            return ((nblogico - INDIRECTOS1) % (NPUNTEROS * NPUNTEROS)) % NPUNTEROS;
         }
     }
 
