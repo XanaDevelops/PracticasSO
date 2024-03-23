@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "ficheros_basico.h"
 
-#define DEBUG1 1
+#define DEBUG1 0
 #define DEBUG3 1
 
 void errorExit();
@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 
     if (initSB(nbloque, nbloque / 4) == FALLO)
     {
-        fprintf(stderr, RED "main(): ERROR: initSB()\n" RESET);
+        fprintf(stderr, RED "ERROR: main(): initSB()\n" RESET);
         errorExit();
     }
     if(initMB()==FALLO){
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 
     //creamos directorio raiz
     if(reservar_inodo('d',7) == FALLO){
-        fprintf(stderr, RED "ERROR: main(): no se ha podido crear inodo raiz");
+        fprintf(stderr, RED "ERROR: main(): no se ha podido crear inodo raiz\n");
         return FALLO;
     }
 

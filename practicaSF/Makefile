@@ -19,4 +19,4 @@ $(PROGRAMS): $(LIBRARIES) $(INCLUDES)
 
 .PHONY: clean
 clean:
-	rm -rf *.o *~ $(PROGRAMS) disco* ext*
+	rm -rf *.o *~ $(PROGRAMS) disco* ext* *.dsk

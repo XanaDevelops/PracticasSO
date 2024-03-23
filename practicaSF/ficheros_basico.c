@@ -2,7 +2,7 @@
 #include "ficheros_basico.h"
 
 #define DEBUG2 0
-#define DEBUG3 0
+#define DEBUG3 1
 
 //*******************************************TAMAÑOS INICIALIZACIÓN***********************************************
 int tamMB(unsigned int nbloques)
@@ -336,7 +336,7 @@ int reservar_bloque()
     fprintf(stderr, GRAY "reservar_bloque(): inicio reserva bloque\n" RESET);
 #endif
     struct superbloque sb;
-    if (bread(posSB, &sb))
+    if (bread(posSB, &sb)==FALLO)
     {
         fprintf(stderr, RED "ERROR: reservar_bloque(): No se ha podido leer SB\n" RESET);
         return FALLO;
@@ -429,7 +429,7 @@ int reservar_bloque()
 
     // guardar valores
     sb.cantBloquesLibres--;
-    if (bwrite(posSB, &sb))
+    if (bwrite(posSB, &sb)==FALLO)
     {
         fprintf(stderr, RED "reservar_bloque: ERROR guardar SB\n" RESET);
         free(bufferAux);
@@ -446,6 +446,7 @@ int reservar_bloque()
 
     free(bufferAux);
     free(bufferMB);
+    
     return nbloque;
 }
 
@@ -553,7 +554,7 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo)
 
 int reservar_inodo(unsigned char tipo, unsigned char permisos)
 {
-    fprintf(stderr, YELLOW "WARNING: reservar_inodo INCOMPLETO\n" RESET);
+    //fprintf(stderr, YELLOW "WARNING: reservar_inodo INCOMPLETO\n" RESET);
 
     int posInodoReservado;
 
@@ -561,7 +562,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     fprintf(stderr, GRAY "reservar_inodo(): inicio reserva inodo\n" RESET);
 #endif
     struct superbloque sb;
-    if (bread(posSB, &sb))
+    if (bread(posSB, &sb)==FALLO)
     {
         fprintf(stderr, RED "ERROR: reservar_inodo(): No se ha podido leer SB\n" RESET);
         return FALLO;
@@ -614,17 +615,17 @@ int obtener_nRangoBL(struct inodo *inodo, unsigned int nblogico, unsigned int *p
     }
     else if (nblogico < INDIRECTOS0)
     {
-        *ptr : = inodo->punterosIndirectos[0];
+        *ptr = inodo->punterosIndirectos[0];
         return 1;
     }
     else if (nblogico < INDIRECTOS1)
     {
-        *ptr : = inodo->punterosIndirectos[1];
+        *ptr = inodo->punterosIndirectos[1];
         return 2;
     }
     else if (nblogico < INDIRECTOS2)
     {
-        *ptr : = inodo->punterosIndirectos[2];
+        *ptr = inodo->punterosIndirectos[2];
         return 3;
     }
     else

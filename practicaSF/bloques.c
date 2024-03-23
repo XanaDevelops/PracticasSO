@@ -1,5 +1,7 @@
 #include "bloques.h"
 
+#define DEBUG1 0
+
 static int descriptor = 0;
 
 int bmount(const char *camino)
@@ -34,7 +36,10 @@ int bumount()
         return FALLO;
     }
 }
-
+/**
+ * Escribe *buf en nBloque
+ * return: numBytes escritos o FALLO
+*/
 int bwrite(unsigned int nbloque, const void *buf)
 {
     // Calcular el desplazamiento del dispositivo virtual
@@ -65,7 +70,10 @@ int bwrite(unsigned int nbloque, const void *buf)
     // Devolver el número de bytes escrito en el fichero
     return numBytes;
 }
-
+/**
+ * Lee nbloque en un *buf
+ * return: numBytes leidos, o FALLO
+*/
 int bread(unsigned int nbloque, void *buf)
 {
      // Calcular el desplazamiento del dispositivo virtual
@@ -91,7 +99,9 @@ int bread(unsigned int nbloque, void *buf)
          //printf(RESET);
         return FALLO;
     }
-
+#if DEBUG1
+    fprintf(stderr, GRAY "[bread()-> numBytes=%ld]\n" RESET, numBytes);
+#endif
    // Devolver el número de bytes que se ha podido leer
     return numBytes;
 }
