@@ -5,6 +5,10 @@
 
 int main(int argc, char **argv)
 {
+    if(access(*(argv+1), W_OK|R_OK)){
+        fprintf(stderr, RED "ERROR: leer_sf(): no existe el archivo\n" RESET);
+        return FALLO;
+    }
 
     if (bmount(*(argv + 1)) == FALLO)
     {
@@ -86,9 +90,9 @@ int main(int argc, char **argv)
     fprintf(stdout, "SB.cantBloquesLibres=%d\n", SB.cantBloquesLibres);
     fprintf(stdout, "liberando...\n");
     if(liberar_bloque(posBloque)==FALLO){
-        fprintf(stderr, "ERROR: liberar_bloque()\n");
+        fprintf(stderr, RED "ERROR: liberar_bloque()\n" RESET);
     }
-    if (bread(posSB, &SB) == -1)
+    if (bread(posSB, &SB) == FALLO)
     {
         fprintf(stderr, RED "ERROR: bread(): No se ha podido leer SB\n" RESET);
         return FALLO;

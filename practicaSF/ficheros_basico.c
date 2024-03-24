@@ -60,12 +60,13 @@ int initSB(unsigned int nbloques, unsigned int ninodos)
 #if DEBUG2
     fprintf(stderr, GRAY "[initSB() -> sb.posPrimerBloqueMB es %d\n]" RESET, sb.posPrimerBloqueMB);
 #endif
-
+    enablepd();
     // escribir
     if (bwrite(posSB, &sb) == FALLO)
     {
         return FALLO;
     }
+    disablepd();
     return EXITO;
 }
 
@@ -73,7 +74,7 @@ int initMB()
 {
     // Leer el superbloque para obtener la información del sistema de archivos
     struct superbloque SB;
-    if (bread(posSB, &SB) == -1)
+    if (bread(posSB, &SB) == FALLO)
     {
         fprintf(stderr, RED "ERROR: initMB(): No se ha podido leer SB\n" RESET);
         return FALLO;
@@ -101,7 +102,7 @@ int initMB()
         // Escribir los bloques completos ocupados de metadatos en el dispositivo virtual
         for (int i = 0; i < bloquesOcupados; i++)
         {
-            if (bwrite(SB.posPrimerBloqueMB + i, bufferMB) == -1)
+            if (bwrite(SB.posPrimerBloqueMB + i, bufferMB) == FALLO)
             {
                 fprintf(stderr, RED "ERROR: initMB(): No se ha podido escribir el bloque en el dispositivo\n" RESET);
                 return FALLO;
@@ -335,8 +336,9 @@ int reservar_bloque()
 #if DEBUG3
     fprintf(stderr, GRAY "reservar_bloque(): inicio reserva bloque\n" RESET);
 #endif
+    // comprobar si hay bloques libres
     struct superbloque sb;
-    if (bread(posSB, &sb)==FALLO)
+    if (bread(posSB, &sb) == FALLO)
     {
         fprintf(stderr, RED "ERROR: reservar_bloque(): No se ha podido leer SB\n" RESET);
         return FALLO;
@@ -351,6 +353,7 @@ int reservar_bloque()
     fprintf(stderr, GRAY "reservar_bloque(): superbloque reporta %d bloques libres\n" RESET, sb.cantBloquesLibres);
 #endif
 
+    // buffer para comprobar
     unsigned char *bufferAux = malloc(BLOCKSIZE);
     if (bufferAux == NULL)
     {
@@ -374,13 +377,13 @@ int reservar_bloque()
 #if DEBUG3
     fprintf(stderr, GRAY "reservar_bloque(): ultimoMB:%d\n" RESET, sb.posUltimoBloqueMB);
 #endif
-    // buscar bloque
-    while (nBloqueMB < sb.posUltimoBloqueMB)
+    // buscar bloque, empezando por sb.posPrimerBloqueMB
+    while (nBloqueMB+sb.posPrimerBloqueMB <= sb.posUltimoBloqueMB)
     {
 #if DEBUG3
         fprintf(stderr, GRAY "reservar_bloque(): comprobando nBloqueMB:%d\n" RESET, nBloqueMB);
 #endif
-        bread(nBloqueMB, bufferMB);
+        bread(nBloqueMB+sb.posPrimerBloqueMB, bufferMB);
         if (memcmp(bufferAux, bufferMB, BLOCKSIZE))
         {
 #if DEBUG3
@@ -395,10 +398,10 @@ int reservar_bloque()
     int posbyte;
     for (posbyte = 0; posbyte < BLOCKSIZE; posbyte++)
     {
-        if (bufferMB[posbyte] == 255)
+        if (bufferMB[posbyte] != 255)
         {
 #if DEBUG3
-            fprintf(stderr, GRAY "reservar_bloque(): posByte:%d diferente de 255\n" RESET, posbyte);
+            fprintf(stderr, GRAY "reservar_bloque(): bufferMD %u posByte:%d diferente de 255\n" RESET, bufferMB[posbyte], posbyte);
 #endif
             break;
         }
@@ -422,6 +425,10 @@ int reservar_bloque()
         }
     }
 
+#if DEBUG3
+    fprintf(stderr, GRAY "reservar_bloque(): (nBloqueMB * BLOCKSIZE + posbyte) * 8 + posbit\n(%d * %d + %d) * 8 + %d\n" RESET,
+                nBloqueMB, BLOCKSIZE, posbyte, posbit);
+#endif
     int nbloque = (nBloqueMB * BLOCKSIZE + posbyte) * 8 + posbit;
 #if DEBUG3
     fprintf(stderr, GRAY "reservar_bloque(): nBloque:%d\n" RESET, nbloque);
@@ -429,7 +436,7 @@ int reservar_bloque()
 
     // guardar valores
     sb.cantBloquesLibres--;
-    if (bwrite(posSB, &sb)==FALLO)
+    if (bwrite(posSB, &sb) == FALLO)
     {
         fprintf(stderr, RED "reservar_bloque: ERROR guardar SB\n" RESET);
         free(bufferAux);
@@ -446,7 +453,7 @@ int reservar_bloque()
 
     free(bufferAux);
     free(bufferMB);
-    
+
     return nbloque;
 }
 
@@ -458,7 +465,7 @@ int liberar_bloque(unsigned int nbloque)
 {
     // leer superbloque
     struct superbloque sb;
-    if (bread(posSB, &sb))
+    if (bread(posSB, &sb)==FALLO)
     {
         fprintf(stderr, RED "ERROR: liberar_bloque(): No se ha podido leer SB\n" RESET);
         return FALLO;
@@ -468,7 +475,7 @@ int liberar_bloque(unsigned int nbloque)
 
     // Modificar el nº de bloques libres y salvar SB
     sb.cantBloquesLibres++;
-    if (bwrite(posSB, &sb))
+    if (bwrite(posSB, &sb)==FALLO)
     {
         fprintf(stderr, RED "liberar_bloque: ERROR guardar SB\n" RESET);
         return FALLO;
@@ -477,7 +484,10 @@ int liberar_bloque(unsigned int nbloque)
 }
 
 //*******************************************INODOS***********************************************
-
+/**
+ * 
+ * return EXITO o FALLO
+*/
 int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
 {
     // Leer el superbloque para obtener la información del sistema de archivos
@@ -517,7 +527,10 @@ int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
     // Devolver EXITO en caso de operación correcta
     return EXITO;
 }
-
+/**
+ * 
+ * return: EXITO o FALLO
+*/
 int leer_inodo(unsigned int ninodo, struct inodo *inodo)
 {
     // Leer el superbloque para obtener la información del sistema de archivos
@@ -554,7 +567,7 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo)
 
 int reservar_inodo(unsigned char tipo, unsigned char permisos)
 {
-    //fprintf(stderr, YELLOW "WARNING: reservar_inodo INCOMPLETO\n" RESET);
+    // fprintf(stderr, YELLOW "WARNING: reservar_inodo INCOMPLETO\n" RESET);
 
     int posInodoReservado;
 
@@ -562,7 +575,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     fprintf(stderr, GRAY "reservar_inodo(): inicio reserva inodo\n" RESET);
 #endif
     struct superbloque sb;
-    if (bread(posSB, &sb)==FALLO)
+    if (bread(posSB, &sb) == FALLO)
     {
         fprintf(stderr, RED "ERROR: reservar_inodo(): No se ha podido leer SB\n" RESET);
         return FALLO;
@@ -577,7 +590,9 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     struct inodo inodoReservado;
     posInodoReservado = sb.posPrimerInodoLibre; // TODO: no se exactamente como va, mañana lo miro....
 
-    leer_inodo(posInodoReservado, &inodoReservado);
+    if(leer_inodo(posInodoReservado, &inodoReservado)==FALLO){
+        return FALLO;
+    }
 
     // inicializar
     inodoReservado.tipo = tipo;
@@ -589,6 +604,16 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     inodoReservado.mtime = time(NULL);
     inodoReservado.numBloquesOcupados = 0;
 
+    //BORRAR
+    
+    /*
+    fprintf(stderr, YELLOW "WARNING: reservar_inodo(): time override borrar:dgv\n" RESET);
+    inodoReservado.atime = 0;
+    inodoReservado.ctime = 0;
+    inodoReservado.mtime = 0;
+    */
+    //BORRAR
+
     for (int i = 1; i < sizeof(inodoReservado.punterosDirectos) / sizeof(unsigned int); i++)
     {
         inodoReservado.punterosDirectos[i] = 0;
@@ -598,10 +623,14 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
         inodoReservado.punterosIndirectos[i] = 0;
     }
 
-    escribir_inodo(posInodoReservado, &inodoReservado);
+    if(escribir_inodo(posInodoReservado, &inodoReservado)==FALLO){
+        return FALLO;
+    }
     sb.cantInodosLibres--;
     sb.posPrimerInodoLibre++; // Esta bien?
-    bwrite(posSB, &sb);
+    if(bwrite(posSB, &sb)==FALLO){
+        return FALLO;
+    }
 
     return posInodoReservado;
 }

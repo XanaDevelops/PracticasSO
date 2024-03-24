@@ -42,16 +42,22 @@ int main(int argc, char **argv)
         return FALLO;
     }
 
-    memset(buffer, '\0', BLOCKSIZE);
+    memset(buffer, '\000', BLOCKSIZE);
     for (int i = 0; i < nbloque; i++)
     {
 #if DEBUG1
         fprintf(stderr, GRAY "[main() -> inicializando bloque %d]\n" RESET, i);
 #endif
-        bwrite(i, buffer);
+        if(bwrite(i, buffer)==FALLO)
+        {
+            fprintf(stderr, RED "ERROR: main(): Error al inicializar bloque %d\n" RESET, i);
+            errorExit();
+        }
     }
     free(buffer);
-
+#if DEBUG3
+    fprintf(stderr, GRAY "[main() -> inicializando componentes]\n" RESET);
+#endif
     if (initSB(nbloque, nbloque / 4) == FALLO)
     {
         fprintf(stderr, RED "ERROR: main(): initSB()\n" RESET);

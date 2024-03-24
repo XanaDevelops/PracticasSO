@@ -4,6 +4,20 @@
 
 static int descriptor = 0;
 
+static int debug_print = 0; //BORRAR
+/**
+ * BORRAR
+*/
+void enablepd(){
+    debug_print=1;
+}
+/**
+ * BORRAR
+*/
+void disablepd(){
+    debug_print=0;
+}
+
 int bmount(const char *camino)
 {
     // Abrir el fichero como lectura y escritura, creándolo si no existe
@@ -44,7 +58,9 @@ int bwrite(unsigned int nbloque, const void *buf)
 {
     // Calcular el desplazamiento del dispositivo virtual
     off_t desplazamiento = nbloque * BLOCKSIZE;
-
+    if(debug_print){ //BORRAR
+        fprintf(stderr, GRAY "[bwrite(): nbloque:%d, desp:%ld]\n" RESET, nbloque, desplazamiento);
+    }
     // Mover el puntero al desplazamiento calculado
     off_t puntero = lseek(descriptor, desplazamiento, SEEK_SET);
 
@@ -78,7 +94,9 @@ int bread(unsigned int nbloque, void *buf)
 {
      // Calcular el desplazamiento del dispositivo virtual
     off_t desplazamiento = nbloque * BLOCKSIZE;
-
+    if(debug_print){ //BORRAR
+        fprintf(stderr, GRAY "[bread(): nbloque:%d, desp:%ld]\n" RESET, nbloque, desplazamiento);
+    }
      // Mover el puntero al desplazamiento calculado
     off_t puntero = lseek(descriptor, desplazamiento, SEEK_SET);
 

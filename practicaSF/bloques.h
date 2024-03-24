@@ -34,6 +34,9 @@
 
 #define NEGRITA "\x1b[1m"
 
+//BORRAR
+void enablepd();
+void disablepd();
 
 int bmount(const char *camino);
 int bumount();
