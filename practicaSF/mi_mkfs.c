@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 #if DEBUG1
         fprintf(stderr, GRAY "[main() -> inicializando bloque %d]\n" RESET, i);
 #endif
-        if(bwrite(i, buffer)==FALLO)
+        if (bwrite(i, buffer) == FALLO)
         {
             fprintf(stderr, RED "ERROR: main(): Error al inicializar bloque %d\n" RESET, i);
             errorExit();
@@ -56,22 +56,34 @@ int main(int argc, char **argv)
     }
     free(buffer);
 #if DEBUG3
-    fprintf(stderr, GRAY "[main() -> inicializando componentes]\n" RESET);
+    fprintf(stderr, GRAY "[main() -> inicializando SB]\n" RESET);
 #endif
+    enablepd();
     if (initSB(nbloque, nbloque / 4) == FALLO)
     {
         fprintf(stderr, RED "ERROR: main(): initSB()\n" RESET);
         errorExit();
     }
-    if(initMB()==FALLO){
+#if DEBUG3
+    fprintf(stderr, GRAY "[main() -> inicializando MB]\n" RESET);
+#endif
+    disablepd();
+    if (initMB() == FALLO)
+    {
         errorExit();
     }
-    if(initAI()==FALLO){
+#if DEBUG3
+    fprintf(stderr, GRAY "[main() -> inicializando AI]\n" RESET);
+#endif
+    enablepd();
+    if (initAI() == FALLO)
+    {
         errorExit();
     }
-
-    //creamos directorio raiz
-    if(reservar_inodo('d',7) == FALLO){
+    disablepd();
+    // creamos directorio raiz
+    if (reservar_inodo('d', 7) == FALLO)
+    {
         fprintf(stderr, RED "ERROR: main(): no se ha podido crear inodo raiz\n");
         return FALLO;
     }

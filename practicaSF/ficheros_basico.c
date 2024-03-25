@@ -57,16 +57,17 @@ int initSB(unsigned int nbloques, unsigned int ninodos)
     sb.totBloques = nbloques;
     sb.totInodos = ninodos;
 
+    memset(sb.padding, '\0', sizeof(sb.padding));
+
 #if DEBUG2
     fprintf(stderr, GRAY "[initSB() -> sb.posPrimerBloqueMB es %d\n]" RESET, sb.posPrimerBloqueMB);
 #endif
-    enablepd();
     // escribir
     if (bwrite(posSB, &sb) == FALLO)
     {
         return FALLO;
     }
-    disablepd();
+
     return EXITO;
 }
 

@@ -59,7 +59,7 @@ int bwrite(unsigned int nbloque, const void *buf)
     // Calcular el desplazamiento del dispositivo virtual
     off_t desplazamiento = nbloque * BLOCKSIZE;
     if(debug_print){ //BORRAR
-        fprintf(stderr, GRAY "[bwrite(): nbloque:%d, desp:%ld]\n" RESET, nbloque, desplazamiento);
+        fprintf(stderr, GRAY "[DEBUG bwrite(): nbloque:%d, desp:%lX]\n" RESET, nbloque, desplazamiento);
     }
     // Mover el puntero al desplazamiento calculado
     off_t puntero = lseek(descriptor, desplazamiento, SEEK_SET);
@@ -95,7 +95,7 @@ int bread(unsigned int nbloque, void *buf)
      // Calcular el desplazamiento del dispositivo virtual
     off_t desplazamiento = nbloque * BLOCKSIZE;
     if(debug_print){ //BORRAR
-        fprintf(stderr, GRAY "[bread(): nbloque:%d, desp:%ld]\n" RESET, nbloque, desplazamiento);
+        fprintf(stderr, GRAY "[DEBUG bread(): nbloque:%d, desp:%lX]\n" RESET, nbloque, desplazamiento);
     }
      // Mover el puntero al desplazamiento calculado
     off_t puntero = lseek(descriptor, desplazamiento, SEEK_SET);
