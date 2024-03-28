@@ -714,7 +714,7 @@ int obtener_indice(unsigned int nblogico, int nivel_punteros)
     return FALLO;
 }
 
-/*
+
 int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned char reservar)
 {
     // Declarar variables para los cálculos pertinentes
@@ -750,4 +750,75 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
         }
     }
 }
-*/
+
+
+int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offset, unsigned int nbytes)
+{
+    // LECTURA INODO
+    struct inodo inodo;    
+    leer_inodo(ninodo, &inodo);
+    
+    if((inodo.permisos & 2) != 2) {
+        fprintf(stderr, RED "No hay permisos de escritura\n" RESET);
+        return FALLO;
+    }
+
+    // DECLARAR VARIABLES    
+    int primerBL, ultimoBL, desp1, desp2, nbfisico;
+    int bytesescritos;
+    char buf_bloque[BLOCKSIZE];
+
+    // INICIALIZAR VARIABLES
+    primerBL = offset/BLOCKSIZE;
+    ultimoBL = (offset + nbytes - 1)/BLOCKSIZE;
+    desp1 = offset % BLOCKSIZE;
+    desp2 = (offset + nbytes - 1) % BLOCKSIZE; 
+
+    // CASO 1 BLOQUE
+    if (primerBL == ultimoBL) {
+        nbfisico = traducir_bloque_inodo(&inodo, primerBL, 1);
+        bread(nbfisico, buf_bloque);
+        memcpy(buf_bloque + desp1, buf_original, nbytes);
+        bwrite(nbfisico, buf_bloque);
+        bytesescritos = desp2 - desp1 + 1;
+    } else {
+        int bl = primerBL+1;
+
+        // PRIMER BLOQUE LÓGICO
+        nbfisico = traducir_bloque_inodo(&inodo, primerBL, 1);
+        bread(nbfisico, buf_bloque);
+        memcpy(buf_bloque + desp1, buf_original, BLOCKSIZE - desp1);
+        bwrite(nbfisico, buf_bloque);
+        bytesescritos += BLOCKSIZE - desp1;
+
+        // BLOQUES INTERMEDIOS
+        while(bl < ultimoBL) {
+            nbfisico = traducir_bloque_inodo(&inodo, bl, 1);
+            bwrite(nbfisico, buf_original + (BLOCKSIZE - desp1) + (bl - primerBL - 1) * BLOCKSIZE);
+            bytesescritos += BLOCKSIZE;
+            bl++;
+        }
+
+        // ÚLTIMO BLOQUE LÓGICO
+        nbfisico = traducir_bloque_inodo(&inodo, ultimoBL, 1);
+        bread(nbfisico, buf_bloque);
+        memcpy(buf_bloque, buf_original + (nbytes - (desp2 + 1)), desp2 + 1);
+        bwrite(nbfisico, buf_bloque);
+        bytesescritos += desp2 + 1;
+    } 
+
+    // ACTUALIZAR METAINFORMACIÓN INODO;
+    // MIRAR SI ESTÀ BE !!!!!!!!!
+    // actualizar el tamaño en bytes lógico del fichero, solo si hemos escrito más allá del final del fichero
+    if(offset >= inodo.tamEnBytesLog) {
+        inodo.tamEnBytesLog = offset + nbytes;
+    }
+    // actualizar mtime
+    inodo.mtime = time(NULL);
+    // actualizar ctime 
+    inodo.ctime = time(NULL);
+    // salvar inodo
+    escribir_inodo(ninodo, &inodo);
+
+    return bytesescritos;
+}
