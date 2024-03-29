@@ -27,8 +27,7 @@ int bmount(const char *camino)
     if (descriptor == -1)
     {
         // Gestión de error
-        perror(RED "Error");
-        printf(RESET);
+        fprintf(stderr, RED "ERROR: bmount(): No se ha podido abrir o crear el fichero\n" RESET);
         // Devolver FALLO
         return FALLO;
     }
@@ -46,7 +45,7 @@ int bumount()
     else
     {
         // Gestón del error
-        perror("Error");
+        fprintf(stderr, RED "ERROR: bumount(): No se ha podido cerrar el fichero\n" RESET);
         return FALLO;
     }
 }

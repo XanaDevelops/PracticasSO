@@ -751,15 +751,17 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
     }
 }
 
-
 int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offset, unsigned int nbytes)
 {
     // LECTURA INODO
     struct inodo inodo;    
-    leer_inodo(ninodo, &inodo);
+    if(leer_inodo(ninodo, &inodo) == FALLO) {
+        fprintf(stderr, RED "ERROR: mi_write_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
+        return FALLO;    
+    }
     
     if((inodo.permisos & 2) != 2) {
-        fprintf(stderr, RED "No hay permisos de escritura\n" RESET);
+        fprintf(stderr, RED "ERROR: mi_write_f(): No hay permisos de escritura\n" RESET);
         return FALLO;
     }
 
@@ -807,18 +809,71 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         bytesescritos += desp2 + 1;
     } 
 
-    // ACTUALIZAR METAINFORMACIÓN INODO;
+    // ACTUALIZAR METAINFORMACIÓN INODO
     // MIRAR SI ESTÀ BE !!!!!!!!!
-    // actualizar el tamaño en bytes lógico del fichero, solo si hemos escrito más allá del final del fichero
+    // Actualizar el tamaño en bytes lógico del fichero, solo si hemos escrito más allá del final del fichero
     if(offset >= inodo.tamEnBytesLog) {
         inodo.tamEnBytesLog = offset + nbytes;
     }
-    // actualizar mtime
+    // Actualizar mtime
     inodo.mtime = time(NULL);
-    // actualizar ctime 
+    // Actualizar ctime 
     inodo.ctime = time(NULL);
-    // salvar inodo
-    escribir_inodo(ninodo, &inodo);
+    // Salvar inodo
+    if(escribir_inodo(ninodo, &inodo) == FALLO) {
+        fprintf(stderr, RED "ERROR: mi_write_f(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
+        return FALLO;
+    }
 
     return bytesescritos;
+}
+
+int mi_read_f(unsigned int nionodo, void *buf_original, unsigned int offset, unsigned int nbytes) 
+{
+    return EXITO;
+}
+
+int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
+{
+    // Declarar y leer el inodo correspondiente
+    struct inodo inodo;
+    if(leer_inodo(ninodo, &inodo) == FALLO) {
+        fprintf(stderr, RED "ERROR: mi_chmod_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
+        return FALLO;
+    }
+
+    // Actualizar permisos y ctime
+    inodo.permisos = permisos;
+    inodo.ctime = time(NULL);
+
+    // Salvar inodo
+    if(escribir_inodo(ninodo, &inodo) == FALLO) {
+        fprintf(stderr, RED "ERROR: mi_chmod_f(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
+        return FALLO;
+    }
+
+    return EXITO;
+}
+
+int mi_stat_f(unsigned int ninodo, struct STAT *p_stat)
+{
+    // Declarar y leer el inodo correspondiente
+    struct inodo inodo;
+    if(leer_inodo(ninodo, &inodo) == FALLO) {
+        fprintf(stderr, RED "ERROR: mi_stat_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
+        return FALLO;
+    }
+
+    p_stat->tipo = inodo.tipo;
+    p_stat->permisos = inodo.permisos;
+    // falta guardar reservado_alineacion1 
+    //p_stat->reservado_alineacion1 = inodo.reservado_alineacion1;
+    p_stat->atime = inodo.atime;
+    p_stat->mtime = inodo.mtime;
+    p_stat->ctime = inodo.ctime;
+    p_stat->nlinks = inodo.nlinks;
+    p_stat->tamEnBytesLog = inodo.tamEnBytesLog;
+    p_stat->numBloquesOcupados = inodo.numBloquesOcupados;
+
+    return EXITO;
 }
