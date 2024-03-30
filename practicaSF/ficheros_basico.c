@@ -744,19 +744,30 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
                 inodo->numBloquesOcupados++;
                 // Almacenar la fecha actual en el inodo
                 inodo->ctime = time(NULL);
-                
+
+                // Si es un bloque apuntado por inodo
                 if (nivel_punteros = nRangoBL)
                 {
                     inodo->punterosIndirectos[nRangoBL - 1] = ptr;
                 }
                 else
-            } 
-            buffer[indice] : = ptr
-                             bwrite(ptr_ant, buffer) // salvamos en el dispositivo el buffer de punteros modificado
+                {
+                    buffer[indice] = ptr;
+                    // salvamos en el dispositivo el buffer de punteros modificado
+                    bwrite(ptr_ant, buffer)
+                }
+                // Limpiamos buffer
+                memset(buffer, 0, BLOCKSIZE);
+            }
         }
+        else
+        {
+            // Si existe bloque, devolver su posición
+            bread(ptr, buffer);
+        }
+        indice = obtener_indice(nblogico, nivel_punteros);
+        ptr_ant = ptr;        // guardamos el puntero actual
+        ptr = buffer[indice]; // y lo desplazamos al siguiente nivel
+        nivel_punteros--;
     }
-
-    // FALTA ACABAR !!!
 }
-
-
