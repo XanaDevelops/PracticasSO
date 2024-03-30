@@ -628,6 +628,8 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     return posInodoReservado;
 }
 
+//*********************************TRADUCIR BLOQUE INODO***********************************
+
 int obtener_nRangoBL(struct inodo *inodo, unsigned int nblogico, unsigned int *ptr)
 {
     if (nblogico < DIRECTOS)
