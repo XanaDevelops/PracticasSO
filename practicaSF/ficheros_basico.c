@@ -589,7 +589,8 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     }
 
     struct inodo inodoReservado;
-    posInodoReservado = sb.posPrimerInodoLibre; // TODO: no se exactamente como va, mañana lo miro....
+    posInodoReservado = sb.posPrimerInodoLibre;
+    
 
     if(leer_inodo(posInodoReservado, &inodoReservado) == FALLO){
         return FALLO;
@@ -604,6 +605,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     inodoReservado.ctime = time(NULL);
     inodoReservado.mtime = time(NULL);
     inodoReservado.numBloquesOcupados = 0;
+    sb.posPrimerInodoLibre = inodoReservado.punterosDirectos[0];
 
 
     for (int i = 1; i < sizeof(inodoReservado.punterosDirectos) / sizeof(unsigned int); i++)
@@ -619,7 +621,6 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
         return FALLO;
     }
     sb.cantInodosLibres--;
-    sb.posPrimerInodoLibre++; // Esta bien?
     if(bwrite(posSB, &sb)==FALLO){
         return FALLO;
     }
