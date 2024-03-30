@@ -746,7 +746,7 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
                 inodo->ctime = time(NULL);
 
                 // Si es un bloque apuntado por inodo
-                if (nivel_punteros = nRangoBL)
+                if (nivel_punteros == nRangoBL)
                 {
                     inodo->punterosIndirectos[nRangoBL - 1] = ptr;
                 }
@@ -754,7 +754,7 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
                 {
                     buffer[indice] = ptr;
                     // salvamos en el dispositivo el buffer de punteros modificado
-                    bwrite(ptr_ant, buffer)
+                    bwrite(ptr_ant, buffer);
                 }
                 // Limpiamos buffer
                 memset(buffer, 0, BLOCKSIZE);
