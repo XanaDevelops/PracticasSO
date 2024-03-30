@@ -379,12 +379,12 @@ int reservar_bloque()
     fprintf(stderr, GRAY "reservar_bloque(): ultimoMB:%d\n" RESET, sb.posUltimoBloqueMB);
 #endif
     // buscar bloque, empezando por sb.posPrimerBloqueMB
-    while (nBloqueMB+sb.posPrimerBloqueMB <= sb.posUltimoBloqueMB)
+    while (nBloqueMB + sb.posPrimerBloqueMB <= sb.posUltimoBloqueMB)
     {
 #if DEBUG3
         fprintf(stderr, GRAY "reservar_bloque(): comprobando nBloqueMB:%d\n" RESET, nBloqueMB);
 #endif
-        bread(nBloqueMB+sb.posPrimerBloqueMB, bufferMB);
+        bread(nBloqueMB + sb.posPrimerBloqueMB, bufferMB);
         if (memcmp(bufferAux, bufferMB, BLOCKSIZE))
         {
 #if DEBUG3
@@ -428,7 +428,7 @@ int reservar_bloque()
 
 #if DEBUG3
     fprintf(stderr, GRAY "reservar_bloque(): (nBloqueMB * BLOCKSIZE + posbyte) * 8 + posbit\n(%d * %d + %d) * 8 + %d\n" RESET,
-                nBloqueMB, BLOCKSIZE, posbyte, posbit);
+            nBloqueMB, BLOCKSIZE, posbyte, posbit);
 #endif
     int nbloque = (nBloqueMB * BLOCKSIZE + posbyte) * 8 + posbit;
 #if DEBUG3
@@ -466,7 +466,7 @@ int liberar_bloque(unsigned int nbloque)
 {
     // leer superbloque
     struct superbloque sb;
-    if (bread(posSB, &sb)==FALLO)
+    if (bread(posSB, &sb) == FALLO)
     {
         fprintf(stderr, RED "ERROR: liberar_bloque(): No se ha podido leer SB\n" RESET);
         return FALLO;
@@ -476,7 +476,7 @@ int liberar_bloque(unsigned int nbloque)
 
     // Modificar el nº de bloques libres y salvar SB
     sb.cantBloquesLibres++;
-    if (bwrite(posSB, &sb)==FALLO)
+    if (bwrite(posSB, &sb) == FALLO)
     {
         fprintf(stderr, RED "liberar_bloque: ERROR guardar SB\n" RESET);
         return FALLO;
@@ -486,9 +486,9 @@ int liberar_bloque(unsigned int nbloque)
 
 //*******************************************INODOS***********************************************
 /**
- * 
+ *
  * return EXITO o FALLO
-*/
+ */
 int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
 {
     // Leer el superbloque para obtener la información del sistema de archivos
@@ -529,9 +529,9 @@ int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
     return EXITO;
 }
 /**
- * 
+ *
  * return: EXITO o FALLO
-*/
+ */
 int leer_inodo(unsigned int ninodo, struct inodo *inodo)
 {
     // Leer el superbloque para obtener la información del sistema de archivos
@@ -590,9 +590,9 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
 
     struct inodo inodoReservado;
     posInodoReservado = sb.posPrimerInodoLibre;
-    
 
-    if(leer_inodo(posInodoReservado, &inodoReservado) == FALLO){
+    if (leer_inodo(posInodoReservado, &inodoReservado) == FALLO)
+    {
         return FALLO;
     }
 
@@ -607,7 +607,6 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     inodoReservado.numBloquesOcupados = 0;
     sb.posPrimerInodoLibre = inodoReservado.punterosDirectos[0];
 
-
     for (int i = 1; i < sizeof(inodoReservado.punterosDirectos) / sizeof(unsigned int); i++)
     {
         inodoReservado.punterosDirectos[i] = 0;
@@ -617,11 +616,13 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
         inodoReservado.punterosIndirectos[i] = 0;
     }
 
-    if(escribir_inodo(posInodoReservado, &inodoReservado)==FALLO){
+    if (escribir_inodo(posInodoReservado, &inodoReservado) == FALLO)
+    {
         return FALLO;
     }
     sb.cantInodosLibres--;
-    if(bwrite(posSB, &sb)==FALLO){
+    if (bwrite(posSB, &sb) == FALLO)
+    {
         return FALLO;
     }
 
@@ -708,7 +709,6 @@ int obtener_indice(unsigned int nblogico, int nivel_punteros)
     return FALLO;
 }
 
-
 int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned char reservar)
 {
     // Declarar variables para los cálculos pertinentes
@@ -725,150 +725,38 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
     nivel_punteros = nRangoBL;
 
     // Iterar para cada nivel de punteros indirectos
-    while(nivel_punteros > 0) {
-        // No cuelgan bloque de punteros
-        if (ptr == 0) {
-            if (reservar == 0) {
-                // Bloque inexistente
-                return -1;
-            } else {
+    while (nivel_punteros > 0)
+    {
+        // No existe bloque físco de datos
+        if (ptr == 0)
+        {
+            if (reservar == 0)
+            {
+                // Si solo consulta y no existe, error
+                return FALLO;
+            }
+            // Si hay que reservar, reservar y devolver posición
+            else
+            {
                 // Reservar bloques de punteros
                 ptr = reservar_bloque();
                 // Aumentar el número de bloque ocupados por el indodo
-                inodo -> numBloquesOcupados++;
+                inodo->numBloquesOcupados++;
                 // Almacenar la fecha actual en el inodo
-                inodo -> ctime = time(NULL);
-            }
-
-            // FALTA ACABAR !!!
+                inodo->ctime = time(NULL);
+                
+                if (nivel_punteros = nRangoBL)
+                {
+                    inodo->punterosIndirectos[nRangoBL - 1] = ptr;
+                }
+                else
+            } 
+            buffer[indice] : = ptr
+                             bwrite(ptr_ant, buffer) // salvamos en el dispositivo el buffer de punteros modificado
         }
     }
+
+    // FALTA ACABAR !!!
 }
 
 
-int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offset, unsigned int nbytes)
-{
-    // LECTURA INODO
-    struct inodo inodo;    
-    if(leer_inodo(ninodo, &inodo) == FALLO) {
-        fprintf(stderr, RED "ERROR: mi_write_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
-        return FALLO;    
-    }
-    
-    if((inodo.permisos & 2) != 2) {
-        fprintf(stderr, RED "ERROR: mi_write_f(): No hay permisos de escritura\n" RESET);
-        return FALLO;
-    }
-
-    // DECLARAR VARIABLES    
-    int primerBL, ultimoBL, desp1, desp2, nbfisico;
-    int bytesescritos;
-    char buf_bloque[BLOCKSIZE];
-
-    // INICIALIZAR VARIABLES
-    primerBL = offset/BLOCKSIZE;
-    ultimoBL = (offset + nbytes - 1)/BLOCKSIZE;
-    desp1 = offset % BLOCKSIZE;
-    desp2 = (offset + nbytes - 1) % BLOCKSIZE; 
-
-    // CASO 1 BLOQUE
-    if (primerBL == ultimoBL) {
-        nbfisico = traducir_bloque_inodo(&inodo, primerBL, 1);
-        bread(nbfisico, buf_bloque);
-        memcpy(buf_bloque + desp1, buf_original, nbytes);
-        bwrite(nbfisico, buf_bloque);
-        bytesescritos = desp2 - desp1 + 1;
-    } else {
-        int bl = primerBL+1;
-
-        // PRIMER BLOQUE LÓGICO
-        nbfisico = traducir_bloque_inodo(&inodo, primerBL, 1);
-        bread(nbfisico, buf_bloque);
-        memcpy(buf_bloque + desp1, buf_original, BLOCKSIZE - desp1);
-        bwrite(nbfisico, buf_bloque);
-        bytesescritos += BLOCKSIZE - desp1;
-
-        // BLOQUES INTERMEDIOS
-        while(bl < ultimoBL) {
-            nbfisico = traducir_bloque_inodo(&inodo, bl, 1);
-            bwrite(nbfisico, buf_original + (BLOCKSIZE - desp1) + (bl - primerBL - 1) * BLOCKSIZE);
-            bytesescritos += BLOCKSIZE;
-            bl++;
-        }
-
-        // ÚLTIMO BLOQUE LÓGICO
-        nbfisico = traducir_bloque_inodo(&inodo, ultimoBL, 1);
-        bread(nbfisico, buf_bloque);
-        memcpy(buf_bloque, buf_original + (nbytes - (desp2 + 1)), desp2 + 1);
-        bwrite(nbfisico, buf_bloque);
-        bytesescritos += desp2 + 1;
-    } 
-
-    // ACTUALIZAR METAINFORMACIÓN INODO
-    // MIRAR SI ESTÀ BE !!!!!!!!!
-    // Actualizar el tamaño en bytes lógico del fichero, solo si hemos escrito más allá del final del fichero
-    if(offset >= inodo.tamEnBytesLog) {
-        inodo.tamEnBytesLog = offset + nbytes;
-    }
-    // Actualizar mtime
-    inodo.mtime = time(NULL);
-    // Actualizar ctime 
-    inodo.ctime = time(NULL);
-    // Salvar inodo
-    if(escribir_inodo(ninodo, &inodo) == FALLO) {
-        fprintf(stderr, RED "ERROR: mi_write_f(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
-        return FALLO;
-    }
-
-    return bytesescritos;
-}
-
-int mi_read_f(unsigned int nionodo, void *buf_original, unsigned int offset, unsigned int nbytes) 
-{
-    return EXITO;
-}
-
-int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
-{
-    // Declarar y leer el inodo correspondiente
-    struct inodo inodo;
-    if(leer_inodo(ninodo, &inodo) == FALLO) {
-        fprintf(stderr, RED "ERROR: mi_chmod_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
-        return FALLO;
-    }
-
-    // Actualizar permisos y ctime
-    inodo.permisos = permisos;
-    inodo.ctime = time(NULL);
-
-    // Salvar inodo
-    if(escribir_inodo(ninodo, &inodo) == FALLO) {
-        fprintf(stderr, RED "ERROR: mi_chmod_f(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
-        return FALLO;
-    }
-
-    return EXITO;
-}
-
-int mi_stat_f(unsigned int ninodo, struct STAT *p_stat)
-{
-    // Declarar y leer el inodo correspondiente
-    struct inodo inodo;
-    if(leer_inodo(ninodo, &inodo) == FALLO) {
-        fprintf(stderr, RED "ERROR: mi_stat_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
-        return FALLO;
-    }
-
-    p_stat->tipo = inodo.tipo;
-    p_stat->permisos = inodo.permisos;
-    // falta guardar reservado_alineacion1 
-    //p_stat->reservado_alineacion1 = inodo.reservado_alineacion1;
-    p_stat->atime = inodo.atime;
-    p_stat->mtime = inodo.mtime;
-    p_stat->ctime = inodo.ctime;
-    p_stat->nlinks = inodo.nlinks;
-    p_stat->tamEnBytesLog = inodo.tamEnBytesLog;
-    p_stat->numBloquesOcupados = inodo.numBloquesOcupados;
-
-    return EXITO;
-}
