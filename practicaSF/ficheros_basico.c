@@ -2,7 +2,7 @@
 #include "ficheros_basico.h"
 
 #define DEBUG2 0
-#define DEBUG3 1
+#define DEBUG3 0
 
 //*******************************************TAMAÑOS INICIALIZACIÓN***********************************************
 int tamMB(unsigned int nbloques)
@@ -591,7 +591,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     struct inodo inodoReservado;
     posInodoReservado = sb.posPrimerInodoLibre; // TODO: no se exactamente como va, mañana lo miro....
 
-    if(leer_inodo(posInodoReservado, &inodoReservado)==FALLO){
+    if(leer_inodo(posInodoReservado, &inodoReservado) == FALLO){
         return FALLO;
     }
 
@@ -605,15 +605,6 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     inodoReservado.mtime = time(NULL);
     inodoReservado.numBloquesOcupados = 0;
 
-    //BORRAR
-    
-    /*
-    fprintf(stderr, YELLOW "WARNING: reservar_inodo(): time override borrar:dgv\n" RESET);
-    inodoReservado.atime = 0;
-    inodoReservado.ctime = 0;
-    inodoReservado.mtime = 0;
-    */
-    //BORRAR
 
     for (int i = 1; i < sizeof(inodoReservado.punterosDirectos) / sizeof(unsigned int); i++)
     {
