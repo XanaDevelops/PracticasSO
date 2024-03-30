@@ -4,20 +4,9 @@
 
 static int descriptor = 0;
 
-static int debug_print = 0; //BORRAR
 /**
- * BORRAR
+ *  Montar el dispositivo virtual
 */
-void enablepd(){
-    debug_print=1;
-}
-/**
- * BORRAR
-*/
-void disablepd(){
-    debug_print=0;
-}
-
 int bmount(const char *camino)
 {
     // Abrir el fichero como lectura y escritura, creándolo si no existe
@@ -36,6 +25,9 @@ int bmount(const char *camino)
     return descriptor;
 }
 
+/**
+ *  Desmontar el dispositivo virtual
+*/
 int bumount()
 {
     if (close(descriptor) == 0)
