@@ -69,6 +69,7 @@ int main(int argc, char **argv)
     
     printf("\n");
     fprintf(stdout, "RESERVAR, y liberar, BLOQUE\n");
+
     int posBloque = reservar_bloque();
 
     if(posBloque==FALLO){
@@ -98,5 +99,11 @@ int main(int argc, char **argv)
         return FALLO;
     }
     fprintf(stdout, "SB.cantBloquesLibres=%d\n", SB.cantBloquesLibres);
+
+    fprintf(stdout, "MAPA DE BITS CON BLOQUES DE METADATOS OCUPADOS\n");
+
+
+    fprintf(stdout, "posSB: %d -> leer_bit(%d) = %d\n", posSB, posSB, leer_bit(posSB));
+    fprintf(stdout, "SB.posPrimerBloqueMB: %d -> leer_bit(%d) = %d\n", SB.posPrimerBloqueMB, SB.posPrimerBloqueMB, leer_bit(SB.posPrimerBloqueMB));
     return EXITO;
 }

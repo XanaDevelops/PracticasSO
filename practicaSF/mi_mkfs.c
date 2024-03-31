@@ -58,7 +58,6 @@ int main(int argc, char **argv)
 #if DEBUG3
     fprintf(stderr, GRAY "[main() -> inicializando SB]\n" RESET);
 #endif
-    enablepd();
     if (initSB(nbloque, nbloque / 4) == FALLO)
     {
         fprintf(stderr, RED "ERROR: main(): initSB()\n" RESET);
@@ -67,7 +66,6 @@ int main(int argc, char **argv)
 #if DEBUG3
     fprintf(stderr, GRAY "[main() -> inicializando MB]\n" RESET);
 #endif
-    disablepd();
     if (initMB() == FALLO)
     {
         errorExit();
@@ -75,12 +73,10 @@ int main(int argc, char **argv)
 #if DEBUG3
     fprintf(stderr, GRAY "[main() -> inicializando AI]\n" RESET);
 #endif
-    enablepd();
     if (initAI() == FALLO)
     {
         errorExit();
     }
-    disablepd();
     // creamos directorio raiz
     if (reservar_inodo('d', 7) == FALLO)
     {

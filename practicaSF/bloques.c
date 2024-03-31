@@ -119,7 +119,10 @@ int bread(unsigned int nbloque, void *buf)
 
 void enablepd(){
     debug_print=1;
+    fprintf(stderr, GRAY "estado debug_print: %d\n" RESET, debug_print);
 }
 void disablepd(){
     debug_print=0;
+        fprintf(stderr, GRAY "estado debug_print: %d\n" RESET, debug_print);
+
 }

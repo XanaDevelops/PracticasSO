@@ -2,7 +2,7 @@
 #include "ficheros_basico.h"
 
 #define DEBUG2 0
-#define DEBUG3 0
+#define DEBUG3 1
 
 //*******************************************TAMAÑOS INICIALIZACIÓN***********************************************
 int tamMB(unsigned int nbloques)
@@ -432,7 +432,7 @@ int reservar_bloque()
 #endif
     int nbloque = (nBloqueMB * BLOCKSIZE + posbyte) * 8 + posbit;
 #if DEBUG3
-    fprintf(stderr, GRAY "reservar_bloque(): nBloque:%d\n" RESET, nbloque);
+    fprintf(stderr, GRAY "reservar_bloque(): nBloque: %d\n" RESET, nbloque);
 #endif
 
     // guardar valores
