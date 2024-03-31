@@ -94,6 +94,9 @@ int initMB()
     // Calcular la cantidad de bits que necesitaremos para los bloques de metadatos ocupados
     int bloquesOcupados = (bloquesMetaDatos / 8) / BLOCKSIZE;
 
+     // Calcular la cantidad de bits restantes en el último byte
+    int bitsRestantesOcupados = bloquesMetaDatos % 8;
+
     // Si necesitamos al menos un bloque para almacenar los bits de metadatos
     if (bloquesOcupados >= 1)
     {
@@ -111,8 +114,9 @@ int initMB()
         }
     }
 
+   
     // Si hay bytes restantes que no ocupan un bloque completo
-    if (bytesRestantesOcupados > 0)
+    if (bitsRestantesOcupados > 0 || bytesRestantesOcupados > 0)
     {
         // Llenar los bytes completos con bits a 1
         for (int i = 0; i < bytesRestantesOcupados; i++)
@@ -120,17 +124,17 @@ int initMB()
             bufferMB[i] = 255;
         }
 
-        // Calcular la cantidad de bits restantes en el último byte
-        int bitsRestantesOcupados = bloquesMetaDatos % 8;
-
         // Si hay bits restantes que no ocupan un byte completo
         if (bitsRestantesOcupados > 0)
         {
+            unsigned char mascara;
             // Establecer los bits a 1 en el último byte
             for (int i = 0; i < bitsRestantesOcupados; i++)
             {
-                bufferMB[bytesRestantesOcupados] |= (1 << (7 - i));
+                mascara |= (1 << (7 - i));
             }
+            
+            bufferMB[bytesRestantesOcupados] = mascara;
 
             // Incrementar el valor de bytes restantes para ajustar la siguiente posición a modificar
             bytesRestantesOcupados++;
@@ -158,7 +162,6 @@ int initMB()
         fprintf(stderr, RED "ERROR: initMB(): No se ha podido salvar SB\n" RESET);
         return FALLO;
     }
-
     return EXITO;
 }
 
