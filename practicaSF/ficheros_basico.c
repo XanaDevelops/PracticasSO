@@ -158,6 +158,7 @@ int initMB()
         fprintf(stderr, RED "ERROR: initMB(): No se ha podido salvar SB\n" RESET);
         return FALLO;
     }
+
     return EXITO;
 }
 
@@ -656,7 +657,7 @@ int obtener_nRangoBL(struct inodo *inodo, unsigned int nblogico, unsigned int *p
     else
     {
         *ptr = 0;
-        perror("Bloque lógico fuera de rango");
+        fprintf(stderr, RED "ERROR: obtener_nRangoBL(): Bloque lógico fuera de rango\n" RESET);
         return FALLO;
     }
 }
@@ -766,8 +767,14 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
             bread(ptr, buffer);
         }
         indice = obtener_indice(nblogico, nivel_punteros);
-        ptr_ant = ptr;        // guardamos el puntero actual
-        ptr = buffer[indice]; // y lo desplazamos al siguiente nivel
+        // Guardamos el puntero actual
+        ptr_ant = ptr;
+        // Desplazamos el puntero al siguiente nivel
+        ptr = buffer[indice]; 
+        // Decrementamos el nivel de punteros
         nivel_punteros--;
     }
+
+    // Devolver el nº de bloque físico correspondiente al bloque de datos lógico
+    return ptr;
 }
