@@ -3,6 +3,7 @@
 #define DEBUG1 0
 
 static int descriptor = 0;
+static int debug_print = 0; //imprime bloque leer/escribir DEBUG BORRAR cuando no haga falta...
 
 /**
  *  Montar el dispositivo virtual
@@ -113,4 +114,12 @@ int bread(unsigned int nbloque, void *buf)
 #endif
    // Devolver el número de bytes que se ha podido leer
     return numBytes;
+}
+
+
+void enablepd(){
+    debug_print=1;
+}
+void disablepd(){
+    debug_print=0;
 }
