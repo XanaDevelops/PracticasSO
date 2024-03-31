@@ -775,6 +775,28 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
         nivel_punteros--;
     }
 
+    // NIVEL DE DATOS
+
+    if(ptr == 0) {
+        // Error de lectura, no existe el bloque
+        if(reservar == 0) return FALLO;
+        else {
+            ptr = reservar_bloque();
+            inodo->numBloquesOcupados++;
+            inodo->ctime = time(NULL);
+            // Comprobar si era un puntero directo
+            if(nRangoBL == 0) {
+                // Asignar la direción del bloque de datos en el inodo
+                inodo->punterosDirectos[nblogico] = ptr;
+            } else {
+                // Asignar la dirección del bloque de datos en el buffer
+                buffer[indice] = ptr;
+                // Salvar en el dispositivo el buffer de punteros modificado
+                bwrite(ptr_ant, buffer);
+            }
+        }
+    }
+
     // Devolver el nº de bloque físico correspondiente al bloque de datos lógico
     return ptr;
 }
