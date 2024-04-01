@@ -102,7 +102,6 @@ int main(int argc, char **argv)
 
     fprintf(stdout, "MAPA DE BITS CON BLOQUES DE METADATOS OCUPADOS\n");
 
-
     fprintf(stdout, "posSB: %d -> leer_bit(%d) = %d\n", posSB, posSB, leer_bit(posSB));
     fprintf(stdout, "SB.posPrimerBloqueMB: %d -> leer_bit(%d) = %d\n", SB.posPrimerBloqueMB, SB.posPrimerBloqueMB, leer_bit(SB.posPrimerBloqueMB));
     return EXITO;
