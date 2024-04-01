@@ -323,7 +323,7 @@ char leer_bit(unsigned int nbloque)
     mascara >>= (7 - posbit);
 
 #if DEBUG3
-    fprintf(stderr, GRAY "[leerbit(%d) -> posbyte: %d, posbyte (ajustado): %d, posbit: %d, nbloqueMB: %d, nbloqueabs: %d]\n]" RESET,
+    fprintf(stderr, GRAY "[leerbit(%d) -> posbyte: %d, posbyte (ajustado): %d, posbit: %d, nbloqueMB: %d, nbloqueabs: %d]\n" RESET,
             nbloque, nbloque / 8, posbyte, posbit, nbloqueMB, nbloqueabs);
 #endif
 
