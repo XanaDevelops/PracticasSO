@@ -86,3 +86,5 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
 int liberar_inodo(unsigned int ninodo);
 int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo);
 
+//auxiliar
+int imprimir_inodo(struct inodo inodo);

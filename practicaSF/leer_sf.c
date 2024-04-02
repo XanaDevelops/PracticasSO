@@ -113,9 +113,23 @@ int main(int argc, char **argv)
     fprintf(stdout, "SB.posPrimerBloqueMB: %d -> leer_bit(%d) = %d\n", SB.posPrimerBloqueDatos, SB.posPrimerBloqueDatos, leer_bit(SB.posPrimerBloqueDatos));
     fprintf(stdout, "SB.posUltimoBloqueMB: %d -> leer_bit(%d) = %d\n", SB.posUltimoBloqueDatos, SB.posUltimoBloqueDatos, leer_bit(SB.posUltimoBloqueDatos));
 
-    fprintf(stdout, "DATOS DEL DIRECTORIO RAÍZ\n");
+    fprintf(stdout, "\nDATOS DEL DIRECTORIO RAÍZ\n");
     struct inodo raiz;
-    leer_inodo(0, &raiz);
+    if(leer_inodo(0, &raiz)==FALLO){
+        fprintf(stderr, RED "ERROR: leer_sf: Error al leer inodo raiz, 0\n");
+        return FALLO;
+    }
+    /*
+    fprintf(stdout, "tipo: %c\n", raiz.tipo);
+    fprintf(stdout, "permisos: %d\n", raiz.permisos);
+    fprintf(stdout, "atime: %ld\n", raiz.atime);
+    fprintf(stdout, "ctime: %ld\n", raiz.ctime);
+    fprintf(stdout, "mtime: %ld\n", raiz.mtime);
+    fprintf(stdout, "nlinks: %d\n", raiz.nlinks);
+    fprintf(stdout, "tamEnBytesLog: %d\n", raiz.tamEnBytesLog);
+    fprintf(stdout, "numBloques: %d\n", raiz.numBloquesOcupados);
+*/
+    imprimir_inodo(raiz);
 
     return EXITO;
 }

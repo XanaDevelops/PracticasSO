@@ -851,3 +851,24 @@ int liberar_inodo(unsigned int ninodo)
 
     return ninodo;
 }
+
+int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo){ //evitar usar funcions no implementades, només que estiguin buides va bé, que despres no compila...
+    fprintf(stderr, RED "NO IMPLEMENTADO, devolviendo FALLO\n");
+    return FALLO;
+}
+
+//AUXILIAR
+/**
+ * imprime todos los parametros de struct inodo
+ * return: EXITO o FALLO
+*/
+int imprimir_inodo(struct inodo inodo){
+    fprintf(stdout, "tipo: %c\n", inodo.tipo);
+    fprintf(stdout, "permisos: %d\n", inodo.permisos);
+    fprintf(stdout, "atime: %s", ctime(&inodo.atime));
+    fprintf(stdout, "ctime: %s", ctime(&inodo.ctime));
+    fprintf(stdout, "mtime: %s", ctime(&inodo.mtime));
+    fprintf(stdout, "nlinks: %d\n", inodo.nlinks);
+    fprintf(stdout, "tamEnBytesLog: %d\n", inodo.tamEnBytesLog);
+    fprintf(stdout, "numBloques: %d\n", inodo.numBloquesOcupados);
+}
