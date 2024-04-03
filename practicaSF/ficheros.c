@@ -34,7 +34,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         bread(nbfisico, buf_bloque);
         memcpy(buf_bloque + desp1, buf_original, nbytes);
         bwrite(nbfisico, buf_bloque);
-        bytesescritos = ;
+        bytesescritos = nbytes;
     }
     else
     {
