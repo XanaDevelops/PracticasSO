@@ -1,11 +1,18 @@
 #include <limits.h>
+#include <time.h>
 #include "ficheros_basico.h"
 
 #define DEBUG2 1
 
+struct tm *ts;
+char atime_b[80];
+char mtime_b[80];
+char ctime_b[80];
+
 int main(int argc, char **argv)
 {
-    if(access(*(argv+1), W_OK|R_OK)){
+    if (access(*(argv + 1), W_OK | R_OK))
+    {
         fprintf(stderr, RED "ERROR: leer_sf(): no existe el archivo\n" RESET);
         return FALLO;
     }
@@ -64,19 +71,20 @@ int main(int argc, char **argv)
            inodo = inodos[aux % num];
     }*/
 
-    //parte nivel 3
+    // parte nivel 3
 
-    
     printf("\n");
     fprintf(stdout, "RESERVAR, y liberar, BLOQUE\n");
 
     int posBloque = reservar_bloque();
 
-    if(posBloque==FALLO){
+    if (posBloque == FALLO)
+    {
         fprintf(stderr, RED "ERROR: reservar_bloque(): no se ha podido reservar bloque\n" RESET);
         return FALLO;
     }
-    if(posBloque!= SB.posPrimerBloqueDatos){
+    if (posBloque != SB.posPrimerBloqueDatos)
+    {
         fprintf(stderr, "ERROR: main(): posBloque != sb.SB.posPrimerBloqueDatos %d!=%d\n", posBloque, SB.posPrimerBloqueDatos);
         return FALLO;
     }
@@ -90,7 +98,8 @@ int main(int argc, char **argv)
     fprintf(stdout, "Se ha reservado correctamente %d, que era el primer bloque libre.\n", posBloque);
     fprintf(stdout, "SB.cantBloquesLibres=%d\n", SB.cantBloquesLibres);
     fprintf(stdout, "liberando...\n");
-    if(liberar_bloque(posBloque)==FALLO){
+    if (liberar_bloque(posBloque) == FALLO)
+    {
         fprintf(stderr, RED "ERROR: liberar_bloque()\n" RESET);
     }
     if (bread(posSB, &SB) == FALLO)
@@ -102,8 +111,26 @@ int main(int argc, char **argv)
 
     fprintf(stdout, "MAPA DE BITS CON BLOQUES DE METADATOS OCUPADOS\n");
 
-
     fprintf(stdout, "posSB: %d -> leer_bit(%d) = %d\n", posSB, posSB, leer_bit(posSB));
     fprintf(stdout, "SB.posPrimerBloqueMB: %d -> leer_bit(%d) = %d\n", SB.posPrimerBloqueMB, SB.posPrimerBloqueMB, leer_bit(SB.posPrimerBloqueMB));
+    fprintf(stdout, "SB.posUltimoBloqueMB: %d → leer_bit(%d) = %d\n", SB.posUltimoBloqueMB, SB.posUltimoBloqueMB, leer_bit(SB.posUltimoBloqueMB));
+    fprintf(stdout, "SB.posPrimerBloqueAI: %d → leer_bit(%d) = %d\n", SB.posPrimerBloqueAI, SB.posPrimerBloqueAI, leer_bit(SB.posPrimerBloqueAI));
+    fprintf(stdout, "SB.posUltimoBloqueAI: %d → leer_bit(%d) = %d\n", SB.posUltimoBloqueAI, SB.posUltimoBloqueAI, leer_bit(SB.posUltimoBloqueAI));
+    fprintf(stdout, "SB.posPrimerBloqueDatos: %d → leer_bit(%d) = %d\n", SB.posPrimerBloqueDatos, SB.posPrimerBloqueDatos, leer_bit(SB.posPrimerBloqueDatos));
+    fprintf(stdout, "SB.posUltimoBloqueDatos: %d → leer_bit(%d) = %d\n", SB.posUltimoBloqueDatos, SB.posUltimoBloqueDatos, leer_bit(SB.posUltimoBloqueDatos));
+
+    struct inodo inodo;
+    int ninodo = SB.posInodoRaiz;
+
+    fprintf(stdout, "DATOS DEL DIRECTORIO RAIZ\n");
+    leer_inodo(ninodo, &inodo);
+    ts = localtime(&inodo.atime);
+    strftime(atime_b, sizeof(atime_b), "%a %Y-%m-%d %H:%M:%S", ts);
+    ts = localtime(&inodo.mtime);
+    strftime(mtime_b, sizeof(mtime_b), "%a %Y-%m-%d %H:%M:%S", ts);
+    ts = localtime(&inodo.ctime);
+    strftime(ctime_b, sizeof(ctime_b), "%a %Y-%m-%d %H:%M:%S", ts);
+    printf("tipo: %c \npermisos: %d \nlinks: %d \ntamEnBytesLog: %d\ntamEnBytesLog: %d\n", inodo.tipo, inodo.permisos, inodo.nlinks, inodo.tamEnBytesLog, inodo.numBloquesOcupados);
+    printf("ID: %d \nATIME: %s \nMTIME: %s \nCTIME: %s\n", ninodo, atime_b, mtime_b, ctime_b);
     return EXITO;
 }
