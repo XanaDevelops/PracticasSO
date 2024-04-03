@@ -151,6 +151,7 @@ int main(int argc, char **argv)
             fprintf(stderr, RED "ERROR: leer_sf(): no se ha podido traducir %d bloque\n" RESET, bloques_reserva[i]);
             return FALLO;
         }
+        fprintf(stdout, "\n");
     }
 
     imprimir_inodo(inodoR);
