@@ -569,7 +569,9 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo)
     // Devolver EXITO en caso de operación correcta
     return EXITO;
 }
-
+/**
+ * return: posInodoReservado o FALLO
+*/
 int reservar_inodo(unsigned char tipo, unsigned char permisos)
 {
     // fprintf(stderr, YELLOW "WARNING: reservar_inodo INCOMPLETO\n" RESET);
@@ -712,7 +714,9 @@ int obtener_indice(unsigned int nblogico, int nivel_punteros)
 
     return FALLO;
 }
-
+/**
+ * return: FALLO o nº del bloque fisico
+*/
 int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned char reservar)
 {
     // Declarar variables para los cálculos pertinentes
