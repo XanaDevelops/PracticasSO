@@ -3,6 +3,7 @@
 #include "ficheros_basico.h"
 
 #define DEBUG2 1
+#define DEBUG3 0
 
 struct tm *ts;
 char atime_b[80];
@@ -55,9 +56,9 @@ int main(int argc, char **argv)
     struct inodo inodos[num];
 
     // Leer un bloque en el array de inodos
-    if (bread(contInodos, inodos) == -1)
+    if (bread(contInodos, inodos) == FALLO)
     {
-        fprintf(stderr, RED "ERROR: initAI(): No se ha podido leer el bloque en el dispositivo\n" RESET);
+        fprintf(stderr, RED "ERROR: leer_sf(): No se ha podido leer el bloque en el dispositivo\n" RESET);
         return FALLO;
     }
     /*   int cont = 0;
@@ -72,7 +73,7 @@ int main(int argc, char **argv)
     }*/
 
     // parte nivel 3
-
+#if DEBUG3
     printf("\n");
     fprintf(stdout, "RESERVAR, y liberar, BLOQUE\n");
 
@@ -128,25 +129,31 @@ int main(int argc, char **argv)
         fprintf(stderr, RED "ERROR: leer_sf: Error al leer inodo raiz, 0\n");
         return FALLO;
     }
-    /*
-    fprintf(stdout, "tipo: %c\n", raiz.tipo);
-    fprintf(stdout, "permisos: %d\n", raiz.permisos);
-    fprintf(stdout, "atime: %ld\n", raiz.atime);
-    fprintf(stdout, "ctime: %ld\n", raiz.ctime);
-    fprintf(stdout, "mtime: %ld\n", raiz.mtime);
-    fprintf(stdout, "nlinks: %d\n", raiz.nlinks);
-    fprintf(stdout, "tamEnBytesLog: %d\n", raiz.tamEnBytesLog);
-    fprintf(stdout, "numBloques: %d\n", raiz.numBloquesOcupados);
-*/
-    imprimir_inodo(raiz);
 
-/* ts = localtime(&inodo.atime);
-    strftime(atime_b, sizeof(atime_b), "%a %Y-%m-%d %H:%M:%S", ts);
-    ts = localtime(&inodo.mtime);
-    strftime(mtime_b, sizeof(mtime_b), "%a %Y-%m-%d %H:%M:%S", ts);
-    ts = localtime(&inodo.ctime);
-    strftime(ctime_b, sizeof(ctime_b), "%a %Y-%m-%d %H:%M:%S", ts);
-    printf("ID: %d \nATIME: %s \nMTIME: %s \nCTIME: %s\n", ninodo, atime_b, mtime_b, ctime_b);*/
+    imprimir_inodo(raiz);
+#endif
+    //parte nivel4
+    int inodoReservado = reservar_inodo('f', 7); //mirar si van bien
+    if(inodoReservado==FALLO){
+        fprintf(stderr, RED "ERROR: leer_sf(): no se ha podido reservar inodo\n" RESET);
+        return FALLO;
+    }
+
+    struct inodo inodoR;
+    if(leer_inodo(inodoReservado, &inodoR)==FALLO){
+        fprintf(stderr, RED "ERROR: leer_sf(): No se ha podido leer inodo: %d\n" RESET, inodoReservado);
+        return FALLO;
+    }
+    int bloques_reserva[] = {8, 204, 30004, 400004, 468750};
+    fprintf(stdout, "\nINODO %d: TRADUCCION DE LOS BLOQUES LOGICOS 8, 204, 30004, 400004, 468750\n", inodoReservado);
+    for(int i=0;i<sizeof(bloques_reserva)/sizeof(int);i++){
+        if(traducir_bloque_inodo(&inodoR, bloques_reserva[i], 1)==FALLO){
+            fprintf(stderr, RED "ERROR: leer_sf(): no se ha podido traducir %d bloque\n" RESET, bloques_reserva[i]);
+            return FALLO;
+        }
+    }
+
+    imprimir_inodo(inodoR);
 
     return EXITO;
 }
