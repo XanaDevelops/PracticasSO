@@ -34,7 +34,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         bread(nbfisico, buf_bloque);
         memcpy(buf_bloque + desp1, buf_original, nbytes);
         bwrite(nbfisico, buf_bloque);
-        bytesescritos = ;
+        bytesescritos = desp2 - desp1 + 1;
     }
     else
     {
@@ -65,7 +65,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
     }
 
     // ACTUALIZAR METAINFORMACIÓN INODO
-    // MIRAR SI ESTÀ BE !!!!!!!!!
+
     // Actualizar el tamaño en bytes lógico del fichero, solo si hemos escrito más allá del final del fichero
     if (offset >= inodo.tamEnBytesLog)
     {
@@ -84,6 +84,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
 
     return bytesescritos;
 }
+
 
 int mi_read_f(unsigned int nionodo, void *buf_original, unsigned int offset, unsigned int nbytes)
 {
