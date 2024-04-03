@@ -323,7 +323,7 @@ char leer_bit(unsigned int nbloque)
     mascara >>= (7 - posbit);
 
 #if DEBUG3
-    fprintf(stderr, GRAY "[leerbit(%d) -> posbyte: %d, posbyte (ajustado): %d, posbit: %d, nbloqueMB: %d, nbloqueabs: %d]\n]" RESET,
+    fprintf(stderr, GRAY "[leerbit(%d) -> posbyte: %d, posbyte (ajustado): %d, posbit: %d, nbloqueMB: %d, nbloqueabs: %d]\n" RESET,
             nbloque, nbloque / 8, posbyte, posbit, nbloqueMB, nbloqueabs);
 #endif
 
@@ -802,4 +802,73 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
 
     // Devolver el nº de bloque físico correspondiente al bloque de datos lógico
     return ptr;
+}
+
+int liberar_inodo(unsigned int ninodo)
+{
+    // LECTURA INODO
+    struct inodo inodo;
+    if(leer_inodo(ninodo, &inodo) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: liberar_inodo(): No se ha podido leer el inodo %d \n" RESET, ninodo);
+        return FALLO;
+    }
+
+    int bloquesLiberados;
+    bloquesLiberados = liberar_bloques_inodo(0, &inodo);
+
+    inodo.numBloquesOcupados -= bloquesLiberados;
+    inodo.tipo = 'l';
+    inodo.tamEnBytesLog = 0;
+
+    // LECTURA SUPERBLOQUE
+    struct superbloque sb;
+    if (bread(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: liberar_inodo(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    inodo.punterosDirectos[0] = sb.posPrimerInodoLibre;
+    sb.posPrimerInodoLibre = &inodo;
+    sb.cantInodosLibres++;
+
+    // ESCRITURA SUPERBLOQUE
+    if (bwrite(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: liberar_inodo(): No se ha podido salvar SB\n" RESET);
+        return FALLO;
+    }
+
+    inodo.ctime = time(NULL);
+
+    // ESCRITURA INODO
+    if(escribir_inodo(ninodo, &inodo) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: liberar_inodo(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
+        return FALLO;
+    }
+
+    return ninodo;
+}
+
+int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo){ //evitar usar funcions no implementades, només que estiguin buides va bé, que despres no compila...
+    fprintf(stderr, RED "NO IMPLEMENTADO, devolviendo FALLO\n");
+    return FALLO;
+}
+
+//AUXILIAR
+/**
+ * imprime todos los parametros de struct inodo
+ * return: EXITO o FALLO
+*/
+int imprimir_inodo(struct inodo inodo){
+    fprintf(stdout, "tipo: %c\n", inodo.tipo);
+    fprintf(stdout, "permisos: %d\n", inodo.permisos);
+    fprintf(stdout, "atime: %s", ctime(&inodo.atime));
+    fprintf(stdout, "ctime: %s", ctime(&inodo.ctime));
+    fprintf(stdout, "mtime: %s", ctime(&inodo.mtime));
+    fprintf(stdout, "nlinks: %d\n", inodo.nlinks);
+    fprintf(stdout, "tamEnBytesLog: %d\n", inodo.tamEnBytesLog);
+    fprintf(stdout, "numBloques: %d\n", inodo.numBloquesOcupados);
 }
