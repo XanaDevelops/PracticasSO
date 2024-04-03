@@ -2,7 +2,8 @@
 #include "ficheros_basico.h"
 
 #define DEBUG2 0
-#define DEBUG3 1
+#define DEBUG3 0
+#define DEBUG4 1
 
 //*******************************************TAMAÑOS INICIALIZACIÓN***********************************************
 int tamMB(unsigned int nbloques)
