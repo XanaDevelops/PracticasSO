@@ -157,22 +157,28 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
             if (nbfisico != FALLO)
             {
                 byte = bread(nbfisico, buf_bloque);
-                memcpy(buf_original, buf_bloque, BLOCKSIZE);
+                memcpy(buf_original + desp1 + (bl - 1) * BLOCKSIZE, buf_bloque, BLOCKSIZE);
             }
             else
             {
                 byte = BLOCKSIZE;
             }
             bytesleidos += byte;
+            bl++;
         }
 
         // ÚLTIMO BLOQUE LÓGICO
-        nbfisico = traducir_bloque_inodo(&inodo, ultimoBL, 1);
-        bread(nbfisico, buf_bloque);
-        memcpy(buf_bloque, buf_original + (nbytes - (desp2 + 1)), desp2 + 1);
-        bwrite(nbfisico, buf_bloque);
-        bytesescritos += desp2 + 1;
+       nbfisico = traducir_bloque_inodo(&inodo, primerBL, 0);
+        if (nbfisico != FALLO)
+        {
+            bread(nbfisico, buf_bloque);
+            memcpy(buf_original + nbytes - (desp2 + 1), buf_bloque, desp2 + 1);
+        }
+        bytesleidos += desp2 + 1;
     }
+    // Actualizar atime
+    inodo.atime = time(NULL);
+    return bytesleidos;
 }
 
 int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
