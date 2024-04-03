@@ -443,7 +443,7 @@ int reservar_bloque()
     sb.cantBloquesLibres--;
     if (bwrite(posSB, &sb) == FALLO)
     {
-        fprintf(stderr, RED "reservar_bloque: ERROR guardar SB\n" RESET);
+        fprintf(stderr, RED "ERROR: reservar_bloque(): No se ha podido salvar SB\n" RESET);
         free(bufferAux);
         free(bufferMB);
         return FALLO;
@@ -482,7 +482,7 @@ int liberar_bloque(unsigned int nbloque)
     sb.cantBloquesLibres++;
     if (bwrite(posSB, &sb) == FALLO)
     {
-        fprintf(stderr, RED "liberar_bloque: ERROR guardar SB\n" RESET);
+        fprintf(stderr, RED "ERROR: liberar_bloque(): No se ha podido salvar SB\n" RESET);
         return FALLO;
     }
     return nbloque;
@@ -497,7 +497,7 @@ int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
 {
     // Leer el superbloque para obtener la información del sistema de archivos
     struct superbloque SB;
-    if (bread(posSB, &SB) == -1)
+    if (bread(posSB, &SB) == FALLO)
     {
         fprintf(stderr, RED "ERROR: escribir_inodo(): No se ha podido leer SB\n" RESET);
         return FALLO;
@@ -512,7 +512,7 @@ int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
     int nbloqueabs = nbloqueAI + SB.posPrimerBloqueAI;
 
     // Lectura del bloque que contiene el numero de inodo a escribir
-    if (bread(nbloqueabs, inodos) == -1)
+    if (bread(nbloqueabs, inodos) == FALLO)
     {
         fprintf(stderr, RED "ERROR: escribir_inodo(): No se ha podido leer el bloque %d del dispositivo\n" RESET, nbloqueabs);
         return FALLO;
@@ -524,7 +524,7 @@ int escribir_inodo(unsigned int ninodo, struct inodo *inodo)
     inodos[posinodo] = *inodo;
 
     // Escribir el buffer inodos modificado en el dispositivo virtual
-    if (bwrite(nbloqueabs, inodos) == -1)
+    if (bwrite(nbloqueabs, inodos) == FALLO)
     {
         fprintf(stderr, RED "ERROR: escribir_inodo(): No se ha podido escribir en el bloque %d del dispositivo\n" RESET, nbloqueabs);
         return FALLO;
@@ -540,7 +540,7 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo)
 {
     // Leer el superbloque para obtener la información del sistema de archivos
     struct superbloque SB;
-    if (bread(posSB, &SB) == -1)
+    if (bread(posSB, &SB) == FALLO)
     {
         fprintf(stderr, RED "ERROR: leer_inodo(): No se ha podido leer SB\n" RESET);
         return FALLO;
@@ -555,7 +555,7 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo)
     struct inodo inodos[BLOCKSIZE / INODOSIZE];
 
     // Lectura del bloque que contiene el numero de inodo a escribir
-    if (bread(nbloqueabs, inodos) == -1)
+    if (bread(nbloqueabs, inodos) == FALLO)
     {
         fprintf(stderr, RED "ERROR: leer_inodo(): No se ha podido leer el bloque %d del dispositivo\n" RESET, nbloqueabs);
         return FALLO;
