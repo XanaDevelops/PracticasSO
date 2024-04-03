@@ -33,8 +33,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         nbfisico = traducir_bloque_inodo(&inodo, primerBL, 1);
         bread(nbfisico, buf_bloque);
         memcpy(buf_bloque + desp1, buf_original, nbytes);
-        bwrite(nbfisico, buf_bloque);
-        bytesescritos = desp2 - desp1 + 1;
+        bytesescritos = bwrite(nbfisico, buf_bloque);
     }
     else
     {
@@ -44,15 +43,15 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         nbfisico = traducir_bloque_inodo(&inodo, primerBL, 1);
         bread(nbfisico, buf_bloque);
         memcpy(buf_bloque + desp1, buf_original, BLOCKSIZE - desp1);
-        bwrite(nbfisico, buf_bloque);
-        bytesescritos += BLOCKSIZE - desp1;
+        int bytes = bwrite(nbfisico, buf_bloque);
+        bytesescritos += bytes;
 
         // BLOQUES INTERMEDIOS
         while (bl < ultimoBL)
         {
             nbfisico = traducir_bloque_inodo(&inodo, bl, 1);
-            bwrite(nbfisico, buf_original + (BLOCKSIZE - desp1) + (bl - primerBL - 1) * BLOCKSIZE);
-            bytesescritos += BLOCKSIZE;
+            bytes =  bwrite(nbfisico, buf_original + (BLOCKSIZE - desp1) + (bl - primerBL - 1) * BLOCKSIZE);
+            bytesescritos += bytes;
             bl++;
         }
 
@@ -60,8 +59,8 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         nbfisico = traducir_bloque_inodo(&inodo, ultimoBL, 1);
         bread(nbfisico, buf_bloque);
         memcpy(buf_bloque, buf_original + (nbytes - (desp2 + 1)), desp2 + 1);
-        bwrite(nbfisico, buf_bloque);
-        bytesescritos += desp2 + 1;
+        bytes = bwrite(nbfisico, buf_bloque);
+       bytesescritos += bytes;
     }
 
     // ACTUALIZAR METAINFORMACIÓN INODO
