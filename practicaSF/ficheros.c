@@ -181,6 +181,30 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
     return bytesleidos;
 }
 
+int mi_stat_f(unsigned int ninodo, struct STAT *p_stat)
+{
+    // Declarar y leer el inodo correspondiente
+    struct inodo inodo;
+    if (leer_inodo(ninodo, &inodo) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: mi_stat_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
+        return FALLO;
+    }
+
+    p_stat->tipo = inodo.tipo;
+    p_stat->permisos = inodo.permisos;
+    // falta guardar reservado_alineacion1
+    // p_stat->reservado_alineacion1 = inodo.reservado_alineacion1;
+    p_stat->atime = inodo.atime;
+    p_stat->mtime = inodo.mtime;
+    p_stat->ctime = inodo.ctime;
+    p_stat->nlinks = inodo.nlinks;
+    p_stat->tamEnBytesLog = inodo.tamEnBytesLog;
+    p_stat->numBloquesOcupados = inodo.numBloquesOcupados;
+
+    return EXITO;
+}
+
 int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
 {
     // Declarar y leer el inodo correspondiente
@@ -205,26 +229,3 @@ int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
     return EXITO;
 }
 
-int mi_stat_f(unsigned int ninodo, struct STAT *p_stat)
-{
-    // Declarar y leer el inodo correspondiente
-    struct inodo inodo;
-    if (leer_inodo(ninodo, &inodo) == FALLO)
-    {
-        fprintf(stderr, RED "ERROR: mi_stat_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
-        return FALLO;
-    }
-
-    p_stat->tipo = inodo.tipo;
-    p_stat->permisos = inodo.permisos;
-    // falta guardar reservado_alineacion1
-    // p_stat->reservado_alineacion1 = inodo.reservado_alineacion1;
-    p_stat->atime = inodo.atime;
-    p_stat->mtime = inodo.mtime;
-    p_stat->ctime = inodo.ctime;
-    p_stat->nlinks = inodo.nlinks;
-    p_stat->tamEnBytesLog = inodo.tamEnBytesLog;
-    p_stat->numBloquesOcupados = inodo.numBloquesOcupados;
-
-    return EXITO;
-}
