@@ -858,7 +858,7 @@ int liberar_inodo(unsigned int ninodo)
     }
 
     inodo.punterosDirectos[0] = sb.posPrimerInodoLibre;
-    sb.posPrimerInodoLibre = &inodo;
+    sb.posPrimerInodoLibre = &inodo; //warning: assignment to ‘unsigned int’ from ‘struct inodo *’ makes integer from pointer without a cast
     sb.cantInodosLibres++;
 
     // ESCRITURA SUPERBLOQUE
