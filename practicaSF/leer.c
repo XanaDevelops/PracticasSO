@@ -9,6 +9,7 @@ int bytes_transf = (4 * BLOCKSIZE);
 int main(int argc, char **argv){
     char buff[bytes_transf];
     memset(buff,'\0',sizeof(buff));
+
     // comprobamos argumentos de consola
     if (argc < 3)
     {
@@ -46,9 +47,10 @@ int main(int argc, char **argv){
     int final_f = estado.tamEnBytesLog;
     int cont = 0;
 
+//MODIFICA LLEGEIX MES BLOQUES QUE EL KI TOCA
     for(int i = 0; i < final_f; i += bytes_transf){
        cont += mi_read_f(numInodo, buff, i,  bytes_transf);
-       write(1,buff,bytes_transf);
+        fwrite(buff, 1, bytes_transf, stdout);
     }
 
      // desmontamos disco
