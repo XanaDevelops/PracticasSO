@@ -29,6 +29,7 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < (sizeof(offsets) / sizeof(offsets[0])); i++)
     {
+        char *buffer_original = argv[2]; 
 
         printf("Nº inodo reservado: %d\n", inodoReservado);
         printf("Offset: %ld\n", offsets[i]);
@@ -37,20 +38,20 @@ int main(int argc, char **argv)
         mi_stat_f(inodoReservado, &estado);
         print_estado(&estado);
 
-        int bytes = mi_write_f(inodoReservado, &buffer_original, offsets[i], buffer_size);
+        int bytes = mi_write_f(inodoReservado, buffer_original, offsets[i], buffer_size);
         printf("Bytes escritos: %d\n", bytes);
 
         mi_stat_f(inodoReservado, &estado);
         print_estado(&estado);
 
-        memset(&buffer_original, '\0', buffer_size);
-        mi_read_f(inodoReservado, &buffer_original, offsets[i], buffer_size);
-        write(1, buffer_original, buffer_size);
+        memset(buffer_original, '\0', buffer_size);
+        mi_read_f(inodoReservado, buffer_original, offsets[i], buffer_size);
+        printf("\033[0;31m%s\033[0m\n", buffer_original);
         printf("\n" RESET);
 
         if (inodos_varios == 1)
         {
-            int inodoReservado = reservar_inodo('f', 6); // mirar si van bien
+            inodoReservado = reservar_inodo('f', 6); // mirar si van bien
 
             if (inodoReservado == FALLO)
             {

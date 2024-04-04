@@ -95,7 +95,6 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
         fprintf(stderr, RED "ERROR: mi_write_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
         return FALLO;
     }
-    return EXITO;
 
     if ((inodo.permisos & 4) != 4)
     {
