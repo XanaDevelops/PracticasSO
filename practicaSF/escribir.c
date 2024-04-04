@@ -12,8 +12,6 @@ int main(int argc, char **argv)
     long int offsets[] = {9000, 209000, 30725000, 409605000, 480000000};
     char *buffer_original = argv[2];
     int buffer_size = strlen(buffer_original);
-    memset(&buffer_original, '\0', buffer_size);
-
     // comprobamos argumentos de consola
     if (argc < 4)
     {
@@ -26,28 +24,11 @@ int main(int argc, char **argv)
     {
         return FALLO;
     }
-    int inodos_varios = 1;
-    int inodoReservado;
+    int inodos_varios = atoi(*(argv + 3));
+    int inodoReservado =  reservar_inodo('f', 6); 
 
     for (int i = 0; i < (sizeof(offsets) / sizeof(offsets[0])); i++)
     {
-        if (inodos_varios == 1)
-        {
-
-            int inodoReservado = reservar_inodo('f', 6); // mirar si van bien
-
-            if (inodoReservado == FALLO)
-            {
-                fprintf(stderr, RED "ERROR: escribir.c: no se ha podido reservar inodo\n" RESET);
-                return FALLO;
-            }
-            inodos_varios = atoi(*(argv + 3));
-        }
-        else if(inodos_varios != 0)
-        {
-            fprintf(stderr, RED "ARGUMENTOS INVALIDOS --> <diferentes_inodos> = 1 || 0 \n" RESET);
-            errorExit();
-        }
 
         printf("Nº inodo reservado: %d\n", inodoReservado);
         printf("Offset: %ld\n", offsets[i]);
@@ -65,6 +46,25 @@ int main(int argc, char **argv)
         memset(&buffer_original, '\0', buffer_size);
         mi_read_f(inodoReservado, &buffer_original, offsets[i], buffer_size);
         write(1, buffer_original, buffer_size);
+        printf("\n" RESET);
+
+        if (inodos_varios == 1)
+        {
+            int inodoReservado = reservar_inodo('f', 6); // mirar si van bien
+
+            if (inodoReservado == FALLO)
+            {
+                fprintf(stderr, RED "ERROR: escribir.c: no se ha podido reservar inodo\n" RESET);
+                return FALLO;
+            }
+
+            inodos_varios = atoi(*(argv + 3));
+        }
+        else if(inodos_varios != 0)
+        {
+            fprintf(stderr, RED "ARGUMENTOS INVALIDOS --> <diferentes_inodos> = 1 || 0 \n" RESET);
+            errorExit();
+        }
     }
 
     // desmontamos disco
@@ -82,10 +82,7 @@ void errorExit()
 
 void print_estado(struct STAT *estado)
 {
-    printf("\n\nESTATS\n");
-    printf("Tipo: %c\n", estado->tipo);
-    printf("Permisos: %d\n", estado->permisos);
-
+    printf("ESTATS\n");
     printf("Cantidad de enlaces de entradas en directorio: %u\n", estado->nlinks);
     printf("Tamaño en bytes lógicos (EOF): %u\n", estado->tamEnBytesLog);
     printf("Cantidad de bloques ocupados zona de datos: %u\n", estado->numBloquesOcupados);
