@@ -768,7 +768,7 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
                 memset(buffer, 0, BLOCKSIZE);
 #if DEBUG4
                 fprintf(stderr, GRAY "[traducir_bloque_inodo(): punteros nivel %d [%d] = %d (Reservado BF %d para punteros nivel %d)]\n",
-                        nivel_punteros, ptr_ant, ptr, ptr, nivel_punteros);
+                        nivel_punteros, indice, ptr, ptr, nivel_punteros);
 #endif
             }
         }
@@ -812,7 +812,7 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
                 bwrite(ptr_ant, buffer);
             }
 #if DEBUG4
-            fprintf(stderr, GRAY "[traducir_bloque_inodo(): inodo.punterosDirectos[%d] = %d (Reservado BF %d para BL %d)]\n" RESET, nblogico, ptr, ptr, nblogico);
+            fprintf(stderr, GRAY "[traducir_bloque_inodo(): inodo.punterosDirectos[%d] = %d (Reservado BF %d para BL %d)]\n" RESET, indice, ptr, ptr, nblogico);
 #endif
         }
     }
