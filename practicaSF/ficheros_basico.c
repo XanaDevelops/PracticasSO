@@ -757,19 +757,23 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
                 if (nivel_punteros == nRangoBL)
                 {
                     inodo->punterosIndirectos[nRangoBL - 1] = ptr;
+#if DEBUG4
+                fprintf(stderr, GRAY "[traducir_bloque_inodo(): inodo.punterosIndirectos[%d] = %d (Reservado BF %d para punteros_nivel%d)]\n",
+                        nivel_punteros-1, ptr, ptr, nivel_punteros);
+#endif                    
                 }
                 else
                 {
                     buffer[indice] = ptr;
                     // salvamos en el dispositivo el buffer de punteros modificado
                     bwrite(ptr_ant, buffer);
+#if DEBUG4
+                fprintf(stderr, GRAY "[traducir_bloque_inodo(): punteros_nivel%d [%d] = %d (Reservado BF %d para punteros_nivel%d)]\n",
+                        nivel_punteros+1, indice, ptr, ptr, nivel_punteros);
+#endif
                 }
                 // Limpiamos buffer
                 memset(buffer, 0, BLOCKSIZE);
-#if DEBUG4
-                fprintf(stderr, GRAY "[traducir_bloque_inodo(): punteros nivel %d [%d] = %d (Reservado BF %d para punteros nivel %d)]\n",
-                        nivel_punteros, indice, ptr, ptr, nivel_punteros);
-#endif
             }
         }
         else
@@ -803,6 +807,10 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
             {
                 // Asignar la direción del bloque de datos en el inodo
                 inodo->punterosDirectos[nblogico] = ptr;
+#if DEBUG4
+                fprintf(stderr, GRAY "[traducir_bloque_inodo(): inodo.punterosDirectos[%d] = %d (Reservado BF %d para BL %d)]\n" RESET, 
+                        nblogico, ptr, ptr, nblogico);
+#endif            
             }
             else
             {
@@ -810,10 +818,11 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
                 buffer[indice] = ptr;
                 // Salvar en el dispositivo el buffer de punteros modificado
                 bwrite(ptr_ant, buffer);
-            }
 #if DEBUG4
-            fprintf(stderr, GRAY "[traducir_bloque_inodo(): inodo.punterosDirectos[%d] = %d (Reservado BF %d para BL %d)]\n" RESET, indice, ptr, ptr, nblogico);
+                fprintf(stderr, GRAY "[traducir_bloque_inodo(): punteros_nivel%d [%d] = %d (Reservado BF %d para BL %d)]\n",
+                        nivel_punteros+1, indice, ptr, ptr, nblogico);
 #endif
+            }
         }
     }
 
