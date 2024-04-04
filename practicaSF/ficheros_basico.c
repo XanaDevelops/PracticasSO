@@ -767,7 +767,7 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
                 // Limpiamos buffer
                 memset(buffer, 0, BLOCKSIZE);
 #if DEBUG4
-                fprintf(stderr, GRAY "traducir_bloque_inodo(): punteros nivel %d [%d] = %d (Reservado BF %d para punteros nivel %d)]\n",
+                fprintf(stderr, GRAY "[traducir_bloque_inodo(): punteros nivel %d [%d] = %d (Reservado BF %d para punteros nivel %d)]\n",
                         nivel_punteros, ptr_ant, ptr, ptr, nivel_punteros);
 #endif
             }
