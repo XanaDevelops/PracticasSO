@@ -18,7 +18,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
 
     // DECLARAR VARIABLES
     int primerBL, ultimoBL, desp1, desp2, nbfisico;
-    int bytesescritos;
+    int bytesescritos = 0;
     char buf_bloque[BLOCKSIZE];
 
     // INICIALIZAR VARIABLES
@@ -105,7 +105,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
 
     // DECLARAR VARIABLES
     int primerBL, ultimoBL, desp1, desp2, nbfisico;
-    int bytesleidos;
+    int bytesleidos = 0;
     char buf_bloque[BLOCKSIZE];
 
     if (offset >= inodo.tamEnBytesLog)
@@ -115,7 +115,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
     }
     if ((offset + nbytes) >= inodo.tamEnBytesLog)
     { // pretende leer más allá de EOF
-        nbytes == inodo.tamEnBytesLog - offset;
+        nbytes = inodo.tamEnBytesLog - offset;
         // leemos sólo los bytes que podemos desde el offset hasta EOF
     }
 

@@ -820,6 +820,8 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
     // Devolver el nº de bloque físico correspondiente al bloque de datos lógico
     return ptr;
 }
+/*
+
 
 int liberar_inodo(unsigned int ninodo)
 {
@@ -874,7 +876,7 @@ int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo)
     fprintf(stderr, RED "NO IMPLEMENTADO, devolviendo FALLO\n");
     return FALLO;
 }
-
+*/
 // AUXILIAR
 /**
  * imprime todos los parametros de struct inodo
