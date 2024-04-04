@@ -152,11 +152,11 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
         while (bl < ultimoBL)
         {
             int byte;
-            nbfisico = traducir_bloque_inodo(&inodo, primerBL, 0);
+            nbfisico = traducir_bloque_inodo(&inodo, bl, 0);
             if (nbfisico != FALLO)
             {
                 byte = bread(nbfisico, buf_bloque);
-                memcpy(buf_original + desp1 + (bl - 1) * BLOCKSIZE, buf_bloque, BLOCKSIZE);
+                memcpy(buf_original + desp1 + (bl - primerBL - 1) * BLOCKSIZE, buf_bloque, BLOCKSIZE);
             }
             else
             {
@@ -167,7 +167,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
         }
 
         // ÚLTIMO BLOQUE LÓGICO
-       nbfisico = traducir_bloque_inodo(&inodo, primerBL, 0);
+       nbfisico = traducir_bloque_inodo(&inodo, ultimoBL, 0);
         if (nbfisico != FALLO)
         {
             bread(nbfisico, buf_bloque);

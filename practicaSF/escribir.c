@@ -8,17 +8,17 @@ void errorExit();
 
 int main(int argc, char **argv)
 {
+    // comprobamos argumentos de consola
+    if (argc < 4)
+    {
+        fprintf(stderr, RED "ARGUMENTOS INSUFICIENTES--> Sintaxis: escribir <nombre_dispositivo> <string> <diferentes_inodos>\n" RESET);
+        return FALLO;
+    }
 
     long int offsets[] = {9000, 209000, 30725000, 409605000, 480000000};
     char *buffer_original = argv[2];
     int buffer_size = strlen(buffer_original);
-    // comprobamos argumentos de consola
-    if (argc < 4)
-    {
-        fprintf(stderr, RED "ARGUMENTOS INSUFICIENTES--> Sintaxis: escribir <nombre_dispositivo> <$(cat fichero)> <diferentes_inodos>\n" RESET);
-        return FALLO;
-    }
-
+    
     // montamos disco
     if (bmount(*(argv + 1)) == FALLO)
     {
@@ -46,8 +46,9 @@ int main(int argc, char **argv)
 
         memset(buffer_original, '\0', buffer_size);
         mi_read_f(inodoReservado, buffer_original, offsets[i], buffer_size);
-        printf("\033[0;31m%s\033[0m\n", buffer_original);
-        printf("\n" RESET);
+
+        write(1, buffer_original, buffer_size);
+        printf("\n\n" RESET);
 
         if (inodos_varios == 1)
         {
@@ -81,8 +82,6 @@ void errorExit()
 
 void print_estado(struct STAT *estado)
 {
-    printf("ESTATS\n");
-    printf("links: %u\n", estado->nlinks);
     printf("stat.tamEnBytesLog: %u\n", estado->tamEnBytesLog);
     printf("stat.numBloquesOcupados: %u\n", estado->numBloquesOcupados);
 }
