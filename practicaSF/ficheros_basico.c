@@ -831,7 +831,7 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
 }
 
 
-
+/*
 int liberar_inodo(unsigned int ninodo)
 {
     // LECTURA INODO
@@ -878,7 +878,7 @@ int liberar_inodo(unsigned int ninodo)
     }
 
     return ninodo;
-}
+}*/
 
 int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo)
 { // evitar usar funcions no implementades, només que estiguin buides va bé, que despres no compila...

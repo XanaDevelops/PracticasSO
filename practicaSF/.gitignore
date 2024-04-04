@@ -1,6 +1,9 @@
 mi_mkfs
 leer_sf
 escribir
+leer
+disco
+permitir
 *.dsk*
 *.txt
 testd.sh

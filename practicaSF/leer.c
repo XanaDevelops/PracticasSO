@@ -44,19 +44,20 @@ int main(int argc, char **argv){
     mi_stat_f(numInodo, &estado);
 
     int final_f = estado.tamEnBytesLog;
+    int cont = 0;
 
     for(int i = 0; i < final_f; i += bytes_transf){
-       mi_read_f(numInodo, buff, i,  bytes_transf);
+       cont += mi_read_f(numInodo, buff, i,  bytes_transf);
        write(1,buff,bytes_transf);
     }
-    printf("\n");
 
      // desmontamos disco
     if (bumount())
     {
         return FALLO;
     }
-
+   //printf("total_leidos: %d\n", cont);
+    return EXITO;
 }
 
 void errorExit()
