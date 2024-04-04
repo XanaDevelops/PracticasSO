@@ -759,7 +759,7 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
                     inodo->punterosIndirectos[nRangoBL - 1] = ptr;
 #if DEBUG4
                 fprintf(stderr, GRAY "[traducir_bloque_inodo(): inodo.punterosIndirectos[%d] = %d (Reservado BF %d para punteros_nivel%d)]\n",
-                        nivel_punteros, indice, ptr, ptr, nivel_punteros+1);
+                        nivel_punteros-1, ptr, ptr, nivel_punteros);
 #endif                    
                 }
                 else
@@ -808,7 +808,8 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
                 // Asignar la direción del bloque de datos en el inodo
                 inodo->punterosDirectos[nblogico] = ptr;
 #if DEBUG4
-                fprintf(stderr, GRAY "[traducir_bloque_inodo(): inodo.punterosDirectos[%d] = %d (Reservado BF %d para BL %d)]\n" RESET, nblogico, ptr, ptr, nblogico);
+                fprintf(stderr, GRAY "[traducir_bloque_inodo(): inodo.punterosDirectos[%d] = %d (Reservado BF %d para BL %d)]\n" RESET, 
+                        nblogico, ptr, ptr, nblogico);
 #endif            
             }
             else
