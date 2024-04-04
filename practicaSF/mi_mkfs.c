@@ -9,7 +9,7 @@
 void errorExit();
 
 int main(int argc, char **argv)
-{
+{ 
     // comprobamos argumentos de consola
     if (argc < 3)
     {
