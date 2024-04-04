@@ -57,8 +57,6 @@ int main(int argc, char **argv)
                 fprintf(stderr, RED "ERROR: escribir.c: no se ha podido reservar inodo\n" RESET);
                 return FALLO;
             }
-
-            inodos_varios = atoi(*(argv + 3));
         }
         else if(inodos_varios != 0)
         {
@@ -83,7 +81,7 @@ void errorExit()
 void print_estado(struct STAT *estado)
 {
     printf("ESTATS\n");
-    printf("Cantidad de enlaces de entradas en directorio: %u\n", estado->nlinks);
-    printf("Tamaño en bytes lógicos (EOF): %u\n", estado->tamEnBytesLog);
-    printf("Cantidad de bloques ocupados zona de datos: %u\n", estado->numBloquesOcupados);
+    printf("links: %u\n", estado->nlinks);
+    printf("stat.tamEnBytesLog: %u\n", estado->tamEnBytesLog);
+    printf("stat.numBloquesOcupados: %u\n", estado->numBloquesOcupados);
 }
