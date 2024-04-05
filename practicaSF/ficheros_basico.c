@@ -635,7 +635,56 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     return posInodoReservado;
 }
 
-//*********************************TRADUCIR BLOQUE INODO***********************************
+
+int liberar_inodo(unsigned int ninodo)
+{
+    // LECTURA INODO
+    struct inodo inodo;
+    if (leer_inodo(ninodo, &inodo) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: liberar_inodo(): No se ha podido leer el inodo %d \n" RESET, ninodo);
+        return FALLO;
+    }
+
+    int bloquesLiberados;
+    bloquesLiberados = liberar_bloques_inodo(0, &inodo);
+
+    inodo.numBloquesOcupados -= bloquesLiberados;
+    inodo.tipo = 'l';
+    inodo.tamEnBytesLog = 0;
+
+    // LECTURA SUPERBLOQUE
+    struct superbloque sb;
+    if (bread(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: liberar_inodo(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    inodo.punterosDirectos[0] = sb.posPrimerInodoLibre;
+    sb.posPrimerInodoLibre = &inodo; //warning: assignment to ‘unsigned int’ from ‘struct inodo *’ makes integer from pointer without a cast
+    sb.cantInodosLibres++;
+
+    // ESCRITURA SUPERBLOQUE
+    if (bwrite(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: liberar_inodo(): No se ha podido salvar SB\n" RESET);
+        return FALLO;
+    }
+
+    inodo.ctime = time(NULL);
+
+    // ESCRITURA INODO
+    if (escribir_inodo(ninodo, &inodo) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: liberar_inodo(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
+        return FALLO;
+    }
+
+    return ninodo;
+}
+
+//*********************************BLOQUE-INODO***********************************
 
 int obtener_nRangoBL(struct inodo *inodo, unsigned int nblogico, unsigned int *ptr)
 {
@@ -830,55 +879,6 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
     return ptr;
 }
 
-
-/*
-int liberar_inodo(unsigned int ninodo)
-{
-    // LECTURA INODO
-    struct inodo inodo;
-    if (leer_inodo(ninodo, &inodo) == FALLO)
-    {
-        fprintf(stderr, RED "ERROR: liberar_inodo(): No se ha podido leer el inodo %d \n" RESET, ninodo);
-        return FALLO;
-    }
-
-    int bloquesLiberados;
-    bloquesLiberados = liberar_bloques_inodo(0, &inodo);
-
-    inodo.numBloquesOcupados -= bloquesLiberados;
-    inodo.tipo = 'l';
-    inodo.tamEnBytesLog = 0;
-
-    // LECTURA SUPERBLOQUE
-    struct superbloque sb;
-    if (bread(posSB, &sb) == FALLO)
-    {
-        fprintf(stderr, RED "ERROR: liberar_inodo(): No se ha podido leer SB\n" RESET);
-        return FALLO;
-    }
-
-    inodo.punterosDirectos[0] = sb.posPrimerInodoLibre;
-    sb.posPrimerInodoLibre = &inodo; //warning: assignment to ‘unsigned int’ from ‘struct inodo *’ makes integer from pointer without a cast
-    sb.cantInodosLibres++;
-
-    // ESCRITURA SUPERBLOQUE
-    if (bwrite(posSB, &sb) == FALLO)
-    {
-        fprintf(stderr, RED "ERROR: liberar_inodo(): No se ha podido salvar SB\n" RESET);
-        return FALLO;
-    }
-
-    inodo.ctime = time(NULL);
-
-    // ESCRITURA INODO
-    if (escribir_inodo(ninodo, &inodo) == FALLO)
-    {
-        fprintf(stderr, RED "ERROR: liberar_inodo(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
-        return FALLO;
-    }
-
-    return ninodo;
-}*/
 
 int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo)
 { // evitar usar funcions no implementades, només que estiguin buides va bé, que despres no compila...
