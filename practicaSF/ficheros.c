@@ -227,4 +227,11 @@ int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
 
     return EXITO;
 }
-
+/**
+ * NO IMPLEMENTADO
+ * return: FALLO
+*/
+int mi_truncar_f(unsigned int ninodo, unsigned int nbytes){
+    fprintf(stderr, RED "mi_truncar_f NO IMPLEMENTADO\n" RESET);
+    return FALLO;
+}
