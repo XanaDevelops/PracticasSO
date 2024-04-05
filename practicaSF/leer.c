@@ -6,9 +6,12 @@
 void errorExit();
 int bytes_transf = (4 * BLOCKSIZE);
 
-int main(int argc, char **argv){
+#define DEBUG5 1
+
+int main(int argc, char **argv)
+{
     char buff[bytes_transf];
-    memset(buff,'\0',sizeof(buff));
+    memset(buff, '\0', sizeof(buff));
 
     // comprobamos argumentos de consola
     if (argc < 3)
@@ -23,7 +26,7 @@ int main(int argc, char **argv){
         return FALLO;
     }
 
-     struct superbloque SB;
+    struct superbloque SB;
     if (bread(posSB, &SB) == FALLO)
     {
         fprintf(stderr, RED "ERROR: leer.c: No se ha podido leer SB\n" RESET);
@@ -36,7 +39,9 @@ int main(int argc, char **argv){
     {
         fprintf(stderr, RED "ARGUMENTO INVALIDO: nºINODO > 0\n" RESET);
         errorExit();
-    }else if (numInodo > SB.totInodos){
+    }
+    else if (numInodo > SB.totInodos)
+    {
         fprintf(stderr, RED "ARGUMENTO INVALIDO: nºINODO < nºtotal Inodos\n" RESET);
         errorExit();
     }
@@ -47,18 +52,25 @@ int main(int argc, char **argv){
     int final_f = estado.tamEnBytesLog;
     int cont = 0;
 
-//MODIFICA LLEGEIX MES BLOQUES QUE EL KI TOCA
-    for(int i = 0; i < final_f; i += bytes_transf){
-       cont += mi_read_f(numInodo, buff, i,  bytes_transf);
-        fwrite(buff, 1, bytes_transf, stdout);
+    // MODIFICA LLEGEIX MES BLOQUES QUE EL KI TOCA
+    for (int i = 0; i < final_f; i += bytes_transf)
+    {
+        int cont_bytes = mi_read_f(numInodo, buff, i, bytes_transf);
+        cont += cont_bytes;
+        fwrite(buff, 1, cont_bytes, stdout);
     }
 
-     // desmontamos disco
+    // desmontamos disco
     if (bumount())
     {
         return FALLO;
     }
-   //printf("total_leidos: %d\n", cont);
+
+#if DEBUG5
+    fprintf(stderr, GRAY "total_leidos: %d\n", cont);
+    fprintf(stderr, GRAY "tamEnBytesLog: %d\n", estado.tamEnBytesLog);
+#endif
+
     return EXITO;
 }
 

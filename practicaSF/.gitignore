@@ -7,3 +7,4 @@ permitir
 *.dsk*
 *.txt
 testd.sh
+*.sh
