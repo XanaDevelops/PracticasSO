@@ -1,8 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "ficheros_basico.h"
-#include "ficheros.h"
+#include "ficheros.h" //fer include del més nou, per al nivell6, "ficheros.h"
 
 int main(int argc, char **argv)
 {
