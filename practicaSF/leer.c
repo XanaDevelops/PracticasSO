@@ -51,11 +51,15 @@ int main(int argc, char **argv)
 
     int final_f = estado.tamEnBytesLog;
     int cont = 0;
+     int cont_bytes = 0;
 
     // MODIFICA LLEGEIX MES BLOQUES QUE EL KI TOCA
     for (int i = 0; i < final_f; i += bytes_transf)
     {
-        int cont_bytes = mi_read_f(numInodo, buff, i, bytes_transf);
+        cont_bytes = mi_read_f(numInodo, buff, i, bytes_transf);
+        if(cont_bytes == FALLO){
+            break;
+        }
         cont += cont_bytes;
         fwrite(buff, 1, cont_bytes, stdout);
     }
