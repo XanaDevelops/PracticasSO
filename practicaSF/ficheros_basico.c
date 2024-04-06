@@ -4,6 +4,7 @@
 #define DEBUG2 0
 #define DEBUG3 0
 #define DEBUG4 1
+#define DEBUG6 1
 
 //*******************************************TAMAÑOS INICIALIZACIÓN***********************************************
 int tamMB(unsigned int nbloques)
@@ -879,17 +880,23 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
 }
 
 /**
+ * nivel 6
  * VERSION NO OPTIMIZADA
  * devuelve cantidad bloques liberados o FALLO
  */
 int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo)
 {
     fprintf(stderr, YELLOW "[liberar_bloques_inodo(): VERSIÓN no OPTIMIZADA!!]\n" RESET);
+
     unsigned int nivel_punteros, indice, ptr = 0, nBL, ultimoBL;
-    int nRangoBL, liberados = 0;
+    int nRangoBL, liberados = 0, bloque_fisico;
     unsigned int bloques_punteros[3][NPUNTEROS];
     unsigned int bufAux_punteros[NPUNTEROS];
     int ptr_nivel[3], indices[3];
+#if DEBUG6
+    // usar solo si DEBUG6
+    int breads = 0, bwrites = 0;
+#endif
 
     // si esta vacío
     if (inodo->tamEnBytesLog == 0)
@@ -907,7 +914,9 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
         ultimoBL = inodo->tamEnBytesLog / BLOCKSIZE;
     }
     memset(bufAux_punteros, 0, BLOCKSIZE);
-
+#if DEBUG6
+    fprintf(stderr, GRAY NEGRITA "[liberar_bloques_inodo() -> primerBL: %d, ultimoBL: %d]\n" RESET, primerBL, ultimoBL);
+#endif
     for (nBL = primerBL; nBL <= ultimoBL; nBL++)
     {
         nRangoBL = obtener_nRangoBL(inodo, nBL, &ptr);
@@ -920,6 +929,7 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
         while (ptr > 0 && nivel_punteros > 0)
         {
             indice = obtener_indice(nBL, nivel_punteros);
+
             if (indice == 0 || nBL == primerBL)
             {
                 // OPTIMIZAR
@@ -928,6 +938,9 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                     fprintf(stderr, RED "ERROR liberar_bloques_inodo(): no se ha podido leer %d\n" RESET, ptr);
                     return FALLO;
                 }
+#if DEBUG6
+                breads++;
+#endif
             }
             ptr_nivel[nivel_punteros - 1] = ptr;
             indices[nivel_punteros - 1] = indice;
@@ -937,8 +950,11 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
         // si existe
         if (ptr > 0)
         {
-            liberar_bloque(ptr);
+            bloque_fisico = liberar_bloque(ptr);
             liberados++;
+#if DEBUG6
+            fprintf(stderr, GRAY "[liberar_bloques_inodo() -> liberado BF %d de datos para BL %d]\n" RESET, bloque_fisico, nBL);
+#endif
             if (nRangoBL == 0)
             {
                 inodo->punterosDirectos[nBL] = 0;
@@ -956,6 +972,9 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                         // no cuelgan más
                         liberar_bloque(ptr);
                         liberados++;
+#if DEBUG6
+                        fprintf(stderr, GRAY "[liberar_bloques_inodo() -> liberado BF %d de punteros_nivel %d para BL %d]\n" RESET, bloque_fisico, nivel_punteros, nBL);
+#endif
                         // OPTIMIZAR
                         if (nivel_punteros == nRangoBL)
                         {
@@ -970,6 +989,9 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                             fprintf(stderr, RED "ERROR liberar_bloques_inodo(): no se ha podido escribir bloque %d\n" RESET, ptr);
                             return FALLO;
                         }
+#if DEBUG6
+                        bwrites++;
+#endif
                         nivel_punteros = nRangoBL + 1;
                     }
                 }
@@ -980,6 +1002,11 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
             // OPTIMIZAR
         }
     }
+
+#if DEBUG6
+    fprintf(stderr, GRAY NEGRITA "[liberar_bloques_inodo() -> total bloques liberados: %d, total_breads: %d, total_bwrites: %d]\n" RESET,
+            liberados, breads, bwrites);
+#endif
 
     return liberados;
 }
