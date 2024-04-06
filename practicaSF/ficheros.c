@@ -250,14 +250,14 @@ int mi_truncar_f(unsigned int ninodo, unsigned int nbytes)
         return FALLO;
     }
 
-    //CALCULAR 1r BLOQUE
+    // CALCULAR 1r BLOQUE
     if (nbytes % BLOCKSIZE == 0)
     {
-        primerBL == nbytes / BLOCKSIZE;
+        primerBL = nbytes / BLOCKSIZE;
     }
     else
     {
-        primerBL == nbytes / BLOCKSIZE + 1;
+        primerBL = nbytes / BLOCKSIZE + 1;
     }
 
     int BL_lib = liberar_bloques_inodo(primerBL, &inodo);
@@ -273,5 +273,5 @@ int mi_truncar_f(unsigned int ninodo, unsigned int nbytes)
         fprintf(stderr, RED "ERROR: mi_truncar_f(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
         return FALLO;
     }
-return BL_lib;
+    return BL_lib;
 }
