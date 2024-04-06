@@ -4,6 +4,7 @@ escribir
 leer
 disco
 permitir
+truncar
 *.dsk*
 *.txt
 testd.sh
