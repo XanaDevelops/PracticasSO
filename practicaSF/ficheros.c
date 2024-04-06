@@ -167,7 +167,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
         }
 
         // ÚLTIMO BLOQUE LÓGICO
-       nbfisico = traducir_bloque_inodo(&inodo, ultimoBL, 0);
+        nbfisico = traducir_bloque_inodo(&inodo, ultimoBL, 0);
         if (nbfisico != FALLO)
         {
             bread(nbfisico, buf_bloque);
@@ -230,8 +230,48 @@ int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
 /**
  * NO IMPLEMENTADO
  * return: FALLO
-*/
-int mi_truncar_f(unsigned int ninodo, unsigned int nbytes){
-    fprintf(stderr, RED "mi_truncar_f NO IMPLEMENTADO\n" RESET);
-    return FALLO;
+ */
+int mi_truncar_f(unsigned int ninodo, unsigned int nbytes)
+{
+    int primerBL;
+
+    // LECTURA INODO
+    struct inodo inodo;
+    if (leer_inodo(ninodo, &inodo) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: mi_truncar_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
+        return FALLO;
+    }
+
+    // PERMISOS ESCRPITURA
+    if ((inodo.permisos & 2) != 2)
+    {
+        fprintf(stderr, RED "ERROR: mi_truncar_f(): No hay permisos de escritura\n" RESET);
+        return FALLO;
+    }
+
+    //CALCULAR 1r BLOQUE
+    if (nbytes % BLOCKSIZE == 0)
+    {
+        primerBL == nbytes / BLOCKSIZE;
+    }
+    else
+    {
+        primerBL == nbytes / BLOCKSIZE + 1;
+    }
+
+    int BL_lib = liberar_bloques_inodo(primerBL, &inodo);
+
+    inodo.mtime = time(NULL);
+    inodo.ctime = time(NULL);
+    inodo.tamEnBytesLog = nbytes;
+    inodo.numBloquesOcupados -= BL_lib;
+
+    // Salvar inodo
+    if (escribir_inodo(ninodo, &inodo) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: mi_truncar_f(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
+        return FALLO;
+    }
+return BL_lib;
 }
