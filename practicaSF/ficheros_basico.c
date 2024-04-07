@@ -685,7 +685,11 @@ int liberar_inodo(unsigned int ninodo)
 }
 
 //*********************************BLOQUE-INODO***********************************
-
+/**
+ * nivel4
+ * modifica ptr
+ * return: nRangoBL o FALLO
+ */
 int obtener_nRangoBL(struct inodo *inodo, unsigned int nblogico, unsigned int *ptr)
 {
     if (nblogico < DIRECTOS)
@@ -945,6 +949,23 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
             ptr_nivel[nivel_punteros - 1] = ptr;
             indices[nivel_punteros - 1] = indice;
             ptr = bloques_punteros[nivel_punteros - 1][indice];
+
+            /*if (ptr == 0)
+            {
+                #if DEBUG6
+                fprintf(stderr, GRAY BLUE "saltando de nBL: %d, indice: %d, a ", nBL, indice);
+                #endif
+                while (ptr == 0)
+                {
+                    indice++;
+                    nBL++;
+                    ptr = bloques_punteros[nivel_punteros - 1][indice];
+                }
+
+                #if DEBUG6
+                fprintf(stderr, GRAY BLUE "nBL: %d, indice: %d\n", nBL, indice);
+                #endif
+            }*/
             nivel_punteros--;
         }
         // si existe
@@ -975,7 +996,7 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
 #if DEBUG6
                         fprintf(stderr, GRAY "[liberar_bloques_inodo() -> liberado BF %d de punteros_nivel %d para BL %d]\n" RESET, bloque_fisico, nivel_punteros, nBL);
 #endif
-                        // OPTIMIZAR
+
                         if (nivel_punteros == nRangoBL)
                         {
                             inodo->punterosIndirectos[nivel_punteros - 1] = 0;
@@ -995,11 +1016,47 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                         nivel_punteros = nRangoBL + 1;
                     }
                 }
+                // OPTIMIZAR 1
+                //nivel_punteros;
+                //fprintf(stderr, GRAY "[liberar_bloques_inodo() -> nivel_puntero: %d\n" RESET, nivel_punteros);
+                for(int iter = 1;iter<nivel_punteros && nBL<ultimoBL;iter++)
+                {
+                    //fprintf(stderr, GRAY "[liberar_bloques_inodo() -> iter: %d\n" RESET, iter);
+                    if(iter==3){ //puede que esto no este bien, pero como si nivel3 llega a ultimoBL...
+                        continue;
+                    }
+                    #if DEBUG6
+                    fprintf(stderr, GRAY GREEN "[liberar_bloques_inodo() -> Del BL %d saltamos ", nBL);
+                    #endif
+                    if (iter <= 1)
+                    {
+                        nBL = (((nBL - DIRECTOS) / NPUNTEROS) + 1) * NPUNTEROS - 1 + DIRECTOS;
+                    }
+                    else if (iter == 2)
+                    {
+                        nBL = (((nBL - INDIRECTOS0) / (NPUNTEROS * NPUNTEROS)) + 1) * (NPUNTEROS * NPUNTEROS) + INDIRECTOS0 - 1;
+                    }
+                    #if DEBUG6
+                    fprintf(stderr, "BL %d]\n" RESET, nBL);
+                    #endif
+                }
             }
         }
         else
         {
-            // OPTIMIZAR
+            int BORRAR = 0;
+            // OPTIMIZAR 2
+            /*#if DEBUG6
+            fprintf(stderr, GRAY "entrada ptr 0  BL: %d\n" RESET, nBL);
+            #endif
+            while(ptr==0){
+                nBL++;
+                nRangoBL = obtener_nRangoBL(inodo, nBL, &ptr);
+            }
+            #if DEBUG6
+            fprintf(stderr, GRAY "salida ptr %d  BL: %d\n" RESET, ptr, nBL);
+            #endif
+            */
         }
     }
 
