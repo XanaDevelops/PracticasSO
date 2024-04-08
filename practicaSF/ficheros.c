@@ -87,12 +87,11 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
 
 int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsigned int nbytes)
 {
-
     // LECTURA INODO
     struct inodo inodo;
     if (leer_inodo(ninodo, &inodo) == FALLO)
     {
-        fprintf(stderr, RED "ERROR: mi_write_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
+        fprintf(stderr, RED "ERROR: mi_read_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
         return FALLO;
     }
 
@@ -124,6 +123,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
     desp1 = offset % BLOCKSIZE;
     desp2 = (offset + nbytes - 1) % BLOCKSIZE;
 
+
     // CASO 1 BLOQUE
     if (primerBL == ultimoBL)
     {
@@ -149,6 +149,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
         bytesleidos += BLOCKSIZE - desp1;
 
         // BLOQUES INTERMEDIOS
+        int contbl = 0;
         while (bl < ultimoBL)
         {
             int byte;
@@ -156,7 +157,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
             if (nbfisico != FALLO)
             {
                 byte = bread(nbfisico, buf_bloque);
-                memcpy(buf_original + desp1 + (bl - primerBL - 1) * BLOCKSIZE, buf_bloque, BLOCKSIZE);
+                memcpy(buf_original + desp1 + (BLOCKSIZE * (contbl)), buf_bloque, BLOCKSIZE);
             }
             else
             {
@@ -164,6 +165,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
             }
             bytesleidos += byte;
             bl++;
+            contbl++;
         }
 
         // ÚLTIMO BLOQUE LÓGICO
@@ -171,12 +173,19 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
         if (nbfisico != FALLO)
         {
             bread(nbfisico, buf_bloque);
-            memcpy(buf_original + nbytes - (desp2 + 1), buf_bloque, desp2 + 1);
+            memcpy(buf_original + (nbytes - (desp2 + 1)), buf_bloque, desp2 + 1);
         }
         bytesleidos += desp2 + 1;
     }
     // Actualizar atime
     inodo.atime = time(NULL);
+
+    // Salvar inodo
+    if (escribir_inodo(ninodo, &inodo) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: mi_read_f(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
+        return FALLO;
+    }
     return bytesleidos;
 }
 
@@ -228,7 +237,7 @@ int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
     return EXITO;
 }
 /**
- * Trunca un fichero/directorio (correspondiente al nº de inodo, ninodo, pasado como argumento) a los bytes 
+ * Trunca un fichero/directorio (correspondiente al nº de inodo, ninodo, pasado como argumento) a los bytes
  * indicados como nbytes, liberando los bloques necesarios.
  */
 int mi_truncar_f(unsigned int ninodo, unsigned int nbytes)

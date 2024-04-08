@@ -4,14 +4,13 @@
 #include "ficheros.h"
 
 void errorExit();
-// int bytes_transf = (4 * BLOCKSIZE);
-int bytes_transf = 1500;
+#define BLOCKLEER  (4 * BLOCKSIZE)
 
 #define DEBUG5 1
 
 int main(int argc, char **argv)
 {
-    char buff[bytes_transf];
+    char buff[BLOCKLEER];
     memset(buff, '\0', sizeof(buff));
 
     // comprobamos argumentos de consola
@@ -54,9 +53,12 @@ int main(int argc, char **argv)
     unsigned int cont = 0;
     unsigned int cont_bytes = 0;
 
-    for (int i = 0; i < final_f; i += bytes_transf)
+    for (int i = 0; i <= final_f; i += BLOCKLEER)
     {
-        cont_bytes = mi_read_f(numInodo, buff, i, bytes_transf);
+     
+        cont_bytes = mi_read_f(numInodo, buff, i, BLOCKLEER); 
+      /* fprintf(stderr, GRAY "----------------: \n");
+         fprintf(stderr, GRAY "%d-%d-%d-%d-: \n", cont,cont_bytes,final_f,i);*/
 
         if (cont_bytes == FALLO)
         {
@@ -64,7 +66,7 @@ int main(int argc, char **argv)
         }
 
         cont += cont_bytes;
-        //   fwrite(buff, 1, cont_bytes, stdout);
+        fwrite(buff, 1, cont_bytes, stdout);
     }
 
     // desmontamos disco
