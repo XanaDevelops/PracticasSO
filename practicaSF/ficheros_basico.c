@@ -1156,7 +1156,7 @@ int auxmemcmp_inodo(unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_mod
     {
         liberar_bloque(inodo->punterosIndirectos[indir]); // de punteros
 #if DEBUG6
-        fprintf(stderr, "[liberar_bloques_inodo()→ liberado BF %d de punteros_nivel%d correspondiente al BL %d]\n", inodo->punterosIndirectos[2], nivel_punteros, *BLliberado);
+        fprintf(stderr, "[liberar_bloques_inodo()→ liberado BF %d de punteros_nivel%d correspondiente al BL %d]\n", inodo->punterosIndirectos[indir], nivel_punteros, *BLliberado);
 #endif
         (*liberados)++;
         inodo->punterosIndirectos[indir] = 0;
@@ -1173,6 +1173,9 @@ int auxmemcmp_inodo(unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_mod
 
     return EXITO;
 }
+
+
+
 
 // AUXILIAR
 /**
