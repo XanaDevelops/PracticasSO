@@ -1300,25 +1300,7 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                         }
                         j++;
                     }
-                    if (memcmp(bloques_punteros[nivel_punteros - 2], bufAux_punteros, BLOCKSIZE) == 0)
-                    {
-                        liberar_bloque(bloques_punteros[nivel_punteros - 1][i]); // de punteros
-#if DEBUG6
-                        fprintf(stderr, "[liberar_bloques_inodo()→ liberado BF %d de punteros_nivel%d correspondiente al BL %d]\n", bloques_punteros[nivel_punteros - 1][i], nivel_punteros - 1, BLliberado);
-#endif
-                        liberados++;
-                        bloques_punteros[nivel_punteros - 1][i] = 0;
-                        bloque_modificado[nivel_punteros - 1] = 1;
-                    }
-                    else
-                    { // escribimos en el dispositivo el bloque de punteros, si ha sido modificado
-                        if (bloque_modificado[nivel_punteros - 2])
-                        {
-                            if (bwrite(bloques_punteros[nivel_punteros - 1][i], bloques_punteros[nivel_punteros - 2]) < 0)
-                                return -1;
-                            contador_bwrites++;
-                        }
-                    }
+                    auxmemcmp(bloques_punteros, bloque_modificado, nivel_punteros, bufAux_punteros, 2, i, &liberados, &contador_bwrites, &BLliberado);
                 }
                 i++;
             }
@@ -1397,6 +1379,8 @@ int auxmemcmp(unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_modificad
 
     return EXITO;
 }
+
+
 
 // AUXILIAR
 /**
