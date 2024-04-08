@@ -1130,7 +1130,7 @@ int auxmemcmp(unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_modificad
     {
         liberar_bloque(bloques_punteros[nivel_punteros - (npr - 1)][i]); // de punteros
 #if DEBUG6
-        fprintf(stderr, "[liberar_bloques_inodo()→ liberado BF %d de punteros_nivel%d correspondiente al BL %d]\n", bloques_punteros[nivel_punteros - (npr - 1)][i], nivel_punteros - npr, *BLliberado);
+        fprintf(stderr, "[liberar_bloques_inodo()→ liberado BF %d de punteros_nivel%d correspondiente al BL %d]\n", bloques_punteros[nivel_punteros - (npr - 1)][i], nivel_punteros - (npr-1), *BLliberado);
 #endif
         (*liberados)++;
         bloques_punteros[nivel_punteros - (npr - 1)][i] = 0;
