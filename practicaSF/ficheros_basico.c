@@ -1070,7 +1070,7 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo_iter(unsigned int primerBL
     return liberados;
 }
 
-int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo)
+int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo)
 {
 #define NPUNTEROS2 (NPUNTEROS * NPUNTEROS)             // 65.536
 #define NPUNTEROS3 (NPUNTEROS * NPUNTEROS * NPUNTEROS) // 16.777.216
