@@ -3,34 +3,34 @@
 
 #define posSB 0 // el superbloque se escribe en el primer bloque de nuestro FS
 #define tamSB 1
-#define NPUNTEROS (BLOCKSIZE / sizeof(unsigned int))   // 256 punteros por bloque
-
+#define NPUNTEROS (BLOCKSIZE / sizeof(unsigned int)) // 256 punteros por bloque
 
 #define DIRECTOS 12
-#define INDIRECTOS0 (NPUNTEROS + DIRECTOS)    // 268
-#define INDIRECTOS1 (NPUNTEROS * NPUNTEROS + INDIRECTOS0)    // 65.804
+#define INDIRECTOS0 (NPUNTEROS + DIRECTOS)                            // 268
+#define INDIRECTOS1 (NPUNTEROS * NPUNTEROS + INDIRECTOS0)             // 65.804
 #define INDIRECTOS2 (NPUNTEROS * NPUNTEROS * NPUNTEROS + INDIRECTOS1) // 16.843.020
 
-
-struct superbloque {
-   unsigned int posPrimerBloqueMB;          // Posición absoluta del primer bloque del mapa de bits
-   unsigned int posUltimoBloqueMB;          // Posición absoluta del último bloque del mapa de bits
-   unsigned int posPrimerBloqueAI;            // Posición absoluta del primer bloque del array de inodos
-   unsigned int posUltimoBloqueAI;            // Posición absoluta del último bloque del array de inodos
-   unsigned int posPrimerBloqueDatos;     // Posición absoluta del primer bloque de datos
-   unsigned int posUltimoBloqueDatos;     // Posición absoluta del último bloque de datos
-   unsigned int posInodoRaiz;                     // Posición del inodo del directorio raíz (relativa al AI)
-   unsigned int posPrimerInodoLibre;        // Posición del primer inodo libre (relativa al AI)
-   unsigned int cantBloquesLibres;            // Cantidad de bloques libres (en todo el disco)
-   unsigned int cantInodosLibres;              // Cantidad de inodos libres (en el AI)
-   unsigned int totBloques;                          // Cantidad total de bloques del disco
-   unsigned int totInodos;                            // Cantidad total de inodos (heurística)
+struct superbloque
+{
+   unsigned int posPrimerBloqueMB;                      // Posición absoluta del primer bloque del mapa de bits
+   unsigned int posUltimoBloqueMB;                      // Posición absoluta del último bloque del mapa de bits
+   unsigned int posPrimerBloqueAI;                      // Posición absoluta del primer bloque del array de inodos
+   unsigned int posUltimoBloqueAI;                      // Posición absoluta del último bloque del array de inodos
+   unsigned int posPrimerBloqueDatos;                   // Posición absoluta del primer bloque de datos
+   unsigned int posUltimoBloqueDatos;                   // Posición absoluta del último bloque de datos
+   unsigned int posInodoRaiz;                           // Posición del inodo del directorio raíz (relativa al AI)
+   unsigned int posPrimerInodoLibre;                    // Posición del primer inodo libre (relativa al AI)
+   unsigned int cantBloquesLibres;                      // Cantidad de bloques libres (en todo el disco)
+   unsigned int cantInodosLibres;                       // Cantidad de inodos libres (en el AI)
+   unsigned int totBloques;                             // Cantidad total de bloques del disco
+   unsigned int totInodos;                              // Cantidad total de inodos (heurística)
    char padding[BLOCKSIZE - 12 * sizeof(unsigned int)]; // Relleno para ocupar el bloque completo
 };
 
 #define INODOSIZE 128 // tamaño en bytes de un inodo
 
-struct inodo {     // comprobar que ocupa 128 bytes haciendo un sizeof(inodo)!!!
+struct inodo
+{                          // comprobar que ocupa 128 bytes haciendo un sizeof(inodo)!!!
    unsigned char tipo;     // Tipo ('l':libre, 'd':directorio o 'f':fichero)
    unsigned char permisos; // Permisos (lectura y/o escritura y/o ejecución)
 
@@ -65,7 +65,7 @@ struct inodo {     // comprobar que ocupa 128 bytes haciendo un sizeof(inodo)!!!
 int tamMB(unsigned int nbloques);
 int tamAI(unsigned int ninodos);
 int initSB(unsigned int nbloques, unsigned int ninodos);
-int initMB(); 
+int initMB();
 int initAI();
 
 // Nivel 3
@@ -84,14 +84,14 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
 
 // Nivel 6
 int aux1(unsigned int nblog, unsigned int ultimoBL, unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_modificado, unsigned int nivel_punteros,
-      int npr, int i, int *eof, int *liberados, int *BLliberado);
+         int npr, int i, int *eof, int *liberados, int *BLliberado);
 int auxmemcmp(unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_modificado, unsigned int nivel_punteros, unsigned char *bufAux_punteros,
-                int npr, int i, int *liberados, int *contador_bwrites, int *BLliberado);
+              int npr, int i, int *liberados, int *contador_bwrites, int *BLliberado);
+int auxmemcmp_inodo(unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_modificado, unsigned int nivel_punteros, unsigned char *bufAux_punteros,
+                    struct inodo *inodo, int indir, int *liberados, int *contador_bwrites, int *BLliberado);
 
 int liberar_inodo(unsigned int ninodo);
 int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo);
 
-
-
-//auxiliar
+// auxiliar
 int imprimir_inodo(struct inodo inodo);
