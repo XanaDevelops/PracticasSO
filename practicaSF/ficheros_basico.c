@@ -1070,11 +1070,9 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo_iter(unsigned int primerBL
     return liberados;
 }
 
-int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo){
 
-}
 
-int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo_abomination(unsigned int primerBL, struct inodo *inodo)
+int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo)
 {
 #define NPUNTEROS2 (NPUNTEROS * NPUNTEROS)             // 65.536
 #define NPUNTEROS3 (NPUNTEROS * NPUNTEROS * NPUNTEROS) // 16.777.216
@@ -1153,7 +1151,9 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo_abomination(unsigned int p
             while (!eof && i < NPUNTEROS)
             {
                 nblog = DIRECTOS + i;
-                if (nblog == ultimoBL)
+                aux1(nblog, ultimoBL, bloques_punteros, bloque_modificado, nivel_punteros, 1, i, &eof, &liberados, &BLliberado);
+                //aux1
+                /*if (nblog == ultimoBL)
                     eof = 1;
                 if (bloques_punteros[nivel_punteros - 1][i])
                 {
@@ -1165,7 +1165,8 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo_abomination(unsigned int p
                     liberados++;
                     bloques_punteros[nivel_punteros - 1][i] = 0;
                     bloque_modificado[nivel_punteros - 1] = 1;
-                }
+                }*/
+                //aux1
                 i++;
             }
             if (memcmp(bloques_punteros[nivel_punteros - 1], bufAux_punteros, BLOCKSIZE) == 0)
@@ -1204,7 +1205,9 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo_abomination(unsigned int p
                 i = obtener_indice(primerBL, nivel_punteros);
             }
             else
+            {
                 i = 0;
+            }
             indices_primerBL[nivel_punteros - 1] = i;
             while (!eof && i < NPUNTEROS)
             {
@@ -1224,7 +1227,9 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo_abomination(unsigned int p
                     while (!eof && j < NPUNTEROS)
                     {
                         nblog = INDIRECTOS0 + i * NPUNTEROS + j;
-                        if (nblog == ultimoBL)
+                        aux1(nblog, ultimoBL, bloques_punteros, bloque_modificado, nivel_punteros, 2, j, &eof, &liberados, &BLliberado);
+                        // aux1
+                        /*if (nblog == ultimoBL)
                             eof = 1;
                         if (bloques_punteros[nivel_punteros - 2][j])
                         {
@@ -1236,7 +1241,8 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo_abomination(unsigned int p
                             liberados++;
                             bloques_punteros[nivel_punteros - 2][j] = 0;
                             bloque_modificado[nivel_punteros - 2] = 1;
-                        }
+                        }*/
+                        // aux1
                         j++;
                     }
                     if (memcmp(bloques_punteros[nivel_punteros - 2], bufAux_punteros, BLOCKSIZE) == 0)
@@ -1415,6 +1421,30 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo_abomination(unsigned int p
 #endif
     return liberados;
 }
+/**
+ * auxiliar 1
+ * mirar que hacer con BLliberado, si DEBUG6 no esta ni idea de que pasaria....
+*/
+int aux1(unsigned int nblog, unsigned int ultimoBL, unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_modificado, unsigned int nivel_punteros,
+        int npr, int i, int *eof, int *liberados, int *BLliberado)
+{
+    if (nblog == ultimoBL)
+        *eof = 1;
+    if (bloques_punteros[nivel_punteros - npr][i])
+    {
+        liberar_bloque(bloques_punteros[nivel_punteros - npr][i]);
+#if DEBUG6
+        fprintf(stderr, "[liberar_bloques_inodo()→ liberado BF %d de datos para BL %d]\n", bloques_punteros[nivel_punteros - npr][i], nblog);
+        *BLliberado = nblog;
+#endif
+        (*liberados)++;
+        bloques_punteros[nivel_punteros - npr][i] = 0;
+        bloque_modificado[nivel_punteros - npr] = 1;
+    }
+
+    return EXITO;
+}
+
 // AUXILIAR
 /**
  * imprime todos los parametros de struct inodo
