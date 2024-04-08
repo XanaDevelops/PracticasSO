@@ -4,7 +4,7 @@
 #include "ficheros.h"
 
 void errorExit();
-//int bytes_transf = (4 * BLOCKSIZE);
+// int bytes_transf = (4 * BLOCKSIZE);
 int bytes_transf = 1500;
 
 #define DEBUG5 1
@@ -50,19 +50,21 @@ int main(int argc, char **argv)
     struct STAT estado;
     mi_stat_f(numInodo, &estado);
 
-    int final_f = estado.tamEnBytesLog;
-    int cont = 0;
-     int cont_bytes = 0;
+    unsigned int final_f = estado.tamEnBytesLog;
+    unsigned int cont = 0;
+    unsigned int cont_bytes = 0;
 
-    // MODIFICA LLEGEIX MES BLOQUES QUE EL KI TOCA
     for (int i = 0; i < final_f; i += bytes_transf)
     {
         cont_bytes = mi_read_f(numInodo, buff, i, bytes_transf);
-        if(cont_bytes == FALLO){
+
+        if (cont_bytes == FALLO)
+        {
             break;
         }
+
         cont += cont_bytes;
-        fwrite(buff, 1, cont_bytes, stdout);
+        //   fwrite(buff, 1, cont_bytes, stdout);
     }
 
     // desmontamos disco
