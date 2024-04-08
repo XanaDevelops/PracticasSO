@@ -85,7 +85,8 @@ int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned c
 // Nivel 6
 int aux1(unsigned int nblog, unsigned int ultimoBL, unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_modificado, unsigned int nivel_punteros,
       int npr, int i, int *eof, int *liberados, int *BLliberado);
-
+int auxmemcmp(unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_modificado, unsigned int nivel_punteros, unsigned char *bufAux_punteros,
+                int npr, int i, int *liberados, int *contador_bwrites, int *BLliberado);
 
 int liberar_inodo(unsigned int ninodo);
 int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo);
