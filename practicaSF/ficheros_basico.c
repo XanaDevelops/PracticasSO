@@ -1153,20 +1153,6 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                 nblog = DIRECTOS + i;
                 aux1(nblog, ultimoBL, bloques_punteros, bloque_modificado, nivel_punteros, 1, i, &eof, &liberados, &BLliberado);
                 //aux1
-                /*if (nblog == ultimoBL)
-                    eof = 1;
-                if (bloques_punteros[nivel_punteros - 1][i])
-                {
-                    liberar_bloque(bloques_punteros[nivel_punteros - 1][i]);
-#if DEBUG6
-                    fprintf(stderr, "[liberar_bloques_inodo()→ liberado BF %d de datos para BL %d]\n", bloques_punteros[nivel_punteros - 1][i], nblog);
-                    BLliberado = nblog;
-#endif
-                    liberados++;
-                    bloques_punteros[nivel_punteros - 1][i] = 0;
-                    bloque_modificado[nivel_punteros - 1] = 1;
-                }*/
-                //aux1
                 i++;
             }
             if (memcmp(bloques_punteros[nivel_punteros - 1], bufAux_punteros, BLOCKSIZE) == 0)
@@ -1228,20 +1214,6 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                     {
                         nblog = INDIRECTOS0 + i * NPUNTEROS + j;
                         aux1(nblog, ultimoBL, bloques_punteros, bloque_modificado, nivel_punteros, 2, j, &eof, &liberados, &BLliberado);
-                        // aux1
-                        /*if (nblog == ultimoBL)
-                            eof = 1;
-                        if (bloques_punteros[nivel_punteros - 2][j])
-                        {
-                            liberar_bloque(bloques_punteros[nivel_punteros - 2][j]);
-#if DEBUG6
-                            fprintf(stderr, "[liberar_bloques_inodo()→ liberado BF %d de datos para BL %d]\n", bloques_punteros[nivel_punteros - 2][j], nblog);
-                            BLliberado = nblog;
-#endif
-                            liberados++;
-                            bloques_punteros[nivel_punteros - 2][j] = 0;
-                            bloque_modificado[nivel_punteros - 2] = 1;
-                        }*/
                         // aux1
                         j++;
                     }
@@ -1336,19 +1308,8 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                             while (!eof && k < NPUNTEROS)
                             {
                                 nblog = INDIRECTOS1 + i * NPUNTEROS2 + j * NPUNTEROS + k;
-                                if (nblog == ultimoBL)
-                                    eof = 1;
-                                if (bloques_punteros[nivel_punteros - 3][k])
-                                {
-                                    liberar_bloque(bloques_punteros[nivel_punteros - 3][k]);
-#if DEBUG6
-                                    fprintf(stderr, "[liberar_bloques_inodo()→ liberado BF %d de datos para BL %d]\n", bloques_punteros[nivel_punteros - 3][k], nblog);
-                                    BLliberado = nblog;
-#endif
-                                    liberados++;
-                                    bloques_punteros[nivel_punteros - 3][k] = 0;
-                                    bloque_modificado[nivel_punteros - 3] = 1;
-                                }
+                                aux1(nblog, ultimoBL, bloques_punteros, bloque_modificado, nivel_punteros, 3, k, &eof, &liberados, &BLliberado);
+                                //aux1
                                 k++;
                             }
                             if (memcmp(bloques_punteros[nivel_punteros - 3], bufAux_punteros, BLOCKSIZE) == 0)
