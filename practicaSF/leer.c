@@ -4,7 +4,8 @@
 #include "ficheros.h"
 
 void errorExit();
-int bytes_transf = (4 * BLOCKSIZE);
+//int bytes_transf = (4 * BLOCKSIZE);
+int bytes_transf = 1500;
 
 #define DEBUG5 1
 
