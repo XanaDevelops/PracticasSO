@@ -1153,7 +1153,9 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                 // aux1
                 i++;
             }
-            if (memcmp(bloques_punteros[nivel_punteros - 1], bufAux_punteros, BLOCKSIZE) == 0)
+            //auxmemcmp_inodo
+            auxmemcmp_inodo(bloques_punteros, bloque_modificado, nivel_punteros, bufAux_punteros, inodo, 0, &liberados, &contador_bwrites, &BLliberado);
+            /*if (memcmp(bloques_punteros[nivel_punteros - 1], bufAux_punteros, BLOCKSIZE) == 0)
             {
                 liberar_bloque(inodo->punterosIndirectos[0]); // de punteros
 #if DEBUG6
@@ -1170,7 +1172,7 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                         return -1;
                     contador_bwrites++;
                 }
-            }
+            }*/
         }
     }
     // liberamos los bloques de datos e índice de Indirectos[1]
@@ -1221,6 +1223,9 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                 }
                 i++;
             }
+            //auxmemcmp_inodo
+            auxmemcmp_inodo(bloques_punteros, bloque_modificado, nivel_punteros, bufAux_punteros, inodo, 1, &liberados, &contador_bwrites, &BLliberado);
+            /*
             if (memcmp(bloques_punteros[nivel_punteros - 1], bufAux_punteros, BLOCKSIZE) == 0)
             {
                 liberar_bloque(inodo->punterosIndirectos[1]); // de punteros
@@ -1238,7 +1243,7 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                         return -1;
                     contador_bwrites++;
                 }
-            }
+            }*/
         }
     }
 
@@ -1296,7 +1301,6 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                             }
                             // auxmemcmp
                             auxmemcmp(bloques_punteros, bloque_modificado, nivel_punteros, bufAux_punteros, 3, j, &liberados, &contador_bwrites, &BLliberado);
-                        
                         }
                         j++;
                     }
@@ -1304,7 +1308,9 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                 }
                 i++;
             }
-            if (memcmp(bloques_punteros[nivel_punteros - 1], bufAux_punteros, BLOCKSIZE) == 0)
+            // auxmemcpm_inodo
+            auxmemcmp_inodo(bloques_punteros, bloque_modificado, nivel_punteros, bufAux_punteros, inodo, 2, &liberados, &contador_bwrites, &BLliberado);
+            /*if (memcmp(bloques_punteros[nivel_punteros - 1], bufAux_punteros, BLOCKSIZE) == 0)
             {
                 liberar_bloque(inodo->punterosIndirectos[2]); // de punteros
 #if DEBUG6
@@ -1321,7 +1327,8 @@ int __warnattr("NO OPTIMIZADO") liberar_bloques_inodo(unsigned int primerBL, str
                         return -1;
                     contador_bwrites++;
                 }
-            }
+            }*/
+            // auxmemcmp_inodo
         }
     }
 
@@ -1355,23 +1362,23 @@ int aux1(unsigned int nblog, unsigned int ultimoBL, unsigned int (*bloques_punte
 }
 
 int auxmemcmp(unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_modificado, unsigned int nivel_punteros, unsigned char *bufAux_punteros,
-                int npr, int i, int *liberados, int *contador_bwrites, int *BLliberado)
+              int npr, int i, int *liberados, int *contador_bwrites, int *BLliberado)
 {
     if (memcmp(bloques_punteros[nivel_punteros - npr], bufAux_punteros, BLOCKSIZE) == 0)
     {
-        liberar_bloque(bloques_punteros[nivel_punteros - (npr-1)][i]); // de punteros
+        liberar_bloque(bloques_punteros[nivel_punteros - (npr - 1)][i]); // de punteros
 #if DEBUG6
-        fprintf(stderr, "[liberar_bloques_inodo()→ liberado BF %d de punteros_nivel%d correspondiente al BL %d]\n", bloques_punteros[nivel_punteros - (npr-1)][i], nivel_punteros - npr, *BLliberado);
+        fprintf(stderr, "[liberar_bloques_inodo()→ liberado BF %d de punteros_nivel%d correspondiente al BL %d]\n", bloques_punteros[nivel_punteros - (npr - 1)][i], nivel_punteros - npr, *BLliberado);
 #endif
         (*liberados)++;
-        bloques_punteros[nivel_punteros - (npr-1)][i] = 0;
-        bloque_modificado[nivel_punteros - (npr-1)] = 1;
+        bloques_punteros[nivel_punteros - (npr - 1)][i] = 0;
+        bloque_modificado[nivel_punteros - (npr - 1)] = 1;
     }
     else
     { // escribimos en el dispositivo el bloque de punteros, si ha sido modificado
         if (bloque_modificado[nivel_punteros - npr])
         {
-            if (bwrite(bloques_punteros[nivel_punteros - (npr-1)][i], bloques_punteros[nivel_punteros - npr]) < 0)
+            if (bwrite(bloques_punteros[nivel_punteros - (npr - 1)][i], bloques_punteros[nivel_punteros - npr]) < 0)
                 return FALLO;
             (*contador_bwrites)++;
         }
@@ -1380,7 +1387,28 @@ int auxmemcmp(unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_modificad
     return EXITO;
 }
 
-
+int auxmemcmp_inodo(unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_modificado, unsigned int nivel_punteros, unsigned char *bufAux_punteros,
+                    struct inodo *inodo, int indir, int *liberados, int *contador_bwrites, int *BLliberado)
+{
+    if (memcmp(bloques_punteros[nivel_punteros - 1], bufAux_punteros, BLOCKSIZE) == 0)
+    {
+        liberar_bloque(inodo->punterosIndirectos[indir]); // de punteros
+#if DEBUG6
+        fprintf(stderr, "[liberar_bloques_inodo()→ liberado BF %d de punteros_nivel%d correspondiente al BL %d]\n", inodo->punterosIndirectos[2], nivel_punteros, *BLliberado);
+#endif
+        (*liberados)++;
+        inodo->punterosIndirectos[indir] = 0;
+    }
+    else
+    { // escribimos en el dispositivo el bloque de punteros, si ha sido modificado
+        if (bloque_modificado[nivel_punteros - 1])
+        {
+            if (bwrite(inodo->punterosIndirectos[indir], bloques_punteros[nivel_punteros - 1]) < 0)
+                return FALLO;
+            (*contador_bwrites)++;
+        }
+    }
+}
 
 // AUXILIAR
 /**
