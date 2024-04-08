@@ -614,7 +614,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     inodoReservado.numBloquesOcupados = 0;
     sb.posPrimerInodoLibre = inodoReservado.punterosDirectos[0];
 
-    for (int i = 1; i < sizeof(inodoReservado.punterosDirectos) / sizeof(unsigned int); i++)
+    for (int i = 0; i < sizeof(inodoReservado.punterosDirectos) / sizeof(unsigned int); i++)
     {
         inodoReservado.punterosDirectos[i] = 0;
     }
