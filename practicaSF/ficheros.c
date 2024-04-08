@@ -228,8 +228,8 @@ int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
     return EXITO;
 }
 /**
- * NO IMPLEMENTADO
- * return: FALLO
+ * Trunca un fichero/directorio (correspondiente al nº de inodo, ninodo, pasado como argumento) a los bytes 
+ * indicados como nbytes, liberando los bloques necesarios.
  */
 int mi_truncar_f(unsigned int ninodo, unsigned int nbytes)
 {
