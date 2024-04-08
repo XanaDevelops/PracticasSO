@@ -1,3 +1,7 @@
+/*Ferriol Font, Josep
+García Vázquez, Daniel
+Perelló Perelló, Biel*/
+
 #include <limits.h>
 #include "ficheros_basico.h"
 

@@ -1,3 +1,7 @@
+/*Ferriol Font, Josep
+García Vázquez, Daniel
+Perelló Perelló, Biel*/
+
 #include "bloques.h"
 
 #define DEBUG1 0

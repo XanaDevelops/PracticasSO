@@ -1,3 +1,7 @@
+/*Ferriol Font, Josep
+García Vázquez, Daniel
+Perelló Perelló, Biel*/
+
 #include "ficheros.h"
 
 int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offset, unsigned int nbytes)

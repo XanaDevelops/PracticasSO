@@ -1,3 +1,7 @@
+/*Ferriol Font, Josep
+García Vázquez, Daniel
+Perelló Perelló, Biel*/
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

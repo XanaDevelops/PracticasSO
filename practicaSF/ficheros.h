@@ -1,3 +1,7 @@
+/*Ferriol Font, Josep
+García Vázquez, Daniel
+Perelló Perelló, Biel*/
+
 #include "ficheros_basico.h"
 
 // Estructura para representar los metadatos del inodo
