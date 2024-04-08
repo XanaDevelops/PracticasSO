@@ -83,9 +83,6 @@ int obtener_indice(unsigned int nblogico, int nivel_punteros);
 int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned char reservar);
 
 // Nivel 6
-int liberar_bloques_recursivo(unsigned int *nBL, int nRangoBL, unsigned int ptr, int nivel_punteros,
-                              struct inodo *inodo, int *eof, int ultimoBL, int *bloqueLiberado);
-                              
 int liberar_inodo(unsigned int ninodo);
 int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo);
 
