@@ -2,8 +2,9 @@
 #include <time.h>
 #include "ficheros_basico.h"
 
-#define DEBUG2 1
+#define DEBUG2 0
 #define DEBUG3 0
+#define DEBUG4 0
 
 struct tm *ts;
 char atime_b[80];
@@ -49,6 +50,7 @@ int main(int argc, char **argv)
     printf("sizeof struct inodo is: %lu\n", sizeof(struct superbloque));
     printf("sizeof struct inodo is: %lu\n", sizeof(struct inodo));
 
+#if DEBUG2
     int contInodos = SB.posPrimerBloqueAI;
 
     int num = BLOCKSIZE / INODOSIZE;
@@ -71,7 +73,7 @@ int main(int argc, char **argv)
            bread(contInodos, inodos);
            inodo = inodos[aux % num];
     }*/
-
+#endif
     // parte nivel 3
 #if DEBUG3
     printf("\n");
@@ -132,6 +134,7 @@ int main(int argc, char **argv)
 
     imprimir_inodo(raiz);
 #endif
+#if DEBUG4
     //parte nivel4
     int inodoReservado = reservar_inodo('f', 7); //mirar si van bien
     if(inodoReservado==FALLO){
@@ -155,6 +158,7 @@ int main(int argc, char **argv)
     }
 
     imprimir_inodo(inodoR);
+#endif
 
     return EXITO;
 }
