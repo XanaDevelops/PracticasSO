@@ -5,6 +5,7 @@ Perelló Perelló, Biel*/
 #include <limits.h>
 #include <time.h>
 #include "ficheros_basico.h"
+#include "directorios.h"
 
 #define DEBUG2 0
 #define DEBUG3 0
