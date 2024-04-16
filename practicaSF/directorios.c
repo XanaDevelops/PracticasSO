@@ -48,8 +48,8 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     struct entrada buff_entradas[BLOCKSIZE/sizeof(entrada)];
     memset(buff_entradas, '\0', sizeof(buff_entradas));
 
-    // AFEGIR FUNCIÓ CALCULAR ENTRADES INODO
-    // calc_entradas_inodo()
+    // CALCULAR ENTRADES INODO (COMPROVAR SI ESTÀ BÉ)
+    cant_entradas_inodo = inodo_dir.nlinks;
 
     // Número de entrada inicial
     num_entrada_inodo = 0;
