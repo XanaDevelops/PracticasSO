@@ -6,7 +6,7 @@ Perelló Perelló, Biel*/
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "ficheros.h"
+#include "directorios.h"
 
 void print_estado(struct STAT *estado);
 void errorExit();

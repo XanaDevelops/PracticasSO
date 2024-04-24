@@ -5,7 +5,6 @@ Perelló Perelló, Biel*/
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "ficheros_basico.h"
 #include "directorios.h"
 
 #define DEBUG1 0
