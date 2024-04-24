@@ -85,7 +85,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 // Modo escritura
                 // Crear entrada en el directorio referenciado por *p_inodo_dir
                 // Si es fichero no se permite la escritura
-                if(inodo_dir.tipo = 'f')
+                if(inodo_dir.tipo == 'f')
                 {
                     return ERROR_NO_SE_PUEDE_CREAR_ENTRADA_EN_UN_FICHERO;
                 }
@@ -100,7 +100,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                     // COPIAR *inicial EN EL NOMBRE DE LA ENTRADA (COMPROVAR SI ESTA BE !!!!!!!)
                     memcpy(entrada.nombre, *inicial, TAMNOMBRE);
 
-                    if(tipo = 'd')
+                    if(tipo == 'd')
                     {
                         if(final == '/')
                         {
@@ -155,6 +155,13 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
 
 
     
+}
+
+/**
+ * 
+*/
+int extraer_camino(const char *camino, char *inicial, char *final, char *tipo){
+
 }
 
 void mostrar_error_buscar_entrada(int error) {
