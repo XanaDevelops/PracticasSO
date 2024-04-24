@@ -163,7 +163,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
 /**
  * Separa camino en inicio, final, configura tipo
  * Asume tamaño inicial y final igual a camino, problemas si no...
- * return: EXITO o ERROR_* o FALLO
+ * return: EXITO o FALLO
 */
 int extraer_camino(const char *camino, char *inicial, char *final, char *tipo){
     #if DEBUG7
@@ -171,7 +171,7 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo){
     #endif
 
     if(*camino != '/'){
-        return ERROR_CAMINO_INCORRECTO;
+        return FALLO;
     }
     int len = strlen(camino);
     if(len==1){ //caso "/"
