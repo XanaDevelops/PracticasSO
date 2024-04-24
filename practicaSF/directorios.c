@@ -178,6 +178,9 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo){
         *tipo = 'd';
         *inicial='\0';
         *final='\0';
+        #if DEBUG7
+        fprintf(stderr, GRAY "[extraer_camino -> inicial: |%s|, final: |%s| tipo %s]\n" RESET, inicial, final, tipo);
+    #endif
         return EXITO;
     }
 
