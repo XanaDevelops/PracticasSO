@@ -101,7 +101,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 else 
                 {
                     // COPIAR *inicial EN EL NOMBRE DE LA ENTRADA (COMPROVAR SI ESTA BE !!!!!!!)
-                    memcpy(entrada.nombre, *inicial, TAMNOMBRE); //SEGFAULT!!!
+                    memcpy(entrada.nombre, inicial, TAMNOMBRE); 
 
                     if(tipo == 'd')
                     {
