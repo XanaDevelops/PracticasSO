@@ -152,12 +152,8 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
 
         return EXITO;
     }
-
-
-
-
-
     
+    return EXITO;
 }
 
 /**
