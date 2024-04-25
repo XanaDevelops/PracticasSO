@@ -1,4 +1,7 @@
 #include "directorios.h"
+#include <string.h>
+
+#define DEBUG7 1
 
 int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsigned int *p_inodo, 
                 unsigned int *p_entrada, char reservar, unsigned char permisos)
@@ -85,7 +88,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 // Modo escritura
                 // Crear entrada en el directorio referenciado por *p_inodo_dir
                 // Si es fichero no se permite la escritura
-                if(inodo_dir.tipo = 'f')
+                if(inodo_dir.tipo == 'f')
                 {
                     return ERROR_NO_SE_PUEDE_CREAR_ENTRADA_EN_UN_FICHERO;
                 }
@@ -98,9 +101,9 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 else 
                 {
                     // COPIAR *inicial EN EL NOMBRE DE LA ENTRADA (COMPROVAR SI ESTA BE !!!!!!!)
-                    memcpy(entrada.nombre, *inicial, TAMNOMBRE);
+                    memcpy(entrada.nombre, inicial, TAMNOMBRE); 
 
-                    if(tipo = 'd')
+                    if(tipo == 'd')
                     {
                         if(final == '/')
                         {
@@ -110,7 +113,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                         }
                         else
                         {
-                            ERROR_NO_EXISTE_DIRECTORIO_INTERMEDIO;
+                            return ERROR_NO_EXISTE_DIRECTORIO_INTERMEDIO;
                         }
                     }
                     else 
@@ -149,14 +152,63 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
 
         return EXITO;
     }
-
-
-
-
-
     
+    return EXITO;
 }
 
+/**
+ * Separa camino en inicio, final, configura tipo
+ * Asume tamaño inicial y final igual a camino, problemas si no...
+ * return: EXITO o FALLO
+*/
+int extraer_camino(const char *camino, char *inicial, char *final, char *tipo){
+    #if DEBUG7
+        fprintf(stderr, GRAY "[extraer_camino() -> extrayendo %s]\n" RESET, camino);
+    #endif
+
+    if(*camino != '/'){
+        return FALLO;
+    }
+    int len = strlen(camino);
+    if(len==1){ //caso "/"
+        *tipo = 'd';
+        *inicial='\0';
+        *final='\0';
+        #if DEBUG7
+        fprintf(stderr, GRAY "[extraer_camino -> inicial: |%s|, final: |%s| tipo %s]\n" RESET, inicial, final, tipo);
+    #endif
+        return EXITO;
+    }
+
+    char *pos = strchr(camino+1, '/');
+    #if DEBUG7
+        fprintf(stderr, GRAY "[extraer_camino() -> pos: %s]\n" RESET, pos);
+    #endif
+    if(pos!=NULL){
+        strncpy(camino+1, inicial, pos-camino);
+        strncpy(pos+1, final, len-(pos-camino));
+    }else{
+        strncpy(camino+1, inicial, len-1);
+        *final='\0';
+    }
+    pos = strchr(inicial, '/');
+    if(pos==NULL){
+        *tipo='f';
+    }else{
+        *pos='\0';
+        *tipo='d';
+    }
+    #if DEBUG7
+        fprintf(stderr, GRAY "[extraer_camino -> inicial: |%s|, final: |%s| tipo %s]\n" RESET, inicial, final, tipo);
+    #endif
+
+
+
+    return EXITO;
+}
+/**
+ * Muestra el texto asociado a un error de buscar entrada
+*/
 void mostrar_error_buscar_entrada(int error) {
    // fprintf(stderr, "Error: %d\n", error);
    switch (error) {

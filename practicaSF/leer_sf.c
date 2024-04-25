@@ -6,14 +6,30 @@ Perelló Perelló, Biel*/
 #include <time.h>
 #include "directorios.h"
 
+#define DEBUG1 1
 #define DEBUG2 0
 #define DEBUG3 0
 #define DEBUG4 0
+#define DEBUG7 1
 
 struct tm *ts;
 char atime_b[80];
 char mtime_b[80];
 char ctime_b[80];
+
+void mostrar_buscar_entrada(char *camino, char reservar){
+  unsigned int p_inodo_dir = 0;
+  unsigned int p_inodo = 0;
+  unsigned int p_entrada = 0;
+  int error;
+  printf("\ncamino: %s, reservar: %d\n", camino, reservar);
+  if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, reservar, 6)) < 0) {
+    mostrar_error_buscar_entrada(error);
+  }
+  printf("**********************************************************************\n");
+  return;
+}
+
 
 int main(int argc, char **argv)
 {
@@ -36,6 +52,7 @@ int main(int argc, char **argv)
         return FALLO;
     }
 
+    #if DEBUG1
     fprintf(stdout, "DATOS DEL SUPERBLOQUE\n\n");
 
     printf("posPrimerBloqueMB is: %d\n", SB.posPrimerBloqueMB);
@@ -53,7 +70,7 @@ int main(int argc, char **argv)
 
     printf("sizeof struct inodo is: %lu\n", sizeof(struct superbloque));
     printf("sizeof struct inodo is: %lu\n", sizeof(struct inodo));
-
+#endif
 #if DEBUG2
     int contInodos = SB.posPrimerBloqueAI;
 
@@ -162,6 +179,23 @@ int main(int argc, char **argv)
     }
 
     imprimir_inodo(inodoR);
+#endif
+
+#if DEBUG7
+    //Mostrar creación directorios y errores
+    mostrar_buscar_entrada("pruebas/", 1); //ERROR_CAMINO_INCORRECTO
+    mostrar_buscar_entrada("/pruebas/", 0); //ERROR_NO_EXISTE_ENTRADA_CONSULTA
+    mostrar_buscar_entrada("/pruebas/docs/", 1); //ERROR_NO_EXISTE_DIRECTORIO_INTERMEDIO
+    mostrar_buscar_entrada("/pruebas/", 1); // creamos /pruebas/
+    mostrar_buscar_entrada("/pruebas/docs/", 1); //creamos /pruebas/docs/
+    mostrar_buscar_entrada("/pruebas/docs/doc1", 1); //creamos /pruebas/docs/doc1
+    mostrar_buscar_entrada("/pruebas/docs/doc1/doc11", 1);  
+    //ERROR_NO_SE_PUEDE_CREAR_ENTRADA_EN_UN_FICHERO
+    mostrar_buscar_entrada("/pruebas/", 1); //ERROR_ENTRADA_YA_EXISTENTE
+    mostrar_buscar_entrada("/pruebas/docs/doc1", 0); //consultamos /pruebas/docs/doc1
+    mostrar_buscar_entrada("/pruebas/docs/doc1", 1); //ERROR_ENTRADA_YA_EXISTENTE
+    mostrar_buscar_entrada("/pruebas/casos/", 1); //creamos /pruebas/casos/
+    mostrar_buscar_entrada("/pruebas/docs/doc2", 1); //creamos /pruebas/docs/doc2
 #endif
 
     return EXITO;
