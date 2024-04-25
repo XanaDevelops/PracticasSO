@@ -73,7 +73,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     }
 
     // Comprobar si la entrada existe
-    if((inicial != entrada.nombre) && (num_entrada_inodo = cant_entradas_inodo))
+    if((!strcmp(inicial,entrada.nombre)) && (num_entrada_inodo = cant_entradas_inodo))
     {
         switch(reservar)
         {
