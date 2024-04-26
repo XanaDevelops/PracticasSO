@@ -3,7 +3,7 @@
 
 #define DEBUG7 1
 
-int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsigned int *p_inodo, 
+/*int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsigned int *p_inodo, 
                 unsigned int *p_entrada, char reservar, unsigned char permisos)
 {
     // Declarar variables
@@ -154,14 +154,14 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     }
     
     return EXITO;
-}
+}*/
 
 /**
  * Separa camino en inicio, final, configura tipo
  * Asume tamaño inicial y final igual a camino, problemas si no...
  * return: EXITO o FALLO
 */
-int extraer_camino(const char *camino, char *inicial, char *final, char *tipo){
+/*int extraer_camino(const char *camino, char *inicial, char *final, char *tipo){
     #if DEBUG7
         fprintf(stderr, GRAY "[extraer_camino() -> extrayendo %s]\n" RESET, camino);
     #endif
@@ -205,7 +205,7 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo){
 
 
     return EXITO;
-}
+}*/
 /**
  * Muestra el texto asociado a un error de buscar entrada
 */
