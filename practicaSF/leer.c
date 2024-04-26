@@ -8,12 +8,14 @@ Perelló Perelló, Biel*/
 #include "ficheros.h"
 
 void errorExit();
-#define BLOCKLEER  (4 * BLOCKSIZE)
+//#define BLOCKLEER  (4 * BLOCKSIZE)
+#define BLOCKLEER  1500
 
 #define DEBUG5 1
 
 int main(int argc, char **argv)
 {
+   // signal(SIGABRT, errorExit);
     char buff[BLOCKLEER];
     memset(buff, '\0', sizeof(buff));
 
@@ -70,15 +72,14 @@ int main(int argc, char **argv)
         }
 
         cont += cont_bytes;
-        fwrite(buff, 1, cont_bytes, stdout);
+        //fwrite(buff, 1, cont_bytes, stdout);
     }
 
     // desmontamos disco
-    if (bumount())
+    if (bumount() == FALLO)
     {
         return FALLO;
     }
-
 #if DEBUG5
     fprintf(stderr, GRAY "total_leidos: %d\n", cont);
     fprintf(stderr, GRAY "tamEnBytesLog: %d\n", estado.tamEnBytesLog);

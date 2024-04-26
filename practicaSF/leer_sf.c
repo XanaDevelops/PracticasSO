@@ -16,7 +16,7 @@ struct tm *ts;
 char atime_b[80];
 char mtime_b[80];
 char ctime_b[80];
-/*
+
 void mostrar_buscar_entrada(char *camino, char reservar){
   unsigned int p_inodo_dir = 0;
   unsigned int p_inodo = 0;
@@ -28,7 +28,7 @@ void mostrar_buscar_entrada(char *camino, char reservar){
   }
   printf("**********************************************************************\n");
   return;
-}*/
+}
 
 
 int main(int argc, char **argv)
@@ -180,7 +180,7 @@ int main(int argc, char **argv)
 
     imprimir_inodo(inodoR);
 #endif
-/*
+
 #if DEBUG7
     //Mostrar creación directorios y errores
     mostrar_buscar_entrada("pruebas/", 1); //ERROR_CAMINO_INCORRECTO
@@ -197,6 +197,6 @@ int main(int argc, char **argv)
     mostrar_buscar_entrada("/pruebas/casos/", 1); //creamos /pruebas/casos/
     mostrar_buscar_entrada("/pruebas/docs/doc2", 1); //creamos /pruebas/docs/doc2
 #endif
-*/
+
     return EXITO;
 }

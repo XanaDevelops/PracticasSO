@@ -40,8 +40,8 @@ int main(int argc, char **argv)
         printf("Offset: %ld\n", offsets[i]);
 
         struct STAT estado;
-        mi_stat_f(inodoReservado, &estado);
-        print_estado(&estado);
+        //mi_stat_f(inodoReservado, &estado);
+       // print_estado(&estado);
 
         int bytes = mi_write_f(inodoReservado, buffer_original, offsets[i], buffer_size);
         printf("Bytes escritos: %d\n", bytes);
@@ -49,10 +49,10 @@ int main(int argc, char **argv)
         mi_stat_f(inodoReservado, &estado);
         print_estado(&estado);
 
-        memset(buffer_original, '\0', buffer_size);
+       /* memset(buffer_original, '\0', buffer_size);
         mi_read_f(inodoReservado, buffer_original, offsets[i], buffer_size);
 
-        write(1, buffer_original, buffer_size);
+        write(1, buffer_original, buffer_size);*/
         printf("\n\n" RESET);
 
         if (inodos_varios == 1)
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
     }
 
     // desmontamos disco
-    if (bumount())
+    if (bumount()==FALLO)
     {
         return FALLO;
     }

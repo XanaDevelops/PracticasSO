@@ -137,7 +137,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
             bread(nbfisico, buf_bloque);
             memcpy(buf_original, buf_bloque + desp1, nbytes);
         }
-        bytesleidos = desp2 - desp1 + 1;
+        bytesleidos = nbytes;
     }
     else
     {
@@ -159,9 +159,10 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
             int byte;
             nbfisico = traducir_bloque_inodo(&inodo, bl, 0);
             if (nbfisico != FALLO)
-            {
+            {//buf_original+byleidos
+            //buf_original + desp1 + (BLOCKSIZE * (contbl))
                 byte = bread(nbfisico, buf_bloque);
-                memcpy(buf_original + desp1 + (BLOCKSIZE * (contbl)), buf_bloque, BLOCKSIZE);
+                memcpy(buf_original +(BLOCKSIZE - desp1)+ (BLOCKSIZE * (contbl)), buf_bloque, BLOCKSIZE);
             }
             else
             {
