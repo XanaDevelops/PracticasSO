@@ -103,25 +103,25 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 // COPIAR *inicial EN EL NOMBRE DE LA ENTRADA (COMPROVAR SI ESTA BE !!!!!!!)
                 memcpy(entrada.nombre, inicial, TAMNOMBRE);
 
-                if (tipo == 'd')
-                {
-                    if (final == '/')
+                    if(tipo == 'd')
                     {
-                        // Reservar inodo como directorio y asignarlo a la entrada (REVISAR !!!!!!!!!!!!)
-                        int numInodo = reservar_inodo('d', permisos);
+                        if(*final == '/')
+                        {
+                            // Reservar inodo como directorio y asignarlo a la entrada (REVISAR !!!!!!!!!!!!)
+                            int numInodo = reservar_inodo('d', permisos);
+                            entrada.ninodo = numInodo;
+                        }
+                        else
+                        {
+                            return ERROR_NO_EXISTE_DIRECTORIO_INTERMEDIO;
+                        }
+                    }
+                    else 
+                    {
+                        // Reservar inodo como fichero y asignarlo a la entrada (REVISAR !!!!!!!!!!!!)
+                        int numInodo = reservar_inodo('f', permisos);
                         entrada.ninodo = numInodo;
                     }
-                    else
-                    {
-                        return ERROR_NO_EXISTE_DIRECTORIO_INTERMEDIO;
-                    }
-                }
-                else
-                {
-                    // Reservar inodo como fichero y asignarlo a la entrada (REVISAR !!!!!!!!!!!!)
-                    int numInodo = reservar_inodo('f', permisos);
-                    entrada.ninodo = numInodo;
-                }
 
                 // ESCRIBIR LA ENTRADA EN EL DIRECTORIO PADRE
                 // CONTROLAR ERROR DE ESCRITURA
