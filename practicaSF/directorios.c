@@ -23,7 +23,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     }
 
     // Comprobar si es el directorio raíz
-    if (camino_parcial[0] == '/') //esta bé??????
+    if (strcmp(camino_parcial, "/")==0) //esta bé??????
     {
         *p_inodo = sb.posInodoRaiz;
         *p_entrada = 0;
