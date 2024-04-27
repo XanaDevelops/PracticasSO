@@ -72,7 +72,7 @@ int main(int argc, char **argv)
         }
 
         cont += cont_bytes;
-        //fwrite(buff, 1, cont_bytes, stdout);
+        fwrite(buff, 1, cont_bytes, stdout);
     }
 
     // desmontamos disco
