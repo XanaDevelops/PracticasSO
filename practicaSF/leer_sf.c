@@ -26,6 +26,7 @@ void mostrar_buscar_entrada(char *camino, char reservar){
   if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, reservar, 6)) < 0) {
     mostrar_error_buscar_entrada(error);
   }
+  printf("var error = %d\n", error);
   printf("**********************************************************************\n");
   return;
 }

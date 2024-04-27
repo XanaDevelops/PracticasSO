@@ -23,7 +23,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     }
 
     // Comprobar si es el directorio raíz
-    if (strcmp(camino_parcial, "/")==0) //esta bé??????
+    if (strcmp(camino_parcial, "/")==0) 
     {
         *p_inodo = sb.posInodoRaiz;
         *p_entrada = 0;
@@ -61,12 +61,14 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     if (cant_entradas_inodo > 0)
     {
         // AFEGIR FUNCIÓ LLETGIR ENTRADES
+        //no es una cridada a mi_read_f()??
         // leer_entrada()
+        //mi_read_f(num_entrada_inodo, buff_entradas, 0, sizeof(buff_entradas)); ERROR permisos lectura??
+        //memcpy(&entrada, buff_entradas, sizeof(entrada));
 
         while ((num_entrada_inodo < cant_entradas_inodo) && (inicial != entrada.nombre))
         {
             num_entrada_inodo++;
-
             // Inicializar buffer de lectura a 0s
             memset(buff_entradas, '\0', sizeof(buff_entradas));
 
@@ -76,7 +78,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     }
 
     // Comprobar si la entrada existe
-    if ((!strcmp(inicial, entrada.nombre)) && (num_entrada_inodo = cant_entradas_inodo))
+    if ((!strcmp(inicial, entrada.nombre)) && (num_entrada_inodo == cant_entradas_inodo))
     {
         switch (reservar)
         {
@@ -130,9 +132,9 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         }
 
         // Comprobar si se ha llegado al final del camino
-        if (0)
+        if (0) //ESTO ES SIEMPRE FALSE!!!
         {
-            if ((num_entrada_inodo < cant_entradas_inodo) && (reservar = 1))
+            if ((num_entrada_inodo < cant_entradas_inodo) && (reservar == 1))
             {
                 // Modo escritura y entrada ya existente
                 return ERROR_ENTRADA_YA_EXISTENTE;
@@ -179,7 +181,7 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
         *inicial = '\0';
         *final = '\0';
 #if DEBUG7
-        fprintf(stderr, GRAY "[extraer_camino -> inicial: |%s|, final: |%s| tipo %s]\n" RESET, inicial, final, tipo);
+        fprintf(stderr, GRAY "[extraer_camino() -> inicial: |%s|, final: |%s| tipo %s]\n" RESET, inicial, final, tipo);
 #endif
         return EXITO;
     }
