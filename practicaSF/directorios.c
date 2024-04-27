@@ -185,10 +185,10 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo){
         fprintf(stderr, GRAY "[extraer_camino() -> pos: %s]\n" RESET, pos);
     #endif
     if(pos!=NULL){
-        strncpy(camino+1, inicial, pos-camino);
-        strncpy(pos+1, final, len-(pos-camino));
+        strncpy(inicial,camino+1, pos-camino);
+        strncpy(final, pos+1, len-(pos-camino));
     }else{
-        strncpy(camino+1, inicial, len-1);
+        strncpy(inicial, camino+1, len-1);
         *final='\0';
     }
     pos = strchr(inicial, '/');
