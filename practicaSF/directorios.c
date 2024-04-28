@@ -14,6 +14,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     char final[strlen(camino_parcial)];
     char tipo;
     int cant_entradas_inodo, num_entrada_inodo, bytesleidos, trobat;
+    int numInodo;
 
     // LECTURA SUPERBLOQUE
     struct superbloque sb;
@@ -110,7 +111,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                     if (*final == '/')
                     {
                         // Reservar inodo como directorio y asignarlo a la entrada (REVISAR !!!!!!!!!!!!)
-                        int numInodo = reservar_inodo('d', permisos);
+                        numInodo = reservar_inodo('d', permisos);
                         entrada.ninodo = numInodo;
                     }
                     else
@@ -121,33 +122,52 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 else
                 {
                     // Reservar inodo como fichero y asignarlo a la entrada (REVISAR !!!!!!!!!!!!)
-                    int numInodo = reservar_inodo('f', permisos);
+                    numInodo = reservar_inodo('f', permisos);
                     entrada.ninodo = numInodo;
                 }
-               
+
                 bytesleidos = mi_write_f(*p_inodo_dir, &entrada, inodo_dir.tamEnBytesLog, sizeof(struct entrada));
-                if(bytesleidos == FALLO){
-                    if(entrada.ninodo != -1){
+                if (bytesleidos == FALLO)
+                {
+                    if (entrada.ninodo != -1)
+                    {
                         liberar_inodo(entrada.ninodo);
                     }
+                    return FALLO;
+                }
+                // Actualizar nlinks
+                inodo_dir.nlinks++;
+                // Actualizar atime
+                inodo_dir.atime = time(NULL);
+                // Actualizar mtime
+                inodo_dir.mtime = time(NULL);
+                // Actualizar ctime
+                inodo_dir.ctime = time(NULL);
+                // Salvar inodo
+                if (escribir_inodo(*p_inodo_dir, &inodo_dir) == FALLO)
+                {
+                    fprintf(stderr, RED "ERROR: buscar_entrada(): No se ha podido escribir el inodo %d \n" RESET, p_inodo_dir);
                     return FALLO;
                 }
             }
             break;
         }
-    }      // Comprobar si se ha llegado al final del camino
-    if (0) // ESTO ES SIEMPRE FALSE!!!
+    } // Comprobar si se ha llegado al final del camino
+    if (strcmp(final, "") == 0)
     {
         if ((num_entrada_inodo < cant_entradas_inodo) && (reservar == 1))
         {
             // Modo escritura y entrada ya existente
             return ERROR_ENTRADA_YA_EXISTENTE;
         }
+        if(num_entrada_inodo == cant_entradas_inodo){
+            *p_inodo = numInodo;
+        }else{
+            *p_inodo = entrada.ninodo;
+        }
+        *p_entrada = num_entrada_inodo;
 
-        // Asignar a *p_inodo el número de inodo del directorio o fichero creado o leído
-        // *p_inodo =
-        // ASIGNAR A *p_entrada EL NUMERO DE SU ENTRADA DEL ÚLTIMO DIRECTORIO QUE LO CONTIENE
-        // *p_entrada =
+        return EXITO;
     }
     else
     {
