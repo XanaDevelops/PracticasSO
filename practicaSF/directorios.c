@@ -2,6 +2,7 @@
 #include <string.h>
 
 #define DEBUG7 1
+// Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
 
 int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsigned int *p_inodo,
                    unsigned int *p_entrada, char reservar, unsigned char permisos)
@@ -12,7 +13,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     char inicial[sizeof(entrada.nombre)];
     char final[strlen(camino_parcial)];
     char tipo;
-    int cant_entradas_inodo, num_entrada_inodo;
+    int cant_entradas_inodo, num_entrada_inodo, bytesleidos, trobat;
 
     // LECTURA SUPERBLOQUE
     struct superbloque sb;
@@ -23,7 +24,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     }
 
     // Comprobar si es el directorio raíz
-    if (strcmp(camino_parcial, "/")==0) 
+    if (strcmp(camino_parcial, "/") == 0)
     {
         *p_inodo = sb.posInodoRaiz;
         *p_entrada = 0;
@@ -48,8 +49,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         return ERROR_PERMISO_LECTURA;
     }
 
-    // REVISAR, NO SE SI ESTÀ BE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    struct entrada buff_entradas[BLOCKSIZE / sizeof(entrada)];
+    struct entrada buff_entradas[BLOCKSIZE / sizeof(struct entrada)];
     memset(buff_entradas, '\0', sizeof(buff_entradas));
 
     // CALCULAR ENTRADES INODO (COMPROVAR SI ESTÀ BÉ)
@@ -58,22 +58,22 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     // Número de entrada inicial
     num_entrada_inodo = 0;
 
+    trobat = 0;
     if (cant_entradas_inodo > 0)
     {
-        // AFEGIR FUNCIÓ LLETGIR ENTRADES
-        //no es una cridada a mi_read_f()??
-        // leer_entrada()
-        //mi_read_f(num_entrada_inodo, buff_entradas, 0, sizeof(buff_entradas)); ERROR permisos lectura??
-        //memcpy(&entrada, buff_entradas, sizeof(entrada));
-
-        while ((num_entrada_inodo < cant_entradas_inodo) && (inicial != entrada.nombre))
+        while ((num_entrada_inodo < cant_entradas_inodo) && !trobat)
         {
-            num_entrada_inodo++;
-            // Inicializar buffer de lectura a 0s
-            memset(buff_entradas, '\0', sizeof(buff_entradas));
-
-            // AFEGIR FUNCIÓ LLETGIR ENTRADA
-            // leer_entrada()
+            mi_read_f(*p_inodo_dir, buff_entradas, 0, BLOCKSIZE);
+            for (int i = 0; i < ((BLOCKSIZE / sizeof(struct entrada)) && !trobat); i++)
+            {
+                if (strcmp(inicial, buff_entradas[i].nombre) == 0)
+                {
+                    trobat = 1;
+                    memcpy(&entrada, &buff_entradas[i], sizeof(struct entrada));
+                    break;
+                }
+                num_entrada_inodo++;
+            }
         }
     }
 
@@ -95,8 +95,8 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 return ERROR_NO_SE_PUEDE_CREAR_ENTRADA_EN_UN_FICHERO;
             }
 
-            // Si es directorio comprobar que tiene permisos de lectura
-            if ((inodo_dir.permisos & 4) != 4)
+            // Si es directorio comprobar que tiene permisos de escritura
+            if ((inodo_dir.permisos & 2) != 2)
             {
                 return ERROR_PERMISO_ESCRITURA;
             }
@@ -105,54 +105,55 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 // COPIAR *inicial EN EL NOMBRE DE LA ENTRADA (COMPROVAR SI ESTA BE !!!!!!!)
                 memcpy(entrada.nombre, inicial, TAMNOMBRE);
 
-                    if(tipo == 'd')
+                if (tipo == 'd')
+                {
+                    if (*final == '/')
                     {
-                        if(*final == '/')
-                        {
-                            // Reservar inodo como directorio y asignarlo a la entrada (REVISAR !!!!!!!!!!!!)
-                            int numInodo = reservar_inodo('d', permisos);
-                            entrada.ninodo = numInodo;
-                        }
-                        else
-                        {
-                            return ERROR_NO_EXISTE_DIRECTORIO_INTERMEDIO;
-                        }
-                    }
-                    else 
-                    {
-                        // Reservar inodo como fichero y asignarlo a la entrada (REVISAR !!!!!!!!!!!!)
-                        int numInodo = reservar_inodo('f', permisos);
+                        // Reservar inodo como directorio y asignarlo a la entrada (REVISAR !!!!!!!!!!!!)
+                        int numInodo = reservar_inodo('d', permisos);
                         entrada.ninodo = numInodo;
                     }
-
-                // ESCRIBIR LA ENTRADA EN EL DIRECTORIO PADRE
-                // CONTROLAR ERROR DE ESCRITURA
+                    else
+                    {
+                        return ERROR_NO_EXISTE_DIRECTORIO_INTERMEDIO;
+                    }
+                }
+                else
+                {
+                    // Reservar inodo como fichero y asignarlo a la entrada (REVISAR !!!!!!!!!!!!)
+                    int numInodo = reservar_inodo('f', permisos);
+                    entrada.ninodo = numInodo;
+                }
+               
+                bytesleidos = mi_write_f(*p_inodo_dir, &entrada, inodo_dir.tamEnBytesLog, sizeof(struct entrada));
+                if(bytesleidos == FALLO){
+                    if(entrada.ninodo != -1){
+                        liberar_inodo(entrada.ninodo);
+                    }
+                    return FALLO;
+                }
             }
             break;
         }
-
-        // Comprobar si se ha llegado al final del camino
-        if (0) //ESTO ES SIEMPRE FALSE!!!
+    }      // Comprobar si se ha llegado al final del camino
+    if (0) // ESTO ES SIEMPRE FALSE!!!
+    {
+        if ((num_entrada_inodo < cant_entradas_inodo) && (reservar == 1))
         {
-            if ((num_entrada_inodo < cant_entradas_inodo) && (reservar == 1))
-            {
-                // Modo escritura y entrada ya existente
-                return ERROR_ENTRADA_YA_EXISTENTE;
-            }
-
-            // Asignar a *p_inodo el número de inodo del directorio o fichero creado o leído
-            // *p_inodo =
-            // ASIGNAR A *p_entrada EL NUMERO DE SU ENTRADA DEL ÚLTIMO DIRECTORIO QUE LO CONTIENE
-            // *p_entrada =
-        }
-        else
-        {
-            // Asignar a *p_inodo_dir el puntero al inodo que se indica en la entrada encontrada (REVISAR !!!!!!!!)
-            *p_inodo_dir = entrada.ninodo;
-            return buscar_entrada(final, p_inodo_dir, p_inodo, p_entrada, reservar, permisos);
+            // Modo escritura y entrada ya existente
+            return ERROR_ENTRADA_YA_EXISTENTE;
         }
 
-        return EXITO;
+        // Asignar a *p_inodo el número de inodo del directorio o fichero creado o leído
+        // *p_inodo =
+        // ASIGNAR A *p_entrada EL NUMERO DE SU ENTRADA DEL ÚLTIMO DIRECTORIO QUE LO CONTIENE
+        // *p_entrada =
+    }
+    else
+    {
+        // Asignar a *p_inodo_dir el puntero al inodo que se indica en la entrada encontrada (REVISAR !!!!!!!!)
+        *p_inodo_dir = entrada.ninodo;
+        return buscar_entrada(final, p_inodo_dir, p_inodo, p_entrada, reservar, permisos);
     }
 
     return EXITO;
