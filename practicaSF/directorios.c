@@ -214,7 +214,7 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
     int len = strlen(camino);
     if (len == 1)
     { // caso "/"
-        *tipo = 'd';
+        tipo = "d\0";
         *inicial = '\0';
         *final = '\0';
 #if DEBUG7A
@@ -241,11 +241,11 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
     pos = strchr(inicial, '/');
     if (pos == NULL)
     {
-        *tipo = 'f';
+        tipo = "f\0";
     }
     else
     {
-        *tipo = 'd';
+        tipo = "d\0";
         *pos = '\0';
     }
 #if DEBUG7A
@@ -254,6 +254,7 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
 
     return EXITO;
 }
+
 /**
  * Muestra el texto asociado a un error de buscar entrada
  */
@@ -285,3 +286,22 @@ void mostrar_error_buscar_entrada(int error)
         break;
     }
 }
+
+
+/**
+ * Crea un fichero/directorio y su entrada de directorio
+*/
+/*
+int mi_creat(const char *camino, unsigned char permisos)
+{
+    // LECTURA SUPERBLOQUE
+    struct superbloque sb;
+    if (bread(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: mi_creat(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    buscar_entrada(camino, sb.posInodoRaiz, sb.posInodoRaiz, sb.posInodoRaiz, 1, permisos);
+}
+*/
