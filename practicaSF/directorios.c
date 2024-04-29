@@ -146,7 +146,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 // Salvar inodo
                 if (escribir_inodo(*p_inodo_dir, &inodo_dir) == FALLO)
                 {
-                    fprintf(stderr, RED "ERROR: buscar_entrada(): No se ha podido escribir el inodo %d \n" RESET, p_inodo_dir);
+                    fprintf(stderr, RED "ERROR: buscar_entrada(): No se ha podido escribir el inodo %ls \n" RESET, p_inodo_dir);
                     return FALLO;
                 }
             }
