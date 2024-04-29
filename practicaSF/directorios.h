@@ -24,3 +24,4 @@ void mostrar_error_buscar_entrada(int error);
 /* NIVEL 8 */
 int mi_creat(const char *camino, unsigned char permisos);
 
+

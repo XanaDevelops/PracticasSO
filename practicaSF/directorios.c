@@ -302,6 +302,6 @@ int mi_creat(const char *camino, unsigned char permisos)
         return FALLO;
     }
 
-    buscar_entrada(camino, sb.posInodoRaiz, sb.posInodoRaiz, sb.posInodoRaiz, 1, permisos);
+    buscar_entrada(camino, sb.posInodoRaiz, p inodo, p entrada ,1, permisos);
 }
 */
