@@ -198,7 +198,7 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
     int len = strlen(camino);
     if (len == 1)
     { // caso "/"
-        *tipo = 'd\0';
+        tipo = "d\0";
         *inicial = '\0';
         *final = '\0';
 #if DEBUG7
@@ -225,11 +225,11 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
     pos = strchr(inicial, '/');
     if (pos == NULL)
     {
-        *tipo = 'f\0';
+        tipo = "f\0";
     }
     else
     {
-        *tipo = 'd\0';
+        tipo = "d\0";
         *pos = '\0';
     }
 #if DEBUG7
