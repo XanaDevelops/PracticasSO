@@ -250,9 +250,11 @@ void mostrar_error_buscar_entrada(int error)
     }
 }
 
+
 /**
  * Crea un fichero/directorio y su entrada de directorio
 */
+/*
 int mi_creat(const char *camino, unsigned char permisos)
 {
     // LECTURA SUPERBLOQUE
@@ -265,3 +267,4 @@ int mi_creat(const char *camino, unsigned char permisos)
 
     buscar_entrada(camino, sb.posInodoRaiz, sb.posInodoRaiz, sb.posInodoRaiz, 1, permisos);
 }
+*/
