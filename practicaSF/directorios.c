@@ -217,6 +217,7 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
 
     return EXITO;
 }
+
 /**
  * Muestra el texto asociado a un error de buscar entrada
  */
@@ -247,4 +248,20 @@ void mostrar_error_buscar_entrada(int error)
         fprintf(stderr, "Error: No es un directorio.\n");
         break;
     }
+}
+
+/**
+ * Crea un fichero/directorio y su entrada de directorio
+*/
+int mi_creat(const char *camino, unsigned char permisos)
+{
+    // LECTURA SUPERBLOQUE
+    struct superbloque sb;
+    if (bread(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: mi_creat(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    buscar_entrada(camino, sb.posInodoRaiz, sb.posInodoRaiz, sb.posInodoRaiz, 1, permisos);
 }
