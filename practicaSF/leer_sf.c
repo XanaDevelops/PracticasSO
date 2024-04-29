@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 
     if (bread(posSB, &SB) == -1)
     {
-        fprintf(stderr, RED "ERROR: escribir_bit(): No se ha podido leer SB\n" RESET);
+        fprintf(stderr, RED "ERROR: leer_sf(): No se ha podido leer SB\n" RESET);
         return FALLO;
     }
 
