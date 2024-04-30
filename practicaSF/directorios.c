@@ -60,8 +60,8 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     memset(buff_entradas, '\0', sizeof(buff_entradas));
     memset(&entrada, '\0', sizeof(struct entrada));
 
-    // CALCULAR ENTRADES INODO (COMPROVAR SI ESTÀ BÉ)
-    cant_entradas_inodo = inodo_dir.nlinks;
+    // CALCULAR ENTRADES INODO 
+    cant_entradas_inodo = inodo_dir.tamEnBytesLog/sizeof(struct entrada);
 
     // Número de entrada inicial
     num_entrada_inodo = 0;
@@ -139,17 +139,6 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
 #if DEBUG7B
                 fprintf(stderr, GRAY "[buscar_entrada()→ reservado inodo %d tipo %c con permisos %d para %s]\n" RESET, numInodo, tipo, permisos, inicial);
 #endif
-                //*******************************************************
-                // Actualizar nlinks
-                inodo_dir.nlinks++;
-
-                // Salvar inodo
-                if (escribir_inodo(*p_inodo_dir, &inodo_dir) == FALLO)
-                {
-                    fprintf(stderr, RED "ERROR: buscar_entrada(): No se ha podido escribir el inodo %d \n" RESET, *p_inodo_dir);
-                    return FALLO;
-                }
-                //*************************************************
                 int bytesescitos = mi_write_f(*p_inodo_dir, &entrada, inodo_dir.tamEnBytesLog, sizeof(struct entrada));
                 if (bytesescitos == FALLO)
                 {
@@ -166,8 +155,8 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
             break;
         }
     } // Comprobar si se ha llegado al final del camino
-    if (strcmp(final, "") == 0// || strcmp(final, "/") == 0)
-     ) {
+    if (strcmp(final, "") == 0 || strcmp(final, "/") == 0)
+      {
         if ((num_entrada_inodo < cant_entradas_inodo) && (reservar == 1))
         {
             // Modo escritura y entrada ya existente
