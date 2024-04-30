@@ -302,19 +302,51 @@ int mi_creat(const char *camino, unsigned char permisos)
     }
 
     unsigned int p_inodo, p_entrada;
-    int error;
+    int return_buscar_entrada;
 
-    error = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 1, permisos);
+    return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 1, permisos);
 
-    if(error != EXITO) {
+    if(return_buscar_entrada != EXITO) {
         // Notificar error devuelto por buscar_entrada()
-        mostrar_error_buscar_entrada(error);
+        mostrar_error_buscar_entrada(return_buscar_entrada);
         // Devolver FALLO
         return FALLO;
     }
 
     return EXITO;
 }
+
+/**
+ * Cambia los permisos de un fichero o directorio
+*/
+int mi_chmod(const char *camino, unsigned char permisos)
+{
+    // LECTURA SUPERBLOQUE
+    struct superbloque sb;
+    if (bread(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: mi_creat(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    unsigned int p_inodo, p_entrada;
+    int return_buscar_entrada;
+
+    return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
+
+    if(return_buscar_entrada != EXITO) {
+        // Notificar error devuelto por buscar_entrada()
+        mostrar_error_buscar_entrada(return_buscar_entrada);
+        // Devolver FALLO
+        return FALLO;
+    }
+
+    // Llamada a mi_chmod_f de la capa de ficheros, pasandole el p_inodo
+    mi_chmod_f(p_inodo, permisos);
+
+    return EXITO;
+}
+
 
 /**
  * Muestra la información acerca del inodo de un fichero o directorio
@@ -330,13 +362,13 @@ int mi_stat(const char *camino, struct STAT *p_stat)
     }
 
     unsigned int p_inodo, p_entrada;
-    int error;
+    int return_buscar_entrada;
 
-    error = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
+    return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
 
-    if(error != EXITO) {
+    if(return_buscar_entrada != EXITO) {
         // Notificar error devuelto por buscar_entrada()
-        mostrar_error_buscar_entrada(error);
+        mostrar_error_buscar_entrada(return_buscar_entrada);
         // Devolver FALLO
         return FALLO;
     }

@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     
     struct STAT p_stat;
 
-    // Llamada a mi_stat
+    // Llamada a mi_stat de la capa de directorios
     mi_stat(*(argv + 2), &p_stat);
 
     // desmontamos disco
