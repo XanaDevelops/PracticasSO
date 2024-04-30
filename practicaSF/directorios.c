@@ -276,7 +276,6 @@ void mostrar_error_buscar_entrada(int error)
     }
 }
 
-
 /**
  * Crea un fichero/directorio y su entrada de directorio
 */
@@ -387,7 +386,7 @@ int imprimir_stat(struct STAT *p_stat)
     fprintf(stdout, "mtime: %s", ctime(&p_stat->mtime));
     fprintf(stdout, "nlinks: %d\n", p_stat->nlinks);
     fprintf(stdout, "tamEnBytesLog: %d\n", p_stat->tamEnBytesLog);
-    fprintf(stdout, "numBloques: %d\n", p_stat->numBloquesOcupados);
+    fprintf(stdout, "numBloquesOcupados: %d\n", p_stat->numBloquesOcupados);
 
     return EXITO;
 }
