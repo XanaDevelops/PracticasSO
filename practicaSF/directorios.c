@@ -205,7 +205,7 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
 #if DEBUG7A
     fprintf(stderr, GRAY "[extraer_camino() -> extrayendo %s]\n" RESET, camino);
 #endif
-
+    // comprobar que empieza por '/'
     if (*camino != '/')
     {
         return FALLO;
@@ -222,7 +222,7 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
 #endif
         return EXITO;
     }
-
+    // dividir siguiente '/'
     char *pos = strchr(camino + 1, '/');
 #if DEBUG7A
     fprintf(stderr, GRAY "[extraer_camino() -> pos: %s]\n" RESET, pos);
@@ -239,11 +239,11 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
     }
 
     pos = strchr(inicial, '/');
-    if (pos == NULL)
+    if (pos == NULL) //es fichero
     {
         tipo = "f\0";
     }
-    else
+    else //es directorio
     {
         tipo = "d\0";
         *pos = '\0';
