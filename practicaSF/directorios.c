@@ -291,7 +291,6 @@ void mostrar_error_buscar_entrada(int error)
 /**
  * Crea un fichero/directorio y su entrada de directorio
 */
-/*
 int mi_creat(const char *camino, unsigned char permisos)
 {
     // LECTURA SUPERBLOQUE
@@ -302,6 +301,69 @@ int mi_creat(const char *camino, unsigned char permisos)
         return FALLO;
     }
 
-    buscar_entrada(camino, sb.posInodoRaiz, p inodo, p entrada ,1, permisos);
+    unsigned int p_inodo, p_entrada;
+    int error;
+
+    error = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 1, permisos);
+
+    if(error != EXITO) {
+        // Notificar error devuelto por buscar_entrada()
+        mostrar_error_buscar_entrada(error);
+        // Devolver FALLO
+        return FALLO;
+    }
+
+    return EXITO;
 }
-*/
+
+int mi_stat(const char *camino, struct STAT *p_stat) 
+{
+    // LECTURA SUPERBLOQUE
+    struct superbloque sb;
+    if (bread(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: mi_creat(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    unsigned int p_inodo, p_entrada;
+    int error;
+
+    error = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 1, 4);
+
+    if(error != EXITO) {
+        // Notificar error devuelto por buscar_entrada()
+        mostrar_error_buscar_entrada(error);
+        // Devolver FALLO
+        return FALLO;
+    }
+
+    // Llamada a mi_stat_f de la capa de ficheros, pasandole el p_inodo
+    mi_stat_f(p_inodo, p_stat);
+
+    // Mostrar el número de inodo junto con su información de estado
+    fprintf(stdout, "Nº de inodo: %d \n", p_inodo);
+    imprimir_stat(p_stat);
+
+    return EXITO;
+
+}
+
+// AUXILIAR
+/**
+ * imprime todos los parametros de struct STAT
+ * return: EXITO o FALLO
+ */
+int imprimir_stat(struct STAT *p_stat)
+{
+    fprintf(stdout, "tipo: %c\n", p_stat->tipo);
+    fprintf(stdout, "permisos: %d\n", p_stat->permisos);
+    fprintf(stdout, "atime: %s", ctime(&p_stat->atime));
+    fprintf(stdout, "ctime: %s", ctime(&p_stat->ctime));
+    fprintf(stdout, "mtime: %s", ctime(&p_stat->mtime));
+    fprintf(stdout, "nlinks: %d\n", p_stat->nlinks);
+    fprintf(stdout, "tamEnBytesLog: %d\n", p_stat->tamEnBytesLog);
+    fprintf(stdout, "numBloques: %d\n", p_stat->numBloquesOcupados);
+
+    return EXITO;
+}

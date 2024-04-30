@@ -1,3 +1,7 @@
+/*Ferriol Font, Josep
+García Vázquez, Daniel
+Perelló Perelló, Biel*/
+
 #include "ficheros.h"
 
 #define TAMNOMBRE 60 // tamaño del nombre de directorio o fichero
@@ -23,5 +27,10 @@ void mostrar_error_buscar_entrada(int error);
 
 /* NIVEL 8 */
 int mi_creat(const char *camino, unsigned char permisos);
+int mi_dir(const char *camino, char *buffer, char tipo, char flag);
+int mi_chmod(const char *camino, unsigned char permisos);
+int mi_stat(const char *camino, struct STAT *p_stat);
 
+// auxiliar
+int imprimir_stat(struct STAT *p_stat);
 
