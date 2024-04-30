@@ -166,8 +166,8 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
             break;
         }
     } // Comprobar si se ha llegado al final del camino
-    if (strcmp(final, "") == 0 || strcmp(final, "/") == 0)
-    {
+    if (strcmp(final, "") == 0// || strcmp(final, "/") == 0)
+     ) {
         if ((num_entrada_inodo < cant_entradas_inodo) && (reservar == 1))
         {
             // Modo escritura y entrada ya existente
@@ -214,7 +214,7 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
     int len = strlen(camino);
     if (len == 1)
     { // caso "/"
-        tipo = "d\0";
+        *tipo = 'f';
         *inicial = '\0';
         *final = '\0';
 #if DEBUG7A
@@ -241,11 +241,11 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
     pos = strchr(inicial, '/');
     if (pos == NULL)
     {
-        tipo = "f\0";
+        *tipo = 'f';
     }
     else
     {
-        tipo = "d\0";
+        *tipo = 'd';
         *pos = '\0';
     }
 #if DEBUG7A
