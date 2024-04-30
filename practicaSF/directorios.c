@@ -301,7 +301,7 @@ int mi_creat(const char *camino, unsigned char permisos)
         return FALLO;
     }
 
-    unsigned int p_inodo, p_entrada;
+    unsigned int p_inodo = 0, p_entrada = 0;
     int return_buscar_entrada;
 
     return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 1, permisos);
@@ -329,7 +329,7 @@ int mi_chmod(const char *camino, unsigned char permisos)
         return FALLO;
     }
 
-    unsigned int p_inodo, p_entrada;
+    unsigned int p_inodo = 0, p_entrada = 0;
     int return_buscar_entrada;
 
     return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
@@ -361,7 +361,7 @@ int mi_stat(const char *camino, struct STAT *p_stat)
         return FALLO;
     }
 
-    unsigned int p_inodo, p_entrada;
+    unsigned int p_inodo = 0, p_entrada = 0;
     int return_buscar_entrada;
 
     return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
