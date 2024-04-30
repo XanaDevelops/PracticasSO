@@ -316,6 +316,9 @@ int mi_creat(const char *camino, unsigned char permisos)
     return EXITO;
 }
 
+/**
+ * Muestra la información acerca del inodo de un fichero o directorio
+*/
 int mi_stat(const char *camino, struct STAT *p_stat) 
 {
     // LECTURA SUPERBLOQUE
@@ -329,7 +332,7 @@ int mi_stat(const char *camino, struct STAT *p_stat)
     unsigned int p_inodo, p_entrada;
     int error;
 
-    error = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 1, 4);
+    error = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
 
     if(error != EXITO) {
         // Notificar error devuelto por buscar_entrada()
