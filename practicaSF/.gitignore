@@ -5,6 +5,8 @@ leer
 disco
 permitir
 truncar
+mi_stat
+mi_chmod
 *.dsk*
 *.txt
 testd.sh
