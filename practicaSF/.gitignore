@@ -8,6 +8,7 @@ truncar
 mi_stat
 mi_chmod
 mi_mkdir
+mi_cat
 *.dsk*
 *.txt
 testd.sh

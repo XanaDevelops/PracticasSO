@@ -6,6 +6,14 @@
 
 // Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
 
+/**
+ * Busca una determinada entrada, dado un camino y el número de inodo del directorio padre
+ * Obtiene: 
+ *  - El número de inodo al que está asociado el nombre de la entrada
+ *  - El número de entrada dentro del inodo padre que lo contiene
+ * 
+ * return: ÉXITO o FALLO
+*/
 int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsigned int *p_inodo,
                    unsigned int *p_entrada, char reservar, unsigned char permisos)
 {
@@ -187,7 +195,8 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
 /**
  * Separa camino en inicio, final, configura tipo
  * Asume tamaño inicial y final igual a camino, problemas si no...
- * return: EXITO o FALLO
+ * 
+ * return: ÉXITO o FALLO
  */
 int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
 {
@@ -278,6 +287,8 @@ void mostrar_error_buscar_entrada(int error)
 
 /**
  * Crea un fichero/directorio y su entrada de directorio
+ * 
+ * return: ÉXITO o FALLO
 */
 int mi_creat(const char *camino, unsigned char permisos)
 {
@@ -306,6 +317,8 @@ int mi_creat(const char *camino, unsigned char permisos)
 
 /**
  * Cambia los permisos de un fichero o directorio
+ * 
+ * return: ÉXITO o FALLO
 */
 int mi_chmod(const char *camino, unsigned char permisos)
 {
@@ -313,7 +326,7 @@ int mi_chmod(const char *camino, unsigned char permisos)
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
     {
-        fprintf(stderr, RED "ERROR: mi_creat(): No se ha podido leer SB\n" RESET);
+        fprintf(stderr, RED "ERROR: mi_chmod(): No se ha podido leer SB\n" RESET);
         return FALLO;
     }
 
@@ -338,6 +351,8 @@ int mi_chmod(const char *camino, unsigned char permisos)
 
 /**
  * Muestra la información acerca del inodo de un fichero o directorio
+ * 
+ * return: ÉXITO o FALLO
 */
 int mi_stat(const char *camino, struct STAT *p_stat) 
 {
@@ -345,7 +360,7 @@ int mi_stat(const char *camino, struct STAT *p_stat)
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
     {
-        fprintf(stderr, RED "ERROR: mi_creat(): No se ha podido leer SB\n" RESET);
+        fprintf(stderr, RED "ERROR: mi_stat(): No se ha podido leer SB\n" RESET);
         return FALLO;
     }
 
@@ -375,6 +390,7 @@ int mi_stat(const char *camino, struct STAT *p_stat)
 // AUXILIAR
 /**
  * imprime todos los parametros de struct STAT
+ * 
  * return: EXITO o FALLO
  */
 int imprimir_stat(struct STAT *p_stat)
@@ -390,3 +406,71 @@ int imprimir_stat(struct STAT *p_stat)
 
     return EXITO;
 }
+
+/**
+ * Lee los nbytes del fichero indicado por el camino
+ * 
+ * return: Devuelve los bytes leídos
+*/
+int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes)
+{
+    // LECTURA SUPERBLOQUE
+    struct superbloque sb;
+    if (bread(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: mi_read(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    unsigned int p_inodo = 0, p_entrada = 0;
+    int return_buscar_entrada, bytesLeidos;
+
+    return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
+
+    if(return_buscar_entrada != EXITO) {
+        // Notificar error devuelto por buscar_entrada()
+        mostrar_error_buscar_entrada(return_buscar_entrada);
+        // Devolver FALLO
+        return FALLO;
+    }
+
+    bytesLeidos = mi_read_f(p_inodo, buf, offset, nbytes);
+
+    return bytesLeidos;
+}
+
+// AUXILIAR
+/**
+ * Busca si el camino pasado por parámetro esta almacenado en la caché
+ * 
+ * return: número de inodo si se ha encontrado la entrada o -1
+*/
+int buscar_en_cache(const char *camino) {
+    for (int i = 0; i < CACHE_SIZE; i++) {
+        if (strcmp(UltimasEntradas[i].camino, camino) == 0) {
+            return UltimasEntradas[i].p_inodo;
+        }
+    }
+
+    // Indica que el camino no se encontró en la caché
+    return -1; 
+}
+
+/**
+ * Actualiza la caché con un camino y número de inodo pasado por parámetro
+*/
+void actualizar_cache(const char *camino, int p_inodo)
+{
+    // Si el camino ya está en la caché, no es necesario actualizar
+    if (buscar_en_cache(camino) != -1) {
+        return;
+    }
+
+    // Si no se encuentra el camino en la caché, actualizar la entrada en la posición del puntero de cola circular
+    strcpy(UltimasEntradas[puntero_cola].camino, camino);
+    UltimasEntradas[puntero_cola].p_inodo = p_inodo;
+
+    // Avanzar el puntero de cola circular
+    puntero_cola = (puntero_cola + 1) % CACHE_SIZE;
+}
+
