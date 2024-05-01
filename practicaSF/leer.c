@@ -5,7 +5,7 @@ Perelló Perelló, Biel*/
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "ficheros.h"
+#include "directorios.h"
 
 void errorExit();
 //#define BLOCKLEER  (4 * BLOCKSIZE)

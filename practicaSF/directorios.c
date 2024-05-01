@@ -445,6 +445,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
  * 
  * return: número de inodo si se ha encontrado la entrada o -1
 */
+/*
 int buscar_en_cache(const char *camino) {
     for (int i = 0; i < CACHE_SIZE; i++) {
         if (strcmp(UltimasEntradas[i].camino, camino) == 0) {
@@ -455,10 +456,12 @@ int buscar_en_cache(const char *camino) {
     // Indica que el camino no se encontró en la caché
     return -1; 
 }
+*/
 
 /**
  * Actualiza la caché con un camino y número de inodo pasado por parámetro
 */
+/*
 void actualizar_cache(const char *camino, int p_inodo)
 {
     // Si el camino ya está en la caché, no es necesario actualizar
@@ -473,4 +476,5 @@ void actualizar_cache(const char *camino, int p_inodo)
     // Avanzar el puntero de cola circular
     puntero_cola = (puntero_cola + 1) % CACHE_SIZE;
 }
+*/
 

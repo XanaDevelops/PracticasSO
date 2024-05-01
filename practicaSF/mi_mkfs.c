@@ -103,10 +103,11 @@ void errorExit()
     exit(FALLO);
 }
 
+
 // AUXILIAR
 /**
  * Inicializa el array de caché para la lectura y escritura en ficheros
-*/
+ * 
 void inicializarCache() {
     // Inicializa todas las entradas de la caché
     for (int i = 0; i < CACHE_SIZE; i++) {
@@ -115,3 +116,4 @@ void inicializarCache() {
         UltimasEntradas[i].p_inodo = -1; 
     }
 }
+*/

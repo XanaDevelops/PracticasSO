@@ -29,10 +29,10 @@ struct UltimaEntrada{
 };
 
 // Array de caché
-static struct UltimaEntrada UltimasEntradas[CACHE_SIZE];
+//static struct UltimaEntrada UltimasEntradas[CACHE_SIZE];
 
 // Puntero de cola circular para gestionar la caché
-static int puntero_cola = 0;
+//static int puntero_cola = 0;
 
 
 /* NIVEL 7 */
@@ -55,4 +55,3 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
 int imprimir_stat(struct STAT *p_stat);
 int buscar_en_cache(const char *camino);
 void actualizar_cache(const char *camino, int p_inodo);
-
