@@ -389,9 +389,19 @@ int mi_stat(const char *camino, struct STAT *p_stat)
 
 /**
  * PLACEHOLDER mi_dir()
+ * return: EXITO o FALLO
 */
 int mi_dir(const char *camino, char *buffer, char tipo, char flag){
-    return FALLO;
+    
+    struct superbloque sb;
+    if(bread(posSB, &sb)==FALLO){
+        fprintf(stderr, RED "ERROR mi_dir() -> No se ha podido leer el SB\n" RESET);
+        return FALLO;
+    }
+    unsigned int p_inodo_dir, p_inodo;
+    //buscar_entrada(camino, &p_inodo_dir, &p_inodo)
+
+    return EXITO;
 }
 
 // AUXILIAR
