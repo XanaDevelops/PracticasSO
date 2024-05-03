@@ -387,6 +387,13 @@ int mi_stat(const char *camino, struct STAT *p_stat)
 
 }
 
+/**
+ * PLACEHOLDER mi_dir()
+*/
+int mi_dir(const char *camino, char *buffer, char tipo, char flag){
+    return FALLO;
+}
+
 // AUXILIAR
 /**
  * imprime todos los parametros de struct STAT
