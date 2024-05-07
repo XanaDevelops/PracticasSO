@@ -24,7 +24,7 @@ struct entrada
 
 // Estructura para representar una entrada de la caché
 struct UltimaEntrada{
-   char camino [TAMNOMBRE*PROFUNDIDAD];
+   char camino[TAMNOMBRE*PROFUNDIDAD];
    int p_inodo;
 };
 
@@ -54,4 +54,4 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
 // auxiliar
 int imprimir_stat(struct STAT *p_stat);
 int buscar_en_cache(const char *camino);
-void actualizar_cache(const char *camino, int p_inodo);
+void actualizar_cache(const struct UltimaEntrada *nueva_entrada);

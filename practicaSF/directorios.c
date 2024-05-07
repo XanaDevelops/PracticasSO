@@ -466,7 +466,9 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
     {
         return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
         struct UltimaEntrada aux;
-        *aux.camino = &camino;
+        strncpy(aux.camino, camino, sizeof(aux.camino) - 1);
+        aux.camino[sizeof(aux.camino) - 1] = '\0'; 
+
         aux.p_inodo = p_inodo;
         actualizar_cache(&aux);
     }
@@ -513,7 +515,9 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
     {
         return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
         struct UltimaEntrada aux;
-        *aux.camino = &camino;
+        strncpy(aux.camino, camino, sizeof(aux.camino) - 1);
+        aux.camino[sizeof(aux.camino) - 1] = '\0'; 
+        
         aux.p_inodo = p_inodo;
         actualizar_cache(&aux);
     }
@@ -531,7 +535,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
     return bytesLeidos;
 }
 
-// AUXILIARS
+//************************************* MILLORA NIVELL 9***********************************************
 /**
  * Busca si el camino pasado por parámetro esta almacenado en la caché
  *
