@@ -8,7 +8,7 @@ Perelló Perelló, Biel*/
 #include <stdlib.h>
 #include "directorios.h"
 
-void print_estado(struct STAT *estado);
+void print_estado(struct STAT *estado); 
 void errorExit();
 
 int main(int argc, char **argv)

@@ -9,7 +9,6 @@ Perelló Perelló, Biel*/
 
 //#define BLOCKLEER  (4 * BLOCKSIZE)
 #define BLOCKCAT  1500
-
 #define DEBUG9 1
 
 int main(int argc, char **argv)

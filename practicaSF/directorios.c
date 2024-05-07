@@ -3,6 +3,8 @@
 
 #define DEBUG7A 0
 #define DEBUG7B 1
+// Implemnetada mejora
+static struct UltimaEntrada UltimaEntradaIO;
 
 // Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
 
@@ -287,8 +289,6 @@ void mostrar_error_buscar_entrada(int error)
 }
 //***************************************OTRAS FUNCIONES***********************************************
 
-
-
 //******************************Creación de ficheros y directorios*************************************
 /**
  * Crea un fichero/directorio y su entrada de directorio
@@ -321,8 +321,6 @@ int mi_creat(const char *camino, unsigned char permisos)
     return EXITO;
 }
 
-
-
 //******************************Listado del contenido de un directorio*********************************
 
 /**
@@ -343,8 +341,6 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
 
     return EXITO;
 }
-
-
 
 //******************************Cambio de permisos de un fichero o directorio**************************
 /**
@@ -440,7 +436,7 @@ int imprimir_stat(struct STAT *p_stat)
     return EXITO;
 }
 
-//*************************************************************************
+//************************* Escritura en un offset de un fichero***************************************
 /**
  * Escribe contenido en un fichero indicado por el camino
  *
@@ -458,8 +454,17 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
 
     unsigned int p_inodo = 0, p_entrada = 0;
     int return_buscar_entrada, bytesEscritos;
-
-    return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
+    if (strcmp(UltimaEntradaIO.camino, camino) == 0)
+    {
+        p_inodo = UltimaEntradaIO.p_inodo;
+        return_buscar_entrada = EXITO;
+    }
+    else
+    {
+        return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
+        UltimaEntradaIO.p_inodo = p_inodo;
+        *UltimaEntradaIO.camino = &camino;
+    }
 
     if (return_buscar_entrada != EXITO)
     {
@@ -474,6 +479,7 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
     return bytesEscritos;
 }
 
+//************************* Lectura secuencial de todo el contenido de un fichero**********************
 /**
  * Lee los nbytes del fichero indicado por el camino
  *
