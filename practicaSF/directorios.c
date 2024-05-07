@@ -425,6 +425,38 @@ int imprimir_stat(struct STAT *p_stat)
 }
 
 /**
+ * Escribe contenido en un fichero indicado por el camino
+ * 
+ * return: Deuvelve los bytes escritos
+*/
+int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned int nbytes)
+{
+    // LECTURA SUPERBLOQUE
+    struct superbloque sb;
+    if (bread(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: mi_write(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    unsigned int p_inodo = 0, p_entrada = 0;
+    int return_buscar_entrada, bytesEscritos;
+
+    return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
+
+    if(return_buscar_entrada != EXITO) {
+        // Notificar error devuelto por buscar_entrada()
+        mostrar_error_buscar_entrada(return_buscar_entrada);
+        // Devolver FALLO
+        return FALLO;
+    }
+
+    bytesEscritos = mi_write_f(p_inodo, buf, offset, nbytes);
+
+    return bytesEscritos;
+}
+
+/**
  * Lee los nbytes del fichero indicado por el camino
  * 
  * return: Devuelve los bytes leídos

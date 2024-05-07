@@ -62,27 +62,24 @@ int main(int argc, char **argv)
 
     struct STAT fichero;
     mi_stat(ruta, &fichero);
-    
-    unsigned int final_f = fichero.tamEnBytesLog;
-    unsigned int offset = 0;
 
-    while(offset < final_f) 
+    unsigned int final_f = fichero.tamEnBytesLog;
+    unsigned int bytesLeidos = 0;
+    unsigned int cont_bytes = 0;
+
+    for (int offset = 0; offset <= final_f; offset += BLOCKCAT)
     {
-        unsigned int cont_bytes = mi_read(ruta, buff, offset, BLOCKCAT); 
+        cont_bytes = mi_read(ruta, buff, offset, BLOCKCAT); 
+        /* fprintf(stderr, GRAY "----------------: \n");
+        fprintf(stderr, GRAY "%d-%d-%d-%d-: \n", cont,cont_bytes,final_f,i);*/
 
         if (cont_bytes == FALLO)
         {
-            // Desmontamos el disco antes de salir
-            if (bumount() == FALLO)
-            {
-                return FALLO;
-            }
-            return FALLO;
+            break;
         }
 
+        bytesLeidos += cont_bytes;
         fwrite(buff, 1, cont_bytes, stdout);
-        offset += cont_bytes;
-        
     }
 
     // desmontamos disco
@@ -92,7 +89,7 @@ int main(int argc, char **argv)
     }
 
 #if DEBUG9
-    fprintf(stderr, GRAY "total_leidos: %d\n", offset);
+    fprintf(stderr, GRAY "total_leidos: %d\n", bytesLeidos);
     fprintf(stderr, GRAY "tamEnBytesLog: %d\n", fichero.tamEnBytesLog);
 #endif
 
