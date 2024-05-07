@@ -7,6 +7,19 @@ Perelló Perelló, Biel*/
 #include <stdlib.h>
 #include "directorios.h"
 
+int exitError();
+
+int exitError(){
+// Desmontar el disco antes de salir
+        if (bumount() == FALLO)
+        {
+            return FALLO;
+        }
+
+        return FALLO;
+
+}
+
 int main(int argc, char **argv)
 {
     // Comprobar argumentos de consola
@@ -28,13 +41,8 @@ int main(int argc, char **argv)
     if(permisos < 0 || permisos > 7)
     {
         fprintf(stderr, RED "PERMISOS INVÁLIDOS: Los permisos deben estar en el rango de 0 a 7.\n" RESET);
-        // Desmontar el disco antes de salir
-        if (bumount() == FALLO)
-        {
-            return FALLO;
-        }
-
-        return FALLO;
+        return exitError();
+        
     }
 
     // Verificar si la ruta termina con '/'
@@ -48,14 +56,8 @@ int main(int argc, char **argv)
     }
     else
     {
-        fprintf(stderr, RED "RUTA INVÁLIDA: La ruta para mi_mkdir debe terminar con '/'.\n" RESET);
-        // Desmontar el disco antes de salir
-        if (bumount() == FALLO)
-        {
-            return FALLO;
-        }
-
-        return FALLO;
+        fprintf(stderr, RED "RUTA INVÁLIDA: La ruta para mi_mkdir para crear directorio debe terminar con '/'.\n" RESET);
+        return exitError();
     }
 
     // Desmontar disco

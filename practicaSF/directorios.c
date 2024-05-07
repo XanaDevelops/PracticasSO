@@ -6,14 +6,15 @@
 
 // Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
 
+//***************************************BUSCAR ENTRADA Y AUXILIARES**************************************
 /**
  * Busca una determinada entrada, dado un camino y el número de inodo del directorio padre
- * Obtiene: 
+ * Obtiene:
  *  - El número de inodo al que está asociado el nombre de la entrada
  *  - El número de entrada dentro del inodo padre que lo contiene
- * 
+ *
  * return: ÉXITO o FALLO
-*/
+ */
 int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsigned int *p_inodo,
                    unsigned int *p_entrada, char reservar, unsigned char permisos)
 {
@@ -68,8 +69,8 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     memset(buff_entradas, '\0', sizeof(buff_entradas));
     memset(&entrada, '\0', sizeof(struct entrada));
 
-    // CALCULAR ENTRADES INODO 
-    cant_entradas_inodo = inodo_dir.tamEnBytesLog/sizeof(struct entrada);
+    // CALCULAR ENTRADES INODO
+    cant_entradas_inodo = inodo_dir.tamEnBytesLog / sizeof(struct entrada);
 
     // Número de entrada inicial
     num_entrada_inodo = 0;
@@ -121,7 +122,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
             }
             else
             {
-                // COPIAR *inicial EN EL NOMBRE DE LA ENTRADA (COMPROVAR SI ESTA BE !!!!!!!)
+                // COPIAR *inicial EN EL NOMBRE DE LA ENTRADA
                 memset(&entrada, '\0', sizeof(struct entrada));
                 memcpy(entrada.nombre, inicial, sizeof(struct entrada));
 
@@ -129,7 +130,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 {
                     if (strcmp(final, "/") == 0)
                     {
-                        // Reservar inodo como directorio y asignarlo a la entrada (REVISAR !!!!!!!!!!!!)
+                        // Reservar inodo como directorio y asignarlo a la entrada
                         numInodo = reservar_inodo('d', permisos);
                         entrada.ninodo = numInodo;
                     }
@@ -140,7 +141,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 }
                 else
                 {
-                    // Reservar inodo como fichero y asignarlo a la entrada (REVISAR !!!!!!!!!!!!)
+                    // Reservar inodo como fichero y asignarlo a la entrada
                     numInodo = reservar_inodo('f', permisos);
                     entrada.ninodo = numInodo;
                 }
@@ -164,7 +165,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         }
     } // Comprobar si se ha llegado al final del camino
     if (strcmp(final, "") == 0 || strcmp(final, "/") == 0)
-      {
+    {
         if ((num_entrada_inodo < cant_entradas_inodo) && (reservar == 1))
         {
             // Modo escritura y entrada ya existente
@@ -195,7 +196,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
 /**
  * Separa camino en inicio, final, configura tipo
  * Asume tamaño inicial y final igual a camino, problemas si no...
- * 
+ *
  * return: ÉXITO o FALLO
  */
 int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
@@ -237,11 +238,11 @@ int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
     }
 
     pos = strchr(inicial, '/');
-    if (pos == NULL) //es fichero
+    if (pos == NULL) // es fichero
     {
         *tipo = 'f';
     }
-    else //es directorio
+    else // es directorio
     {
         *tipo = 'd';
         *pos = '\0';
@@ -284,12 +285,12 @@ void mostrar_error_buscar_entrada(int error)
         break;
     }
 }
-
+//***************************************OTRAS FUNCIONES***********************************************
 /**
  * Crea un fichero/directorio y su entrada de directorio
- * 
+ *
  * return: ÉXITO o FALLO
-*/
+ */
 int mi_creat(const char *camino, unsigned char permisos)
 {
     // LECTURA SUPERBLOQUE
@@ -305,7 +306,8 @@ int mi_creat(const char *camino, unsigned char permisos)
 
     return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 1, permisos);
 
-    if(return_buscar_entrada != EXITO) {
+    if (return_buscar_entrada != EXITO)
+    {
         // Notificar error devuelto por buscar_entrada()
         mostrar_error_buscar_entrada(return_buscar_entrada);
         // Devolver FALLO
@@ -315,11 +317,35 @@ int mi_creat(const char *camino, unsigned char permisos)
     return EXITO;
 }
 
+
+
+//******************************MI_LS********************************************
+
+/**
+ * PLACEHOLDER mi_dir()
+ * return: EXITO o FALLO
+ */
+int mi_dir(const char *camino, char *buffer, char tipo, char flag)
+{
+
+    struct superbloque sb;
+    if (bread(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR mi_dir() -> No se ha podido leer el SB\n" RESET);
+        return FALLO;
+    }
+    unsigned int p_inodo_dir, p_inodo;
+    // buscar_entrada(camino, &p_inodo_dir, &p_inodo)
+
+    return EXITO;
+}
+
+//******************************MI_CHMOD********************************************
 /**
  * Cambia los permisos de un fichero o directorio
- * 
+ *
  * return: ÉXITO o FALLO
-*/
+ */
 int mi_chmod(const char *camino, unsigned char permisos)
 {
     // LECTURA SUPERBLOQUE
@@ -335,7 +361,8 @@ int mi_chmod(const char *camino, unsigned char permisos)
 
     return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
 
-    if(return_buscar_entrada != EXITO) {
+    if (return_buscar_entrada != EXITO)
+    {
         // Notificar error devuelto por buscar_entrada()
         mostrar_error_buscar_entrada(return_buscar_entrada);
         // Devolver FALLO
@@ -348,13 +375,13 @@ int mi_chmod(const char *camino, unsigned char permisos)
     return EXITO;
 }
 
-
+//******************************MI_STAT********************************************
 /**
  * Muestra la información acerca del inodo de un fichero o directorio
- * 
+ *
  * return: ÉXITO o FALLO
-*/
-int mi_stat(const char *camino, struct STAT *p_stat) 
+ */
+int mi_stat(const char *camino, struct STAT *p_stat)
 {
     // LECTURA SUPERBLOQUE
     struct superbloque sb;
@@ -369,7 +396,8 @@ int mi_stat(const char *camino, struct STAT *p_stat)
 
     return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
 
-    if(return_buscar_entrada != EXITO) {
+    if (return_buscar_entrada != EXITO)
+    {
         // Notificar error devuelto por buscar_entrada()
         mostrar_error_buscar_entrada(return_buscar_entrada);
         // Devolver FALLO
@@ -384,30 +412,12 @@ int mi_stat(const char *camino, struct STAT *p_stat)
     imprimir_stat(p_stat);
 
     return EXITO;
-
-}
-
-/**
- * PLACEHOLDER mi_dir()
- * return: EXITO o FALLO
-*/
-int mi_dir(const char *camino, char *buffer, char tipo, char flag){
-    
-    struct superbloque sb;
-    if(bread(posSB, &sb)==FALLO){
-        fprintf(stderr, RED "ERROR mi_dir() -> No se ha podido leer el SB\n" RESET);
-        return FALLO;
-    }
-    unsigned int p_inodo_dir, p_inodo;
-    //buscar_entrada(camino, &p_inodo_dir, &p_inodo)
-
-    return EXITO;
 }
 
 // AUXILIAR
 /**
  * imprime todos los parametros de struct STAT
- * 
+ *
  * return: EXITO o FALLO
  */
 int imprimir_stat(struct STAT *p_stat)
@@ -424,11 +434,12 @@ int imprimir_stat(struct STAT *p_stat)
     return EXITO;
 }
 
+//******************************MI_STAT********************************************
 /**
  * Escribe contenido en un fichero indicado por el camino
- * 
+ *
  * return: Deuvelve los bytes escritos
-*/
+ */
 int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned int nbytes)
 {
     // LECTURA SUPERBLOQUE
@@ -444,7 +455,8 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
 
     return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
 
-    if(return_buscar_entrada != EXITO) {
+    if (return_buscar_entrada != EXITO)
+    {
         // Notificar error devuelto por buscar_entrada()
         mostrar_error_buscar_entrada(return_buscar_entrada);
         // Devolver FALLO
@@ -458,9 +470,9 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
 
 /**
  * Lee los nbytes del fichero indicado por el camino
- * 
+ *
  * return: Devuelve los bytes leídos
-*/
+ */
 int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes)
 {
     // LECTURA SUPERBLOQUE
@@ -476,7 +488,8 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
 
     return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
 
-    if(return_buscar_entrada != EXITO) {
+    if (return_buscar_entrada != EXITO)
+    {
         // Notificar error devuelto por buscar_entrada()
         mostrar_error_buscar_entrada(return_buscar_entrada);
         // Devolver FALLO
@@ -491,9 +504,9 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
 // AUXILIAR
 /**
  * Busca si el camino pasado por parámetro esta almacenado en la caché
- * 
+ *
  * return: número de inodo si se ha encontrado la entrada o -1
-*/
+ */
 /*
 int buscar_en_cache(const char *camino) {
     for (int i = 0; i < CACHE_SIZE; i++) {
@@ -503,13 +516,13 @@ int buscar_en_cache(const char *camino) {
     }
 
     // Indica que el camino no se encontró en la caché
-    return -1; 
+    return -1;
 }
 */
 
 /**
  * Actualiza la caché con un camino y número de inodo pasado por parámetro
-*/
+ */
 /*
 void actualizar_cache(const char *camino, int p_inodo)
 {
@@ -526,4 +539,3 @@ void actualizar_cache(const char *camino, int p_inodo)
     puntero_cola = (puntero_cola + 1) % CACHE_SIZE;
 }
 */
-
