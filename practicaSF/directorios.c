@@ -286,6 +286,10 @@ void mostrar_error_buscar_entrada(int error)
     }
 }
 //***************************************OTRAS FUNCIONES***********************************************
+
+
+
+//******************************Creación de ficheros y directorios*************************************
 /**
  * Crea un fichero/directorio y su entrada de directorio
  *
@@ -319,7 +323,7 @@ int mi_creat(const char *camino, unsigned char permisos)
 
 
 
-//******************************MI_LS********************************************
+//******************************Listado del contenido de un directorio*********************************
 
 /**
  * PLACEHOLDER mi_dir()
@@ -340,7 +344,9 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
     return EXITO;
 }
 
-//******************************MI_CHMOD********************************************
+
+
+//******************************Cambio de permisos de un fichero o directorio**************************
 /**
  * Cambia los permisos de un fichero o directorio
  *
@@ -375,7 +381,7 @@ int mi_chmod(const char *camino, unsigned char permisos)
     return EXITO;
 }
 
-//******************************MI_STAT********************************************
+//******************************Visualización metadatos del inodo**************************************
 /**
  * Muestra la información acerca del inodo de un fichero o directorio
  *
@@ -434,7 +440,7 @@ int imprimir_stat(struct STAT *p_stat)
     return EXITO;
 }
 
-//******************************MI_STAT********************************************
+//*************************************************************************
 /**
  * Escribe contenido en un fichero indicado por el camino
  *
