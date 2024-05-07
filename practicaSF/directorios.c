@@ -3,8 +3,9 @@
 
 #define DEBUG7A 0
 #define DEBUG7B 1
-// Implemnetada mejora
-static struct UltimaEntrada UltimaEntradaIO;
+// Implemnetada mejora nivel 9
+static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
+static int pos_UltimaEntradaIO = 0;
 
 // Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
 
@@ -454,16 +455,20 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
 
     unsigned int p_inodo = 0, p_entrada = 0;
     int return_buscar_entrada, bytesEscritos;
-    if (strcmp(UltimaEntradaIO.camino, camino) == 0)
+    int pos = buscar_en_cache(camino);
+
+    if (pos != -1)
     {
-        p_inodo = UltimaEntradaIO.p_inodo;
+        p_inodo = UltimaEntradaIO[pos].p_inodo;
         return_buscar_entrada = EXITO;
     }
     else
     {
         return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
-        UltimaEntradaIO.p_inodo = p_inodo;
-        *UltimaEntradaIO.camino = &camino;
+        struct UltimaEntrada aux;
+        *aux.camino = &camino;
+        aux.p_inodo = p_inodo;
+        actualizar_cache(&aux);
     }
 
     if (return_buscar_entrada != EXITO)
@@ -497,8 +502,21 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
 
     unsigned int p_inodo = 0, p_entrada = 0;
     int return_buscar_entrada, bytesLeidos;
+    int pos = buscar_en_cache(camino);
 
-    return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
+    if (pos != -1)
+    {
+        p_inodo = UltimaEntradaIO[pos].p_inodo;
+        return_buscar_entrada = EXITO;
+    }
+    else
+    {
+        return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
+        struct UltimaEntrada aux;
+        *aux.camino = &camino;
+        aux.p_inodo = p_inodo;
+        actualizar_cache(&aux);
+    }
 
     if (return_buscar_entrada != EXITO)
     {
@@ -513,41 +531,40 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
     return bytesLeidos;
 }
 
-// AUXILIAR
+// AUXILIARS
 /**
  * Busca si el camino pasado por parámetro esta almacenado en la caché
  *
  * return: número de inodo si se ha encontrado la entrada o -1
  */
-/*
-int buscar_en_cache(const char *camino) {
-    for (int i = 0; i < CACHE_SIZE; i++) {
-        if (strcmp(UltimasEntradas[i].camino, camino) == 0) {
-            return UltimasEntradas[i].p_inodo;
+int buscar_en_cache(const char *camino)
+{
+    for (int i = 0; i < CACHE_SIZE; i++)
+    {
+        if (strcmp(UltimaEntradaIO[i].camino, camino) == 0)
+        {
+            return i;
         }
     }
-
     // Indica que el camino no se encontró en la caché
     return -1;
 }
-*/
 
 /**
  * Actualiza la caché con un camino y número de inodo pasado por parámetro
  */
-/*
-void actualizar_cache(const char *camino, int p_inodo)
+void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 {
     // Si el camino ya está en la caché, no es necesario actualizar
-    if (buscar_en_cache(camino) != -1) {
+    if (buscar_en_cache(nueva_entrada->camino) != -1)
+    {
         return;
     }
 
     // Si no se encuentra el camino en la caché, actualizar la entrada en la posición del puntero de cola circular
-    strcpy(UltimasEntradas[puntero_cola].camino, camino);
-    UltimasEntradas[puntero_cola].p_inodo = p_inodo;
+    strcpy(UltimaEntradaIO[pos_UltimaEntradaIO].camino, nueva_entrada->camino);
+    UltimaEntradaIO[pos_UltimaEntradaIO].p_inodo = nueva_entrada->p_inodo;
 
     // Avanzar el puntero de cola circular
-    puntero_cola = (puntero_cola + 1) % CACHE_SIZE;
+    pos_UltimaEntradaIO = (pos_UltimaEntradaIO + 1) % CACHE_SIZE;
 }
-*/
