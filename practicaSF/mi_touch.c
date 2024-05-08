@@ -56,7 +56,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        fprintf(stderr, RED "RUTA INVÁLIDA: La ruta para mi_touch para crear fitcheros no debe terminar con '/'.\n" RESET);
+        fprintf(stderr, RED "RUTA INVÁLIDA: La ruta para mi_touch para crear ficheros no debe terminar con '/'.\n" RESET);
         return exitError();
     }
 
