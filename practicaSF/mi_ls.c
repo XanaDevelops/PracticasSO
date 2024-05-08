@@ -31,6 +31,17 @@ int main(int argc, char **argv){
     char buff[NFILAS][TAMFILA];
     
     //llamar a mi_dir()
+    if(extendido){
+        if(bmount(argv[2])==FALLO){
+            return FALLO;
+        }
+        mi_dir(argv[3], buff, 'd', 1); //placehoder 'd' y 1
+    }else{
+        if(bmount(argv[1])==FALLO){
+            return FALLO;
+        }
+        mi_dir(argv[2], buff, 'd', 0);
+    }
 
     return EXITO;
 

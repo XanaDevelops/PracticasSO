@@ -3,6 +3,8 @@
 
 #define DEBUG7A 0
 #define DEBUG7B 1
+#define DEBUG8 1
+
 // Implemnetada mejora nivel 9
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
 static int pos_UltimaEntradaIO = 0;
@@ -337,8 +339,24 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
         fprintf(stderr, RED "ERROR mi_dir() -> No se ha podido leer el SB\n" RESET);
         return FALLO;
     }
-    unsigned int p_inodo_dir, p_inodo;
-    // buscar_entrada(camino, &p_inodo_dir, &p_inodo)
+    int be_ret;
+    unsigned int p_inodo_dir, p_inodo, p_entrada;
+    be_ret = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 7); // permisos lectura
+    if (be_ret != EXITO)
+    {
+        if (be_ret != FALLO)
+        {
+            mostrar_error_buscar_entrada(be_ret);
+        }
+        else
+        {
+            fprintf(stderr, RED "ERROR mi_dir() -> error en buscar entrada\n" RESET);
+        }
+        return FALLO;
+    }
+
+    
+    
 
     return EXITO;
 }
@@ -467,7 +485,7 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
         return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
         struct UltimaEntrada aux;
         strncpy(aux.camino, camino, sizeof(aux.camino) - 1);
-        aux.camino[sizeof(aux.camino) - 1] = '\0'; 
+        aux.camino[sizeof(aux.camino) - 1] = '\0';
 
         aux.p_inodo = p_inodo;
         actualizar_cache(&aux);
@@ -516,8 +534,8 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
         return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 0, 4);
         struct UltimaEntrada aux;
         strncpy(aux.camino, camino, sizeof(aux.camino) - 1);
-        aux.camino[sizeof(aux.camino) - 1] = '\0'; 
-        
+        aux.camino[sizeof(aux.camino) - 1] = '\0';
+
         aux.p_inodo = p_inodo;
         actualizar_cache(&aux);
     }
