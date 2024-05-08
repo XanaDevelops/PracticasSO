@@ -332,7 +332,6 @@ int mi_creat(const char *camino, unsigned char permisos)
  */
 int mi_dir(const char *camino, char *buffer, char tipo, char flag)
 {
-
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
     {
@@ -354,7 +353,25 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
         }
         return FALLO;
     }
+    #if DEBUG8
+    fprintf(stderr, GRAY "[mi_dir() -> resultado buscar_entrada() p_inodo_dir:%d, p_inodo:%d, p_entrada:%d]\n" RESET, p_inodo_dir, p_inodo, p_entrada);
+    #endif
+    struct inodo inodo;
+    if(leer_inodo(p_inodo, &inodo)==FALLO){
+        return FALLO;
+    }
 
+    struct entrada entradas[BLOCKSIZE / sizeof(struct entrada)];
+    if(mi_read_f(p_inodo, entradas, p_entrada, BLOCKSIZE)==FALLO){
+        fprintf(stderr, RED "ERROR mi_dir() -> fallor mi_read_f\n");
+        return FALLO;
+    }
+    //PROVISIONAL (chungo si se sale del buffer)
+    int entradas_inodo = inodo.tamEnBytesLog / sizeof(struct entrada);
+    for(int i=0;i<entradas_inodo;i++){
+        printf("%s\n", entradas[i].nombre);
+    }
+    
     
     
 
