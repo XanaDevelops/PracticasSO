@@ -10,6 +10,8 @@ mi_chmod
 mi_mkdir
 mi_ls
 mi_cat
+mi_escribir
+mi_touch
 *.dsk*
 *.txt
 testd.sh
