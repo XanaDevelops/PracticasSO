@@ -76,7 +76,6 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
 
     // CALCULAR ENTRADES INODO
     cant_entradas_inodo = inodo_dir.tamEnBytesLog / sizeof(struct entrada);
-    fprintf(stderr, RED "cant_entradas_inodo: %d\n" RESET, cant_entradas_inodo);
 
     // Número de entrada inicial
     num_entrada_inodo = 0;
@@ -99,15 +98,11 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                     memcpy(&entrada, &buff_entradas[i], sizeof(struct entrada));
                     num_entrada_inodo--;
                 }
-
-                fprintf(stderr, RED "num_ %d  --- cant_ %d\n" RESET, num_entrada_inodo, cant_entradas_inodo);
             }
         }
     }
-    fprintf(stderr, RED "strcmp(inicial, entrada.nombre)= %d\n" RESET, strcmp(inicial, entrada.nombre));
     // Comprobar si la entrada existe
-
-    if ((strcmp(inicial, entrada.nombre) != 0) && (num_entrada_inodo == cant_entradas_inodo))
+ if ((strcmp(inicial, entrada.nombre) != 0) && (num_entrada_inodo == cant_entradas_inodo))
     {
         switch (reservar)
         {
@@ -322,12 +317,7 @@ int mi_creat(const char *camino, unsigned char permisos)
     unsigned int p_inodo = 0, p_entrada = 0;
     int return_buscar_entrada;
 
-    printf("camino: %s\n", camino);
     return_buscar_entrada = buscar_entrada(camino, &sb.posInodoRaiz, &p_inodo, &p_entrada, 1, permisos);
-
-    printf("return_buscar_entrada: %d\n", return_buscar_entrada);
-    printf("p_inodo: %d\n", p_inodo);
-    printf("p_entrada: %d\n", p_entrada);
 
     if (return_buscar_entrada != EXITO)
     {
@@ -357,7 +347,6 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
     int be_ret;
     unsigned int p_inodo_dir, p_inodo, p_entrada;
     be_ret = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 7); // permisos lectura
-    printf("be_ret %d \n",be_ret);
     if (be_ret != EXITO)
     {
         if (be_ret != FALLO)

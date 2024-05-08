@@ -69,16 +69,18 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
     }
 
     // ACTUALIZAR METAINFORMACIÓN INODO
-
+    // Actualizar mtime
+    
+    inodo.mtime = time(NULL);
     // Actualizar el tamaño en bytes lógico del fichero, solo si hemos escrito más allá del final del fichero
-    if (offset >= inodo.tamEnBytesLog)
+    if (offset + nbytes >= inodo.tamEnBytesLog)
     {
         inodo.tamEnBytesLog = offset + nbytes;
+        // Actualizar ctime
+        inodo.ctime = time(NULL);
     }
-    // Actualizar mtime
-    inodo.mtime = time(NULL);
-    // Actualizar ctime
-    inodo.ctime = time(NULL);
+
+    ;
     // Salvar inodo
     if (escribir_inodo(ninodo, &inodo) == FALLO)
     {
@@ -127,7 +129,6 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
     desp1 = offset % BLOCKSIZE;
     desp2 = (offset + nbytes - 1) % BLOCKSIZE;
 
-
     // CASO 1 BLOQUE
     if (primerBL == ultimoBL)
     {
@@ -159,10 +160,10 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
             int byte;
             nbfisico = traducir_bloque_inodo(&inodo, bl, 0);
             if (nbfisico != FALLO)
-            {//buf_original+byleidos
-            //buf_original + desp1 + (BLOCKSIZE * (contbl))
+            { // buf_original+byleidos
+                // buf_original + desp1 + (BLOCKSIZE * (contbl))
                 byte = bread(nbfisico, buf_bloque);
-                memcpy(buf_original +(BLOCKSIZE - desp1)+ (BLOCKSIZE * (contbl)), buf_bloque, BLOCKSIZE);
+                memcpy(buf_original + (BLOCKSIZE - desp1) + (BLOCKSIZE * (contbl)), buf_bloque, BLOCKSIZE);
             }
             else
             {
