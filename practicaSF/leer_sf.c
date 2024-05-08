@@ -10,7 +10,7 @@ Perelló Perelló, Biel*/
 #define DEBUG2 0
 #define DEBUG3 0
 #define DEBUG4 0
-#define DEBUG7 1
+#define DEBUG7 0
 
 struct tm *ts;
 char atime_b[80];

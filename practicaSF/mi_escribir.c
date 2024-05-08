@@ -56,8 +56,7 @@ int main(int argc, char **argv)
 
     int offset = atoi(*(argv + argc - 1));
     printf("longitud_texto %d \n", longitud_texto);
-    printf("offset %d \n", offset);
- printf("buffer_original %s \n", buffer_original);
+    
     int bytes;
 
     if (*(camino + longitud_texto - 1) != '/')
