@@ -4,6 +4,7 @@
 #define DEBUG7A 0
 #define DEBUG7B 1
 #define DEBUG8 1
+#define DEBUG9 1
 
 // Implemnetada mejora nivel 9
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
@@ -451,29 +452,10 @@ int mi_stat(const char *camino, struct STAT *p_stat)
     // Llamada a mi_stat_f de la capa de ficheros, pasandole el p_inodo
     mi_stat_f(p_inodo, p_stat);
 
-    // Mostrar el número de inodo junto con su información de estado
-    fprintf(stdout, "Nº de inodo: %d \n", p_inodo);
-    imprimir_stat(p_stat);
-
-    return EXITO;
-}
-
-// AUXILIAR
-/**
- * imprime todos los parametros de struct STAT
- *
- * return: EXITO o FALLO
- */
-int imprimir_stat(struct STAT *p_stat)
-{
-    fprintf(stdout, "tipo: %c\n", p_stat->tipo);
-    fprintf(stdout, "permisos: %d\n", p_stat->permisos);
-    fprintf(stdout, "atime: %s", ctime(&p_stat->atime));
-    fprintf(stdout, "ctime: %s", ctime(&p_stat->ctime));
-    fprintf(stdout, "mtime: %s", ctime(&p_stat->mtime));
-    fprintf(stdout, "nlinks: %d\n", p_stat->nlinks);
-    fprintf(stdout, "tamEnBytesLog: %d\n", p_stat->tamEnBytesLog);
-    fprintf(stdout, "numBloquesOcupados: %d\n", p_stat->numBloquesOcupados);
+#ifdef DEBUG8
+    // Mostrar el número de inodo
+    fprintf(stdout, BLUE "Nº de inodo: %d \n" RESET, p_inodo);
+#endif
 
     return EXITO;
 }
@@ -500,6 +482,9 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
 
     if (pos != -1)
     {
+#if DEBUG9
+    fprintf(stderr, GRAY "[mi_write() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]]\n" RESET);
+#endif
         p_inodo = UltimaEntradaIO[pos].p_inodo;
         return_buscar_entrada = EXITO;
     }
@@ -511,6 +496,9 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
         aux.camino[sizeof(aux.camino) - 1] = '\0';
 
         aux.p_inodo = p_inodo;
+#if DEBUG9
+    fprintf(stderr, GRAY "[mi_write() -> Actualizamos la caché de escritura]\n" RESET);
+#endif
         actualizar_cache(&aux);
     }
 
@@ -549,6 +537,9 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
 
     if (pos != -1)
     {
+#if DEBUG9
+    fprintf(stderr, GRAY "[mi_read() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]]\n" RESET);
+#endif
         p_inodo = UltimaEntradaIO[pos].p_inodo;
         return_buscar_entrada = EXITO;
     }
@@ -560,6 +551,9 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
         aux.camino[sizeof(aux.camino) - 1] = '\0';
 
         aux.p_inodo = p_inodo;
+#if DEBUG9
+    fprintf(stderr, GRAY "[mi_read() -> Actualizamos la caché de lectura]\n" RESET);
+#endif
         actualizar_cache(&aux);
     }
 

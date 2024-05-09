@@ -52,6 +52,5 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
 int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes);
 
 // auxiliar
-int imprimir_stat(struct STAT *p_stat);
 int buscar_en_cache(const char *camino);
 void actualizar_cache(const struct UltimaEntrada *nueva_entrada);

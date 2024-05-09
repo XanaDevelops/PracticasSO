@@ -69,8 +69,6 @@ int main(int argc, char **argv)
     for (int offset = 0; offset <= final_f; offset += BLOCKCAT)
     {
         cont_bytes = mi_read(ruta, buff, offset, BLOCKCAT); 
-        /* fprintf(stderr, GRAY "----------------: \n");
-        fprintf(stderr, GRAY "%d-%d-%d-%d-: \n", cont,cont_bytes,final_f,i);*/
 
         if (cont_bytes == FALLO)
         {
@@ -88,8 +86,7 @@ int main(int argc, char **argv)
     }
 
 #if DEBUG9
-    fprintf(stderr, GRAY "total_leidos: %d\n", bytesLeidos);
-    fprintf(stderr, GRAY "tamEnBytesLog: %d\n", fichero.tamEnBytesLog);
+    fprintf(stderr, GRAY "\nTotal_leidos: %d\n", bytesLeidos);
 #endif
 
     return EXITO;
