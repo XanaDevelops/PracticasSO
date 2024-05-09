@@ -7,8 +7,7 @@ Perelló Perelló, Biel*/
 #include <stdlib.h>
 #include "directorios.h"
 
-//#define BLOCKLEER  (4 * BLOCKSIZE)
-#define BLOCKCAT  1500
+#define BLOCKCAT  4*BLOCKSIZE
 #define DEBUG9 1
 
 int main(int argc, char **argv)

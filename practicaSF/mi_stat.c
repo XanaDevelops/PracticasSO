@@ -7,6 +7,8 @@ Perelló Perelló, Biel*/
 #include <stdlib.h>
 #include "directorios.h"
 
+void imprimir_stat(struct STAT *p_stat);
+
 int main(int argc, char **argv)
 {
     // Comprobamos argumentos de consola
@@ -50,6 +52,4 @@ void imprimir_stat(struct STAT *p_stat)
     fprintf(stdout, "nlinks: %d\n", p_stat->nlinks);
     fprintf(stdout, "tamEnBytesLog: %d\n", p_stat->tamEnBytesLog);
     fprintf(stdout, "numBloquesOcupados: %d\n", p_stat->numBloquesOcupados);
-
-    return EXITO;
 }

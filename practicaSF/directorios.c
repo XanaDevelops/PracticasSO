@@ -2,8 +2,8 @@
 #include <string.h>
 
 #define DEBUG7A 0
-#define DEBUG7B 1
-#define DEBUG8 1
+#define DEBUG7B 0
+#define DEBUG8 0
 #define DEBUG9 1
 
 // Implemnetada mejora nivel 9
