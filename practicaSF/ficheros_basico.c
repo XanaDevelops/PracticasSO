@@ -1178,9 +1178,6 @@ int auxmemcmp_inodo(unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_mod
     return EXITO;
 }
 
-
-
-
 // AUXILIAR
 /**
  * imprime todos los parametros de struct inodo
