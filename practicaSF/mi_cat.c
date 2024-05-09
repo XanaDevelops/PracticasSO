@@ -67,7 +67,7 @@ int main(int argc, char **argv)
     for (int offset = 0; offset <= final_f; offset += BLOCKCAT)
     {
         cont_bytes = mi_read(ruta, buff, offset, BLOCKCAT); 
-
+        
         if (cont_bytes == FALLO)
         {
             break;
