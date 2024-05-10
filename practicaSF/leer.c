@@ -73,6 +73,8 @@ int main(int argc, char **argv)
 
         cont += cont_bytes;
         fwrite(buff, 1, cont_bytes, stdout);
+        fflush(stdout);
+        memset(buff, '\0', sizeof(buff));
     }
 
     // desmontamos disco
@@ -81,7 +83,7 @@ int main(int argc, char **argv)
         return FALLO;
     }
 #if DEBUG5
-    fprintf(stderr, GRAY "total_leidos: %d\n", cont);
+    fprintf(stderr, GRAY "\ntotal_leidos: %d\n", cont);
     fprintf(stderr, GRAY "tamEnBytesLog: %d\n", estado.tamEnBytesLog);
 #endif
 
