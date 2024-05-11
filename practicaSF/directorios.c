@@ -483,7 +483,7 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
     if (pos != -1)
     {
 #if DEBUG9
-    fprintf(stderr, ORANGE "[mi_write() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]]\n" RESET);
+    fprintf(stderr, ORANGE "\n[mi_write() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]]\n" RESET);
 #endif
         p_inodo = UltimaEntradaIO[pos].p_inodo;
         return_buscar_entrada = EXITO;
@@ -538,7 +538,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
     if (pos != -1)
     {
 #if DEBUG9
-    fprintf(stderr, ORANGE "[mi_read() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]]\n" RESET);
+    fprintf(stderr, ORANGE "\n[mi_read() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]]\n" RESET);
 #endif
         p_inodo = UltimaEntradaIO[pos].p_inodo;
         return_buscar_entrada = EXITO;

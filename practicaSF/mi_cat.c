@@ -78,7 +78,7 @@ int main(int argc, char **argv)
         fflush(stdout);
         memset(buff, '\0', sizeof(buff));
     }
-    
+
     // desmontamos disco
     if (bumount() == FALLO)
     {
