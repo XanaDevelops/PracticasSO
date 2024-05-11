@@ -659,15 +659,16 @@ int mi_link(const char *camino1, const char *camino2)
     }
 
     // Leer la entrada creada correspondiente a camino2
-
+    
 
     // Asociar a esta entrada el mismo inodo que el asociado a la entrada del camino1
 
+
     // Escribir la entrada modificada en p_inodo_dir_2
 
+
     // Liberar el inodo que se ha asociado a la entrada creada, p_inodo2
-
-
+    liberar_inodo(p_inodo2);
 
     // Incrementar la cantidad de enlaces (nlinks) de p_inodo1 y actualizar ctime
     struct inodo inodo_enlace;
