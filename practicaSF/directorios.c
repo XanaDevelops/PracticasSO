@@ -6,7 +6,7 @@
 #define DEBUG8 0
 #define DEBUG9 1
 
-// Implemnetada mejora nivel 9
+// Implementada mejora nivel 9
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
 static int pos_UltimaEntradaIO = 0;
 
@@ -606,4 +606,88 @@ void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 
     // Avanzar el puntero de cola circular
     pos_UltimaEntradaIO = (pos_UltimaEntradaIO + 1) % CACHE_SIZE;
+}
+
+/**
+ * Crea el enlace de una entrada de directorio camino2 al inodo especificado por otra entrada de directorio camino1 .
+ * return: ÉXITO o FALLO
+*/
+int mi_link(const char *camino1, const char *camino2) 
+{
+    int longitud_ruta1 = strlen(camino1);
+    int longitud_ruta2 = strlen(camino2);
+
+    // Comprobar si las dos rutas pasadas por parámetro se corresponden a ficheros
+    if ((*(camino1 + longitud_ruta1 - 1) == '/') || (*(camino2 + longitud_ruta2 - 1) == '/'))
+    {
+        fprintf(stderr, RED "ERROR: mi_link(): Las rutas especificadas no se corresponden a un fichero\n" RESET);
+        return FALLO;
+    }
+
+    // LECTURA SUPERBLOQUE
+    struct superbloque sb;
+    if (bread(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: mi_link(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+
+    unsigned int p_inodo1 = 0, p_entrada1 = 0;
+    int return_buscar_entrada1;
+
+    return_buscar_entrada1 = buscar_entrada(camino1, &sb.posInodoRaiz, &p_inodo1, &p_entrada1, 0, 4);
+
+    if (return_buscar_entrada1 != EXITO)
+    {
+        // Notificar error devuelto por buscar_entrada()
+        mostrar_error_buscar_entrada(return_buscar_entrada1);
+        // Devolver FALLO
+        return FALLO;
+    }
+
+    unsigned int p_inodo2 = 0, p_entrada2 = 0;
+    int return_buscar_entrada2;
+
+    return_buscar_entrada2 = buscar_entrada(camino2, &sb.posInodoRaiz, &p_inodo2, &p_entrada2, 1, 6);
+
+    if (return_buscar_entrada2 != EXITO)
+    {
+        // Notificar error devuelto por buscar_entrada()
+        mostrar_error_buscar_entrada(return_buscar_entrada2);
+        // Devolver FALLO
+        return FALLO;
+    }
+
+    // Leer la entrada creada correspondiente a camino2
+
+
+    // Asociar a esta entrada el mismo inodo que el asociado a la entrada del camino1
+
+    // Escribir la entrada modificada en p_inodo_dir_2
+
+    // Liberar el inodo que se ha asociado a la entrada creada, p_inodo2
+
+
+
+    // Incrementar la cantidad de enlaces (nlinks) de p_inodo1 y actualizar ctime
+    struct inodo inodo_enlace;
+    if (leer_inodo(p_inodo1, &inodo_enlace) == FALLO) {
+        fprintf(stderr, RED "ERROR: mi_link(): No se pudo leer el inodo\n" RESET);
+
+        return FALLO;
+    }
+
+    // Actualizar el número de enlaces del inodo
+    inodo_enlace.nlinks++;
+    // Actualizar el tiempo de cambio a la hora actual
+    inodo_enlace.ctime = time(NULL); 
+
+    // Salvar el inodo
+    if (escribir_inodo(p_inodo1, &inodo_enlace) == FALLO) {
+        fprintf(stderr, RED "ERROR: mi_link(): No se pudo escribir el inodo\n" RESET);
+        return FALLO;
+    }
+
+    // Devolver ÉXITO
+    return EXITO;
 }

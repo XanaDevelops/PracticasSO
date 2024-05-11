@@ -28,13 +28,6 @@ struct UltimaEntrada{
    int p_inodo;
 };
 
-// Array de caché
-//static struct UltimaEntrada UltimasEntradas[CACHE_SIZE];
-
-// Puntero de cola circular para gestionar la caché
-//static int puntero_cola = 0;
-
-
 /* NIVEL 7 */
 int extraer_camino(const char *camino, char *inicial, char *final, char *tipo);
 int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsigned int *p_inodo, 
@@ -50,6 +43,10 @@ int mi_stat(const char *camino, struct STAT *p_stat);
 /* NIVEL 9 */
 int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned int nbytes);
 int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes);
+
+/* NIVEL 10 */
+int mi_link(const char *camino1, const char *camino2);
+int mi_unlink(const char *camino);
 
 // auxiliar
 int buscar_en_cache(const char *camino);
