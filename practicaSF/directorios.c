@@ -378,16 +378,54 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
     }
     // PROVISIONAL (chungo si se sale del buffer)
     int entradas_inodo = inodo.tamEnBytesLog / sizeof(struct entrada);
+    struct inodo inodoEntrada;
     for (int i = 0; i < entradas_inodo; i++)
     {
-        //printf("%s\n", entradas[i].nombre);
-        // printf("%d\n", entradas[i].ninodo);
-        if (flag == 0 || flag == 1)
+        // printf("%s\n", entradas[i].nombre);
+        //  printf("%d\n", entradas[i].ninodo);
+        // mirar optimizar
+        mi_read_f(entradas[i].ninodo, &inodoEntrada, 0, sizeof(struct inodo));
+        if (flag == 0)
         {
             strcat(buffer, entradas[i].nombre);
             strcat(buffer, "|");
         }
-        //printf("buf: %s\n", buffer);
+        else
+        { // flag == 1
+            // falta tipo
+            strcat(buffer, "\t");
+            if (inodoEntrada.permisos & 4)
+                strcat(buffer, "r");
+            else
+                strcat(buffer, "-");
+            if (inodoEntrada.permisos & 2)
+                strcat(buffer, "w");
+            else
+                strcat(buffer, "-");
+            if (inodoEntrada.permisos & 1)
+                strcat(buffer, "x");
+            else
+                strcat(buffer, "-");
+
+            strcat(buffer, "\t");
+
+            struct tm *tm; // ver info: struct tm
+            tm = localtime(&inodo.mtime);
+            char tmp[30];
+            sprintf(tmp, "%d-%02d-%02d %02d:%02d:%02d", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
+            strcat(buffer, tmp);
+
+            strcat(buffer, "\t");
+            memset(tmp, '\0', sizeof(tmp));
+            sprintf(tmp, "%d", inodoEntrada.tamEnBytesLog); 
+            strcat(buffer, tmp);
+
+            strcat(buffer, "\t");
+
+            strcat(buffer, entradas[i].nombre);
+            strcat(buffer, "|");
+        }
+        // printf("buf: %s\n", buffer);
         nEntradas++;
     }
 

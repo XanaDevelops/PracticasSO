@@ -60,7 +60,7 @@ int main(int argc, char **argv)
         nEntradas = mi_dir(argv[2], bufdir, 'd', 0);
     }
 
-    printf("ls: %s\n", bufdir);
+    printf("bufdir: %s\n", bufdir);
     char *iter = strtok(bufdir, "|");
 
     while (iter != NULL)
