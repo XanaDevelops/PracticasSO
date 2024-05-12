@@ -11,6 +11,7 @@ mi_mkdir
 mi_ls
 mi_cat
 mi_escribir
+mi_escribir_varios
 mi_touch
 *.dsk*
 *.txt

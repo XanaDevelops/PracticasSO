@@ -3,7 +3,7 @@
 
 #define DEBUG7A 0
 #define DEBUG7B 0
-#define DEBUG8 0
+#define DEBUG8 1
 #define DEBUG9 1
 
 // Implementada mejora nivel 9
@@ -103,7 +103,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         }
     }
     // Comprobar si la entrada existe
- if ((strcmp(inicial, entrada.nombre) != 0) && (num_entrada_inodo == cant_entradas_inodo))
+    if ((strcmp(inicial, entrada.nombre) != 0) && (num_entrada_inodo == cant_entradas_inodo))
     {
         switch (reservar)
         {
@@ -197,7 +197,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     }
     else
     {
-        // Asignar a *p_inodo_dir el puntero al inodo que se indica en la entrada encontrada 
+        // Asignar a *p_inodo_dir el puntero al inodo que se indica en la entrada encontrada
         *p_inodo_dir = entrada.ninodo;
         return buscar_entrada(final, p_inodo_dir, p_inodo, p_entrada, reservar, permisos);
     }
@@ -335,10 +335,11 @@ int mi_creat(const char *camino, unsigned char permisos)
 
 /**
  * PLACEHOLDER mi_dir()
- * return: EXITO o FALLO
+ * return: nº de entradas o FALLO
  */
 int mi_dir(const char *camino, char *buffer, char tipo, char flag)
 {
+    int nEntradas = 0;
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
     {
@@ -379,10 +380,18 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
     int entradas_inodo = inodo.tamEnBytesLog / sizeof(struct entrada);
     for (int i = 0; i < entradas_inodo; i++)
     {
-        printf("%s\n", entradas[i].nombre);
+        //printf("%s\n", entradas[i].nombre);
+        // printf("%d\n", entradas[i].ninodo);
+        if (flag == 0 || flag == 1)
+        {
+            strcat(buffer, entradas[i].nombre);
+            strcat(buffer, "|");
+        }
+        //printf("buf: %s\n", buffer);
+        nEntradas++;
     }
 
-    return EXITO;
+    return nEntradas;
 }
 
 //******************************Cambio de permisos de un fichero o directorio**************************
@@ -483,7 +492,7 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
     if (pos != -1)
     {
 #if DEBUG9
-    fprintf(stderr, ORANGE "\n[mi_write() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]\n" RESET);
+        fprintf(stderr, ORANGE "\n[mi_write() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]\n" RESET);
 #endif
         p_inodo = UltimaEntradaIO[pos].p_inodo;
         return_buscar_entrada = EXITO;
@@ -497,7 +506,7 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
 
         aux.p_inodo = p_inodo;
 #if DEBUG9
-    fprintf(stderr, ORANGE "[mi_write() -> Actualizamos la caché de escritura]\n" RESET);
+        fprintf(stderr, ORANGE "[mi_write() -> Actualizamos la caché de escritura]\n" RESET);
 #endif
         actualizar_cache(&aux);
     }
@@ -538,7 +547,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
     if (pos != -1)
     {
 #if DEBUG9
-    fprintf(stderr, ORANGE "\n[mi_read() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]\n" RESET);
+        fprintf(stderr, ORANGE "\n[mi_read() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]\n" RESET);
 #endif
         p_inodo = UltimaEntradaIO[pos].p_inodo;
         return_buscar_entrada = EXITO;
@@ -552,7 +561,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
 
         aux.p_inodo = p_inodo;
 #if DEBUG9
-    fprintf(stderr, ORANGE "[mi_read() -> Actualizamos la caché de lectura]\n" RESET);
+        fprintf(stderr, ORANGE "[mi_read() -> Actualizamos la caché de lectura]\n" RESET);
 #endif
         actualizar_cache(&aux);
     }
@@ -611,8 +620,8 @@ void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 /**
  * Crea el enlace de una entrada de directorio camino2 al inodo especificado por otra entrada de directorio camino1 .
  * return: ÉXITO o FALLO
-*/
-int mi_link(const char *camino1, const char *camino2) 
+ */
+int mi_link(const char *camino1, const char *camino2)
 {
     int longitud_ruta1 = strlen(camino1);
     int longitud_ruta2 = strlen(camino2);
@@ -677,24 +686,25 @@ int mi_link(const char *camino1, const char *camino2)
     }
     */
 
-    mi_read_f(p_inodo_dir2, buff_entradas, num_bloque*BLOCKSIZE, BLOCKSIZE);
+    mi_read_f(p_inodo_dir2, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
 
     memcpy(entrada, &buff_entradas[entrada_buffer], sizeof(struct entrada));
 
     // Asociar a esta entrada el mismo inodo que el asociado a la entrada del camino1
-    entrada->ninodo=p_inodo1;
+    entrada->ninodo = p_inodo1;
 
     // Escribir la entrada modificada en p_inodo_dir_2
     memcpy(&buff_entradas[entrada_buffer], entrada, sizeof(struct entrada));
 
-    mi_write_f(p_inodo_dir2, buff_entradas, num_bloque*BLOCKSIZE, BLOCKSIZE);
+    mi_write_f(p_inodo_dir2, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
 
     // Liberar el inodo que se ha asociado a la entrada creada, p_inodo2
     liberar_inodo(p_inodo2);
 
     // Incrementar la cantidad de enlaces (nlinks) de p_inodo1 y actualizar ctime
     struct inodo inodo_enlace;
-    if (leer_inodo(p_inodo1, &inodo_enlace) == FALLO) {
+    if (leer_inodo(p_inodo1, &inodo_enlace) == FALLO)
+    {
         fprintf(stderr, RED "ERROR: mi_link(): No se pudo leer el inodo\n" RESET);
 
         return FALLO;
@@ -703,10 +713,11 @@ int mi_link(const char *camino1, const char *camino2)
     // Actualizar el número de enlaces del inodo
     inodo_enlace.nlinks++;
     // Actualizar el tiempo de cambio a la hora actual
-    inodo_enlace.ctime = time(NULL); 
+    inodo_enlace.ctime = time(NULL);
 
     // Salvar el inodo
-    if (escribir_inodo(p_inodo1, &inodo_enlace) == FALLO) {
+    if (escribir_inodo(p_inodo1, &inodo_enlace) == FALLO)
+    {
         fprintf(stderr, RED "ERROR: mi_link(): No se pudo escribir el inodo\n" RESET);
         return FALLO;
     }
