@@ -483,7 +483,7 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
     if (pos != -1)
     {
 #if DEBUG9
-    fprintf(stderr, ORANGE "\n[mi_write() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]]\n" RESET);
+    fprintf(stderr, ORANGE "\n[mi_write() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]\n" RESET);
 #endif
         p_inodo = UltimaEntradaIO[pos].p_inodo;
         return_buscar_entrada = EXITO;
@@ -538,7 +538,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
     if (pos != -1)
     {
 #if DEBUG9
-    fprintf(stderr, ORANGE "\n[mi_read() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]]\n" RESET);
+    fprintf(stderr, ORANGE "\n[mi_read() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]\n" RESET);
 #endif
         p_inodo = UltimaEntradaIO[pos].p_inodo;
         return_buscar_entrada = EXITO;
@@ -632,10 +632,11 @@ int mi_link(const char *camino1, const char *camino2)
         return FALLO;
     }
 
+    unsigned int *p_inodo_dir1 = &sb.posInodoRaiz;
     unsigned int p_inodo1 = 0, p_entrada1 = 0;
     int return_buscar_entrada1;
 
-    return_buscar_entrada1 = buscar_entrada(camino1, &sb.posInodoRaiz, &p_inodo1, &p_entrada1, 0, 4);
+    return_buscar_entrada1 = buscar_entrada(camino1, p_inodo_dir1, &p_inodo1, &p_entrada1, 0, 4);
 
     if (return_buscar_entrada1 != EXITO)
     {
@@ -645,10 +646,11 @@ int mi_link(const char *camino1, const char *camino2)
         return FALLO;
     }
 
+    unsigned int *p_inodo_dir2 = &sb.posInodoRaiz;
     unsigned int p_inodo2 = 0, p_entrada2 = 0;
     int return_buscar_entrada2;
 
-    return_buscar_entrada2 = buscar_entrada(camino2, &sb.posInodoRaiz, &p_inodo2, &p_entrada2, 1, 6);
+    return_buscar_entrada2 = buscar_entrada(camino2, p_inodo_dir2, &p_inodo2, &p_entrada2, 1, 6);
 
     if (return_buscar_entrada2 != EXITO)
     {
@@ -659,13 +661,33 @@ int mi_link(const char *camino1, const char *camino2)
     }
 
     // Leer la entrada creada correspondiente a camino2
-    
+    struct entrada *entrada;
+
+    struct entrada buff_entradas[BLOCKSIZE / sizeof(struct entrada)];
+    memset(buff_entradas, '\0', sizeof(buff_entradas));
+    memset(entrada, '\0', sizeof(struct entrada));
+
+    int num_bloque = p_entrada2 / sizeof(buff_entradas);
+    int entrada_buffer = p_entrada2 % sizeof(buff_entradas);
+
+    /*
+    for(int i = 0; i < num_bloque; i++)
+    {
+        bytesleidos += mi_read_f(p_inodo_dir2, buff_entradas, bytesleidos, BLOCKSIZE);
+    }
+    */
+
+    mi_read_f(p_inodo_dir2, buff_entradas, num_bloque*BLOCKSIZE, BLOCKSIZE);
+
+    memcpy(entrada, &buff_entradas[entrada_buffer], sizeof(struct entrada));
 
     // Asociar a esta entrada el mismo inodo que el asociado a la entrada del camino1
-
+    entrada->ninodo=p_inodo1;
 
     // Escribir la entrada modificada en p_inodo_dir_2
+    memcpy(&buff_entradas[entrada_buffer], entrada, sizeof(struct entrada));
 
+    mi_write_f(p_inodo_dir2, buff_entradas, num_bloque*BLOCKSIZE, BLOCKSIZE);
 
     // Liberar el inodo que se ha asociado a la entrada creada, p_inodo2
     liberar_inodo(p_inodo2);
