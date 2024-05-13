@@ -40,4 +40,5 @@ int main(int argc, char **argv)
         fprintf(stderr, RED "Error: mi_rm -> No se ha de poder borrar el directorio raíz\n" RESET);
         return exitError();
     }
+    mi_unlink(camino);
 }
