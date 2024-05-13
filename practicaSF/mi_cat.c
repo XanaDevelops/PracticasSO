@@ -74,9 +74,9 @@ int main(int argc, char **argv)
         }
 
         bytesLeidos += cont_bytes;
-      //  fwrite(buff, 1, cont_bytes, stdout);
-        //fwrite("\n", 1, 1, stdout);
-        fprintf(stderr, RED "bufffer: %s\n" RESET, (char *)buff);
+        fwrite(buff, 1, cont_bytes, stdout);
+        fflush(stdout);
+        memset(buff, '\0', sizeof(buff));
     }
 
     // desmontamos disco
