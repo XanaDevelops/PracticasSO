@@ -14,8 +14,7 @@ void errorExit();
 #define DEBUG5 1
 
 int main(int argc, char **argv)
-{
-   // signal(SIGABRT, errorExit);
+{   
     char buff[BLOCKLEER];
     memset(buff, '\0', sizeof(buff));
 
@@ -63,8 +62,7 @@ int main(int argc, char **argv)
     {
      
         cont_bytes = mi_read_f(numInodo, buff, i, BLOCKLEER); 
-        /* fprintf(stderr, GRAY "----------------: \n");
-        fprintf(stderr, GRAY "%d-%d-%d-%d-: \n", cont,cont_bytes,final_f,i);*/
+       
 
         if (cont_bytes == FALLO)
         {
@@ -73,6 +71,7 @@ int main(int argc, char **argv)
 
         cont += cont_bytes;
         fwrite(buff, 1, cont_bytes, stdout);
+        fwrite("\n", 1, 1, stdout);
     }
 
     // desmontamos disco

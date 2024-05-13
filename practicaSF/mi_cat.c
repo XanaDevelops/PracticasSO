@@ -7,11 +7,11 @@ Perelló Perelló, Biel*/
 #include <stdlib.h>
 #include "directorios.h"
 
-#define BLOCKCAT 4*BLOCKSIZE
+#define BLOCKCAT 1500
 
 int main(int argc, char **argv)
 {
-   // signal(SIGABRT, errorExit);
+   
     char buff[BLOCKCAT];
     memset(buff, '\0', sizeof(buff));
 
@@ -74,7 +74,9 @@ int main(int argc, char **argv)
         }
 
         bytesLeidos += cont_bytes;
-        fwrite(buff, 1, cont_bytes, stdout);
+      //  fwrite(buff, 1, cont_bytes, stdout);
+        //fwrite("\n", 1, 1, stdout);
+        fprintf(stderr, RED "bufffer: %s\n" RESET, (char *)buff);
     }
 
     // desmontamos disco
