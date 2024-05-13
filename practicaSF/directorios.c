@@ -585,8 +585,6 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
  */
 int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes)
 {
-    char buff_cat[nbytes];
-    memset(buff_cat, '\0', sizeof(buff_cat));
     // LECTURA SUPERBLOQUE
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
@@ -629,7 +627,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
         return FALLO;
     }
 
-    bytesLeidos = mi_read_f(p_inodo, buff_cat, offset, nbytes);
+    bytesLeidos = mi_read_f(p_inodo, buf, offset, nbytes);
     return bytesLeidos;
 }
 //************************* **********************
