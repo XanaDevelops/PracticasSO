@@ -1,4 +1,4 @@
-Práctica niveles 1-6
+Práctica niveles 7-10
 
 Nombres participantes equipo
     Josep Ferriol Font     
@@ -6,4 +6,5 @@ Nombres participantes equipo
     Biel Perelló Perelló
 
 Se han seguido las recomendaciones de los diferentes niveles
-En liberar_bloques_inodo() se ha comprimido mediante funciones auxiliares
+Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
+Se ha aplicado mejora extendida mi_ls

@@ -124,7 +124,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
             {
                 // COPIAR *inicial EN EL NOMBRE DE LA ENTRADA
                 memset(&entrada, '\0', sizeof(struct entrada));
-                memcpy(entrada.nombre, inicial, sizeof(struct entrada));
+                memcpy(entrada.nombre, inicial, sizeof(entrada.nombre));
 
                 if (tipo == 'd')
                 {
@@ -364,15 +364,17 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
     {
         return FALLO;
     }
+    int entradas_inodo = inodo.tamEnBytesLog / sizeof(struct entrada);
 
-    struct entrada entradas[BLOCKSIZE / sizeof(struct entrada)];
+    //struct entrada entradas[BLOCKSIZE / sizeof(struct entrada)];
+    struct entrada entradas[entradas_inodo * sizeof(struct entrada)];
     if (mi_read_f(p_inodo, entradas, p_entrada, BLOCKSIZE) == FALLO)
     {
         fprintf(stderr, RED "ERROR mi_dir() -> fallor mi_read_f\n");
         return FALLO;
     }
     // PROVISIONAL (chungo si se sale del buffer)
-    int entradas_inodo = inodo.tamEnBytesLog / sizeof(struct entrada);
+    
     struct inodo inodoEntrada;
     if (tipo == 'd')
     {

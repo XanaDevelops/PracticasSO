@@ -8,7 +8,7 @@ Perelló Perelló, Biel*/
 #include "directorios.h"
 
 
-#define TAMFILA 100
+#define TAMFILA 120
 #define NFILAS 1000
 #define TAMBUFFER (TAMFILA * NFILAS) // suponemos un máx de 1000 entradas, aunque debería ser SB.totInodos
 
