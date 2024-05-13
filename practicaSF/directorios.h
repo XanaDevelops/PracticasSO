@@ -51,3 +51,4 @@ int mi_unlink(const char *camino);
 // auxiliar
 int buscar_en_cache(const char *camino);
 void actualizar_cache(const struct UltimaEntrada *nueva_entrada);
+int auxiliarInodoEntradaDir(char *buffer, struct inodo inodo, struct entrada entrada, char tipo);
