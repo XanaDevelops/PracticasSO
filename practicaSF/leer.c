@@ -71,7 +71,6 @@ int main(int argc, char **argv)
 
         cont += cont_bytes;
         fwrite(buff, 1, cont_bytes, stdout);
-        fwrite("\n", 1, 1, stdout);
         fflush(stdout);
         memset(buff, '\0', sizeof(buff));
     }
