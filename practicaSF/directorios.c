@@ -398,7 +398,9 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
             // printf("buf: %s\n", buffer);
             nEntradas++;
         }
-    }else{
+    }
+    else
+    {
         auxiliarEntradaInodo(buffer, inodo, entradas[0]);
     }
     return nEntradas;
@@ -742,8 +744,82 @@ int mi_link(const char *camino1, const char *camino2)
 //**************************** Borrado de enlaces, ficheros y directorios *****************************
 /**
  * */
-int mi_unlink(const char *camino){
+int mi_unlink(const char *camino)
+{
+    int longitud_c = strlen(camino);
+    // LECTURA SUPERBLOQUE
+    struct superbloque sb;
+    if (bread(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: mi_unlink(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+    unsigned int p_inodo_dir = sb.posInodoRaiz;
+    unsigned int p_inodo = 0, p_entrada = 0;
+    int rt_be;
 
+    rt_be = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 6);
+    if (rt_be != EXITO)
+    {
+        // Notificar error devuelto por buscar_entrada()
+        mostrar_error_buscar_entrada(rt_be);
+        // Devolver FALLO
+        return FALLO;
+    }
+
+    // Leer la entrada correspondiente a camino
+    struct entrada entrada;
+
+    struct entrada buff_entradas[BLOCKSIZE / sizeof(struct entrada)];
+    memset(buff_entradas, '\0', sizeof(buff_entradas));
+    memset(&entrada, '\0', sizeof(struct entrada));
+
+    int num_bloque = p_inodo / sizeof(buff_entradas);
+    int entrada_buffer = p_entrada % sizeof(buff_entradas);
+
+    mi_read_f(p_inodo, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
+    memcpy(&entrada, &buff_entradas[entrada_buffer], sizeof(struct entrada));
+
+    struct inodo inodo_e;
+    struct inodo inodo_p;
+    int num_eliminar = entrada.ninodo;
+    leer_inodo(num_eliminar, &inodo_e);
+
+    if (inodo_e.tipo == 'd' && inodo_e.tamEnBytesLog > 0)
+    {
+        fprintf(stderr, RED "ERROR: mi_unlink(): El directorio %s no está vacio\n" RESET, camino);
+        return FALLO;
+    }
+    else
+    {
+
+        leer_inodo(p_inodo, &inodo_p);
+        int num_e = inodo_p.tamEnBytesLog / sizeof(struct entrada);
+        if (p_entrada != num_e - 1)
+        {
+            memset(buff_entradas, '\0', sizeof(buff_entradas));
+            mi_read_f(p_inodo, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
+            memcpy(&buff_entradas[entrada_buffer], &buff_entradas[num_e - 1], sizeof(struct entrada));
+            mi_write_f(p_inodo, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
+        }
+        mi_truncar_f(p_inodo, inodo_p.tamEnBytesLog - sizeof(struct entrada));
+    }
+    inodo_e.nlinks--;
+    if (inodo_e.nlinks == 0)
+    {
+        liberar_inodo(num_eliminar);
+    }
+    else
+    {
+        // Actualizar ctime
+        inodo_e.ctime = time(NULL);
+        // Salvar inodo
+        if (escribir_inodo(num_eliminar, &inodo_e) == FALLO)
+        {
+            fprintf(stderr, RED "ERROR: mi_unlink(): No se ha podido escribir el inodo %d \n" RESET, num_eliminar);
+            return FALLO;
+        }
+    }
 }
 //************************************* MILLORA NIVELL 9***********************************************
 /**
