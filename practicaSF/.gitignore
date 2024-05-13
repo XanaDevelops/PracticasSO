@@ -13,6 +13,8 @@ mi_cat
 mi_escribir
 mi_escribir_varios
 mi_touch
+mi_link
+mi_rm
 *.dsk*
 *.txt
 testd.sh

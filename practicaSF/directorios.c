@@ -5,6 +5,8 @@
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
 static int pos_UltimaEntradaIO = 0;
 
+int auxiliarInodoEntradaDir(char *buffer, struct inodo inodo, struct entrada entrada);
+
 // Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
 
 //***************************************BUSCAR ENTRADA Y AUXILIARES**************************************
@@ -374,61 +376,74 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
     // PROVISIONAL (chungo si se sale del buffer)
     int entradas_inodo = inodo.tamEnBytesLog / sizeof(struct entrada);
     struct inodo inodoEntrada;
-    for (int i = 0; i < entradas_inodo; i++)
+    if (tipo == 'd')
     {
-        fprintf(stderr, GRAY "%s\n" RESET, entradas[i].nombre);
-        fprintf(stderr, GRAY "%d\n" RESET, entradas[i].ninodo);
-        // mirar optimizar
-        leer_inodo(entradas[i].ninodo, &inodoEntrada);
-        if (flag == 0)
+        for (int i = 0; i < entradas_inodo; i++)
         {
-            strcat(buffer, entradas[i].nombre);
-            strcat(buffer, "|");
+#if DEBUG8
+            fprintf(stderr, GRAY "%s\n" RESET, entradas[i].nombre);
+            fprintf(stderr, GRAY "%d\n" RESET, entradas[i].ninodo);
+#endif
+            // mirar optimizar
+            leer_inodo(entradas[i].ninodo, &inodoEntrada);
+            if (flag == 0)
+            {
+                strcat(buffer, entradas[i].nombre);
+                strcat(buffer, "|");
+            }
+            else
+            { // flag == 1
+                auxiliarEntradaInodo(buffer, inodoEntrada, entradas[i]);
+            }
+            // printf("buf: %s\n", buffer);
+            nEntradas++;
         }
-        else
-        { // flag == 1
-            char tmp[30];
-            memset(tmp, '\0', sizeof(tmp));
-            *tmp = inodo.tipo;
-            strcat(buffer, tmp);
-            strcat(buffer, "\t");
-            if (inodoEntrada.permisos & 4)
-                strcat(buffer, "r");
-            else
-                strcat(buffer, "-");
-            if (inodoEntrada.permisos & 2)
-                strcat(buffer, "w");
-            else
-                strcat(buffer, "-");
-            if (inodoEntrada.permisos & 1)
-                strcat(buffer, "x");
-            else
-                strcat(buffer, "-");
-
-            strcat(buffer, "\t");
-
-            struct tm *tm; // ver info: struct tm
-            tm = localtime(&inodoEntrada.mtime);
-            
-            sprintf(tmp, "%d-%02d-%02d %02d:%02d:%02d", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-            strcat(buffer, tmp);
-
-            strcat(buffer, "\t");
-            
-            sprintf(tmp, "%d", inodoEntrada.tamEnBytesLog); 
-            strcat(buffer, tmp);
-
-            strcat(buffer, "\t\t");
-
-            strcat(buffer, entradas[i].nombre);
-            strcat(buffer, "|");
-        }
-        // printf("buf: %s\n", buffer);
-        nEntradas++;
+    }else{
+        auxiliarEntradaInodo(buffer, inodo, entradas[0]);
     }
-
     return nEntradas;
 }
+
+int auxiliarEntradaInodo(char *buffer, struct inodo inodo, struct entrada entrada)
+{
+    char tmp[30];
+    memset(tmp, '\0', sizeof(tmp));
+    *tmp = inodo.tipo;
+    strcat(buffer, tmp);
+    strcat(buffer, "\t");
+    if (inodo.permisos & 4)
+        strcat(buffer, "r");
+    else
+        strcat(buffer, "-");
+    if (inodo.permisos & 2)
+        strcat(buffer, "w");
+    else
+        strcat(buffer, "-");
+    if (inodo.permisos & 1)
+        strcat(buffer, "x");
+    else
+        strcat(buffer, "-");
+
+    strcat(buffer, "\t");
+
+    struct tm *tm; // ver info: struct tm
+    tm = localtime(&inodo.mtime);
+
+    sprintf(tmp, "%d-%02d-%02d %02d:%02d:%02d", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
+    strcat(buffer, tmp);
+
+    strcat(buffer, "\t");
+
+    sprintf(tmp, "%d", inodo.tamEnBytesLog);
+    strcat(buffer, tmp);
+
+    strcat(buffer, "\t\t");
+
+    strcat(buffer, entrada.nombre);
+    strcat(buffer, "|");
+
+    return EXITO;
+};
 
 //******************************Cambio de permisos de un fichero o directorio**************************
 /**
@@ -613,45 +628,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
     bytesLeidos = mi_read_f(p_inodo, buf, offset, nbytes);
     return bytesLeidos;
 }
-
-//************************************* MILLORA NIVELL 9***********************************************
-/**
- * Busca si el camino pasado por parámetro esta almacenado en la caché
- *
- * return: número de inodo si se ha encontrado la entrada o -1
- */
-int buscar_en_cache(const char *camino)
-{
-    for (int i = 0; i < CACHE_SIZE; i++)
-    {
-        if (strcmp(UltimaEntradaIO[i].camino, camino) == 0)
-        {
-            return i;
-        }
-    }
-    // Indica que el camino no se encontró en la caché
-    return -1;
-}
-
-/**
- * Actualiza la caché con un camino y número de inodo pasado por parámetro
- */
-void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
-{
-    // Si el camino ya está en la caché, no es necesario actualizar
-    if (buscar_en_cache(nueva_entrada->camino) != -1)
-    {
-        return;
-    }
-
-    // Si no se encuentra el camino en la caché, actualizar la entrada en la posición del puntero de cola circular
-    strcpy(UltimaEntradaIO[pos_UltimaEntradaIO].camino, nueva_entrada->camino);
-    UltimaEntradaIO[pos_UltimaEntradaIO].p_inodo = nueva_entrada->p_inodo;
-
-    // Avanzar el puntero de cola circular
-    pos_UltimaEntradaIO = (pos_UltimaEntradaIO + 1) % CACHE_SIZE;
-}
-
+//************************* **********************
 /**
  * Crea el enlace de una entrada de directorio camino2 al inodo especificado por otra entrada de directorio camino1 .
  * return: ÉXITO o FALLO
@@ -680,7 +657,7 @@ int mi_link(const char *camino1, const char *camino2)
     unsigned int p_inodo1 = 0, p_entrada1 = 0;
     int return_buscar_entrada1;
 
-    return_buscar_entrada1 = buscar_entrada(camino1, &p_inodo_dir1, &p_inodo1, &p_entrada1, 0, 4);
+    return_buscar_entrada1 = buscar_entrada(camino1, &p_inodo_dir1, &p_inodo1, &p_entrada1, 0, 6);
 
     if (return_buscar_entrada1 != EXITO)
     {
@@ -759,4 +736,47 @@ int mi_link(const char *camino1, const char *camino2)
 
     // Devolver ÉXITO
     return EXITO;
+}
+//**************************** Borrado de enlaces, ficheros y directorios *****************************
+/**
+ * */
+int mi_unlink(const char *camino){
+
+}
+//************************************* MILLORA NIVELL 9***********************************************
+/**
+ * Busca si el camino pasado por parámetro esta almacenado en la caché
+ *
+ * return: número de inodo si se ha encontrado la entrada o -1
+ */
+int buscar_en_cache(const char *camino)
+{
+    for (int i = 0; i < CACHE_SIZE; i++)
+    {
+        if (strcmp(UltimaEntradaIO[i].camino, camino) == 0)
+        {
+            return i;
+        }
+    }
+    // Indica que el camino no se encontró en la caché
+    return -1;
+}
+
+/**
+ * Actualiza la caché con un camino y número de inodo pasado por parámetro
+ */
+void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
+{
+    // Si el camino ya está en la caché, no es necesario actualizar
+    if (buscar_en_cache(nueva_entrada->camino) != -1)
+    {
+        return;
+    }
+
+    // Si no se encuentra el camino en la caché, actualizar la entrada en la posición del puntero de cola circular
+    strcpy(UltimaEntradaIO[pos_UltimaEntradaIO].camino, nueva_entrada->camino);
+    UltimaEntradaIO[pos_UltimaEntradaIO].p_inodo = nueva_entrada->p_inodo;
+
+    // Avanzar el puntero de cola circular
+    pos_UltimaEntradaIO = (pos_UltimaEntradaIO + 1) % CACHE_SIZE;
 }
