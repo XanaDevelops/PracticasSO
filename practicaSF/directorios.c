@@ -334,7 +334,7 @@ int mi_creat(const char *camino, unsigned char permisos)
 //******************************Listado del contenido de un directorio*********************************
 
 /**
- * PLACEHOLDER mi_dir()
+ * mi_dir()
  * return: nº de entradas o FALLO
  */
 int mi_dir(const char *camino, char *buffer, char tipo, char flag)
@@ -392,17 +392,20 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
         }
         else
         { // flag == 1
-            // falta tipo
+            char tmp[30];
+            memset(tmp, '\0', sizeof(tmp));
+            *tmp = inodo.tipo;
+            strcat(buffer, tmp);
             strcat(buffer, "\t");
-            if (inodoEntrada.permisos & 4)
+            if (inodo.permisos & 4)
                 strcat(buffer, "r");
             else
                 strcat(buffer, "-");
-            if (inodoEntrada.permisos & 2)
+            if (inodo.permisos & 2)
                 strcat(buffer, "w");
             else
                 strcat(buffer, "-");
-            if (inodoEntrada.permisos & 1)
+            if (inodo.permisos & 1)
                 strcat(buffer, "x");
             else
                 strcat(buffer, "-");
@@ -411,13 +414,13 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
 
             struct tm *tm; // ver info: struct tm
             tm = localtime(&inodo.mtime);
-            char tmp[30];
+            
             sprintf(tmp, "%d-%02d-%02d %02d:%02d:%02d", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
             strcat(buffer, tmp);
 
             strcat(buffer, "\t");
-            memset(tmp, '\0', sizeof(tmp));
-            sprintf(tmp, "%d", inodoEntrada.tamEnBytesLog); 
+            
+            sprintf(tmp, "%d", inodo.tamEnBytesLog); 
             strcat(buffer, tmp);
 
             strcat(buffer, "\t");
