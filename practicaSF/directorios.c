@@ -379,8 +379,8 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
         for (int i = 0; i < entradas_inodo; i++)
         {
 #if DEBUG8
-            fprintf(stderr, GRAY "%s\n" RESET, entradas[i].nombre);
-            fprintf(stderr, GRAY "%d\n" RESET, entradas[i].ninodo);
+            fprintf(stderr, GRAY "[mi_dir() -> entrada.nombre: %s]\n" RESET, entradas[i].nombre);
+            fprintf(stderr, GRAY "[mi_dir() -> entrada.ninodo: %d]\n" RESET, entradas[i].ninodo);
 #endif
             // mirar optimizar
             leer_inodo(entradas[i].ninodo, &inodoEntrada);
@@ -695,19 +695,6 @@ int mi_link(const char *camino1, const char *camino2)
         return FALLO;
     }
 
-    struct inodo inodo_dir;
-    int tam;
-    if (leer_inodo(p_inodo_dir2, &inodo_dir) == FALLO)
-    {
-        fprintf(stderr, RED "ERROR: mi_link(): No se pudo leer el inodo\n" RESET);
-
-        return FALLO;
-    }
-    else
-    {
-        tam = inodo_dir.tamEnBytesLog;
-    }
-
     // Leer la entrada creada correspondiente a camino2
     int num_bloque = p_inodo_dir2 / (BLOCKSIZE / sizeof(struct entrada));
     int entrada_buffer = p_entrada2 % (BLOCKSIZE / sizeof(struct entrada));
@@ -720,21 +707,19 @@ int mi_link(const char *camino1, const char *camino2)
     mi_read_f(p_inodo_dir2, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
 
     memcpy(&entrada, &buff_entradas[entrada_buffer], sizeof(struct entrada));
+
+    int tam_entrada = sizeof(struct entrada);
+    int offset = p_entrada2 * tam_entrada;
+    
+    mi_read_f(p_inodo_dir2, &entrada, offset, tam_entrada);
+
     // Asociar a esta entrada el mismo inodo que el asociado a la entrada del camino1
     entrada.ninodo = p_inodo1;
 
     // Escribir la entrada modificada en p_inodo_dir_2
     memcpy(&buff_entradas[entrada_buffer], &entrada, sizeof(struct entrada));
 
-    mi_write_f(p_inodo_dir2, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
-
-    inodo_dir.tamEnBytesLog = tam;
-    // Salvar el inodo
-    if (escribir_inodo(p_inodo_dir2, &inodo_dir) == FALLO)
-    {
-        fprintf(stderr, RED "ERROR: mi_link(): No se pudo escribir el inodo\n" RESET);
-        return FALLO;
-    }
+    mi_write_f(p_inodo_dir2, buff_entradas, offset, tam_entrada);
 
     // Liberar el inodo que se ha asociado a la entrada creada, p_inodo2
     liberar_inodo(p_inodo2);

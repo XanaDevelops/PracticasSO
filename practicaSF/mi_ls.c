@@ -88,7 +88,7 @@ int main(int argc, char **argv)
     }
     while (iter != NULL)
     {
-        printf("%s\n", iter);
+        fprintf(stdout, "%s\n", iter);
         iter = strtok(NULL, "|");
     }
 
