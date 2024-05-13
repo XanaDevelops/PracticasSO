@@ -381,10 +381,10 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
     struct inodo inodoEntrada;
     for (int i = 0; i < entradas_inodo; i++)
     {
-        // printf("%s\n", entradas[i].nombre);
-        //  printf("%d\n", entradas[i].ninodo);
+        fprintf(stderr, GRAY "%s\n" RESET, entradas[i].nombre);
+        fprintf(stderr, GRAY "%d\n" RESET, entradas[i].ninodo);
         // mirar optimizar
-        mi_read_f(entradas[i].ninodo, &inodoEntrada, 0, sizeof(struct inodo));
+        leer_inodo(entradas[i].ninodo, &inodoEntrada);
         if (flag == 0)
         {
             strcat(buffer, entradas[i].nombre);
@@ -397,15 +397,15 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
             *tmp = inodo.tipo;
             strcat(buffer, tmp);
             strcat(buffer, "\t");
-            if (inodo.permisos & 4)
+            if (inodoEntrada.permisos & 4)
                 strcat(buffer, "r");
             else
                 strcat(buffer, "-");
-            if (inodo.permisos & 2)
+            if (inodoEntrada.permisos & 2)
                 strcat(buffer, "w");
             else
                 strcat(buffer, "-");
-            if (inodo.permisos & 1)
+            if (inodoEntrada.permisos & 1)
                 strcat(buffer, "x");
             else
                 strcat(buffer, "-");
@@ -413,17 +413,17 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
             strcat(buffer, "\t");
 
             struct tm *tm; // ver info: struct tm
-            tm = localtime(&inodo.mtime);
+            tm = localtime(&inodoEntrada.mtime);
             
             sprintf(tmp, "%d-%02d-%02d %02d:%02d:%02d", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
             strcat(buffer, tmp);
 
             strcat(buffer, "\t");
             
-            sprintf(tmp, "%d", inodo.tamEnBytesLog); 
+            sprintf(tmp, "%d", inodoEntrada.tamEnBytesLog); 
             strcat(buffer, tmp);
 
-            strcat(buffer, "\t");
+            strcat(buffer, "\t\t");
 
             strcat(buffer, entradas[i].nombre);
             strcat(buffer, "|");
