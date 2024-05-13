@@ -5,6 +5,8 @@
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
 static int pos_UltimaEntradaIO = 0;
 
+int auxiliarInodoEntradaDir(char *buffer, struct inodo inodo, struct entrada entrada);
+
 // Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
 
 //***************************************BUSCAR ENTRADA Y AUXILIARES**************************************
@@ -374,61 +376,74 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
     // PROVISIONAL (chungo si se sale del buffer)
     int entradas_inodo = inodo.tamEnBytesLog / sizeof(struct entrada);
     struct inodo inodoEntrada;
-    for (int i = 0; i < entradas_inodo; i++)
+    if (tipo == 'd')
     {
-        fprintf(stderr, GRAY "%s\n" RESET, entradas[i].nombre);
-        fprintf(stderr, GRAY "%d\n" RESET, entradas[i].ninodo);
-        // mirar optimizar
-        leer_inodo(entradas[i].ninodo, &inodoEntrada);
-        if (flag == 0)
+        for (int i = 0; i < entradas_inodo; i++)
         {
-            strcat(buffer, entradas[i].nombre);
-            strcat(buffer, "|");
+#if DEBUG8
+            fprintf(stderr, GRAY "%s\n" RESET, entradas[i].nombre);
+            fprintf(stderr, GRAY "%d\n" RESET, entradas[i].ninodo);
+#endif
+            // mirar optimizar
+            leer_inodo(entradas[i].ninodo, &inodoEntrada);
+            if (flag == 0)
+            {
+                strcat(buffer, entradas[i].nombre);
+                strcat(buffer, "|");
+            }
+            else
+            { // flag == 1
+                auxiliarEntradaInodo(buffer, inodoEntrada, entradas[i]);
+            }
+            // printf("buf: %s\n", buffer);
+            nEntradas++;
         }
-        else
-        { // flag == 1
-            char tmp[30];
-            memset(tmp, '\0', sizeof(tmp));
-            *tmp = inodo.tipo;
-            strcat(buffer, tmp);
-            strcat(buffer, "\t");
-            if (inodoEntrada.permisos & 4)
-                strcat(buffer, "r");
-            else
-                strcat(buffer, "-");
-            if (inodoEntrada.permisos & 2)
-                strcat(buffer, "w");
-            else
-                strcat(buffer, "-");
-            if (inodoEntrada.permisos & 1)
-                strcat(buffer, "x");
-            else
-                strcat(buffer, "-");
-
-            strcat(buffer, "\t");
-
-            struct tm *tm; // ver info: struct tm
-            tm = localtime(&inodoEntrada.mtime);
-            
-            sprintf(tmp, "%d-%02d-%02d %02d:%02d:%02d", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-            strcat(buffer, tmp);
-
-            strcat(buffer, "\t");
-            
-            sprintf(tmp, "%d", inodoEntrada.tamEnBytesLog); 
-            strcat(buffer, tmp);
-
-            strcat(buffer, "\t\t");
-
-            strcat(buffer, entradas[i].nombre);
-            strcat(buffer, "|");
-        }
-        // printf("buf: %s\n", buffer);
-        nEntradas++;
+    }else{
+        auxiliarEntradaInodo(buffer, inodo, entradas[0]);
     }
-
     return nEntradas;
 }
+
+int auxiliarEntradaInodo(char *buffer, struct inodo inodo, struct entrada entrada)
+{
+    char tmp[30];
+    memset(tmp, '\0', sizeof(tmp));
+    *tmp = inodo.tipo;
+    strcat(buffer, tmp);
+    strcat(buffer, "\t");
+    if (inodo.permisos & 4)
+        strcat(buffer, "r");
+    else
+        strcat(buffer, "-");
+    if (inodo.permisos & 2)
+        strcat(buffer, "w");
+    else
+        strcat(buffer, "-");
+    if (inodo.permisos & 1)
+        strcat(buffer, "x");
+    else
+        strcat(buffer, "-");
+
+    strcat(buffer, "\t");
+
+    struct tm *tm; // ver info: struct tm
+    tm = localtime(&inodo.mtime);
+
+    sprintf(tmp, "%d-%02d-%02d %02d:%02d:%02d", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
+    strcat(buffer, tmp);
+
+    strcat(buffer, "\t");
+
+    sprintf(tmp, "%d", inodo.tamEnBytesLog);
+    strcat(buffer, tmp);
+
+    strcat(buffer, "\t\t");
+
+    strcat(buffer, entrada.nombre);
+    strcat(buffer, "|");
+
+    return EXITO;
+};
 
 //******************************Cambio de permisos de un fichero o directorio**************************
 /**
@@ -567,8 +582,8 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
  * return: Devuelve los bytes leídos
  */
 int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes)
-{   
-    char buff_cat[nbytes] ;
+{
+    char buff_cat[nbytes];
     memset(buff_cat, '\0', sizeof(buff_cat));
     // LECTURA SUPERBLOQUE
     struct superbloque sb;
