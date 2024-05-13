@@ -678,11 +678,11 @@ int mi_link(const char *camino1, const char *camino2)
         return FALLO;
     }
 
-    unsigned int *p_inodo_dir1 = &sb.posInodoRaiz;
+    unsigned int p_inodo_dir1 = sb.posInodoRaiz;
     unsigned int p_inodo1 = 0, p_entrada1 = 0;
     int return_buscar_entrada1;
 
-    return_buscar_entrada1 = buscar_entrada(camino1, p_inodo_dir1, &p_inodo1, &p_entrada1, 0, 4);
+    return_buscar_entrada1 = buscar_entrada(camino1, &p_inodo_dir1, &p_inodo1, &p_entrada1, 0, 6);
 
     if (return_buscar_entrada1 != EXITO)
     {
