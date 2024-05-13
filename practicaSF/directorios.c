@@ -379,8 +379,8 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
         for (int i = 0; i < entradas_inodo; i++)
         {
 #if DEBUG8
-            fprintf(stderr, GRAY "%s\n" RESET, entradas[i].nombre);
-            fprintf(stderr, GRAY "%d\n" RESET, entradas[i].ninodo);
+            fprintf(stderr, GRAY "[mi_dir() -> entrada.nombre: %s]\n" RESET, entradas[i].nombre);
+            fprintf(stderr, GRAY "[mi_dir() -> entrada.ninodo: %d]\n" RESET, entradas[i].ninodo);
 #endif
             // mirar optimizar
             leer_inodo(entradas[i].ninodo, &inodoEntrada);
