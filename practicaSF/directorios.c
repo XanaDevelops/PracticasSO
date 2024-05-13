@@ -615,45 +615,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
     bytesLeidos = mi_read_f(p_inodo, buff_cat, offset, nbytes);
     return bytesLeidos;
 }
-
-//************************************* MILLORA NIVELL 9***********************************************
-/**
- * Busca si el camino pasado por parámetro esta almacenado en la caché
- *
- * return: número de inodo si se ha encontrado la entrada o -1
- */
-int buscar_en_cache(const char *camino)
-{
-    for (int i = 0; i < CACHE_SIZE; i++)
-    {
-        if (strcmp(UltimaEntradaIO[i].camino, camino) == 0)
-        {
-            return i;
-        }
-    }
-    // Indica que el camino no se encontró en la caché
-    return -1;
-}
-
-/**
- * Actualiza la caché con un camino y número de inodo pasado por parámetro
- */
-void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
-{
-    // Si el camino ya está en la caché, no es necesario actualizar
-    if (buscar_en_cache(nueva_entrada->camino) != -1)
-    {
-        return;
-    }
-
-    // Si no se encuentra el camino en la caché, actualizar la entrada en la posición del puntero de cola circular
-    strcpy(UltimaEntradaIO[pos_UltimaEntradaIO].camino, nueva_entrada->camino);
-    UltimaEntradaIO[pos_UltimaEntradaIO].p_inodo = nueva_entrada->p_inodo;
-
-    // Avanzar el puntero de cola circular
-    pos_UltimaEntradaIO = (pos_UltimaEntradaIO + 1) % CACHE_SIZE;
-}
-
+//************************* **********************
 /**
  * Crea el enlace de una entrada de directorio camino2 al inodo especificado por otra entrada de directorio camino1 .
  * return: ÉXITO o FALLO
@@ -761,4 +723,47 @@ int mi_link(const char *camino1, const char *camino2)
 
     // Devolver ÉXITO
     return EXITO;
+}
+//**************************** Borrado de enlaces, ficheros y directorios *****************************
+/**
+ * */
+int mi_unlink(const char *camino){
+
+}
+//************************************* MILLORA NIVELL 9***********************************************
+/**
+ * Busca si el camino pasado por parámetro esta almacenado en la caché
+ *
+ * return: número de inodo si se ha encontrado la entrada o -1
+ */
+int buscar_en_cache(const char *camino)
+{
+    for (int i = 0; i < CACHE_SIZE; i++)
+    {
+        if (strcmp(UltimaEntradaIO[i].camino, camino) == 0)
+        {
+            return i;
+        }
+    }
+    // Indica que el camino no se encontró en la caché
+    return -1;
+}
+
+/**
+ * Actualiza la caché con un camino y número de inodo pasado por parámetro
+ */
+void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
+{
+    // Si el camino ya está en la caché, no es necesario actualizar
+    if (buscar_en_cache(nueva_entrada->camino) != -1)
+    {
+        return;
+    }
+
+    // Si no se encuentra el camino en la caché, actualizar la entrada en la posición del puntero de cola circular
+    strcpy(UltimaEntradaIO[pos_UltimaEntradaIO].camino, nueva_entrada->camino);
+    UltimaEntradaIO[pos_UltimaEntradaIO].p_inodo = nueva_entrada->p_inodo;
+
+    // Avanzar el puntero de cola circular
+    pos_UltimaEntradaIO = (pos_UltimaEntradaIO + 1) % CACHE_SIZE;
 }
