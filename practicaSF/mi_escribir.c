@@ -70,7 +70,9 @@ int main(int argc, char **argv)
         printf("Bytes Escritos: %d\n", 0);
         return exitError();
     }
-
+    if(bytes<=FALLO){
+        return exitError();
+    }
     printf("Bytes Escritos: %d\n", bytes);
 
     // desmontamos disco
