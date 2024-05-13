@@ -5,11 +5,6 @@ Perelló Perelló, Biel*/
 #include <limits.h>
 #include "ficheros_basico.h"
 
-#define DEBUG2 0
-#define DEBUG3 0
-#define DEBUG4 0
-#define DEBUG6 0
-
 //*******************************************TAMAÑOS INICIALIZACIÓN***********************************************
 int tamMB(unsigned int nbloques)
 {
@@ -906,9 +901,7 @@ int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo)
     int contador_breads = 0;              // para comprobar optimización eficiencia
     int contador_bwrites = 0;             // para comprobar optimización eficiencia
     int bloque_modificado[3] = {0, 0, 0}; // para saber si se ha modificado un bloque de punteros de algún nivel
-#if DEBUG6
     int BLliberado = 0; // utilizado para imprimir el nº de bloque lógico que se ha liberado
-#endif
 
     if (inodo->tamEnBytesLog == 0)
         return 0;

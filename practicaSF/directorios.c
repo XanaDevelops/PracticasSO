@@ -1,11 +1,6 @@
 #include "directorios.h"
 #include <string.h>
 
-#define DEBUG7A 0
-#define DEBUG7B 0
-#define DEBUG8 1
-#define DEBUG9 1
-
 // Implementada mejora nivel 9
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
 static int pos_UltimaEntradaIO = 0;

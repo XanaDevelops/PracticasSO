@@ -38,6 +38,16 @@ Perelló Perelló, Biel*/
 
 #define NEGRITA "\x1b[1m"
 
+#define DEBUG1 0
+#define DEBUG2 0
+#define DEBUG3 0
+#define DEBUG4 0
+#define DEBUG6 0
+#define DEBUG7A 0
+#define DEBUG7B 0
+#define DEBUG8 1
+#define DEBUG9 1
+
 //BORRAR
 void enablepd();
 void disablepd();

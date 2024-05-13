@@ -4,8 +4,6 @@ Perelló Perelló, Biel*/
 
 #include "bloques.h"
 
-#define DEBUG1 0
-
 static int descriptor = 0;
 static int debug_print = 0; //imprime bloque leer/escribir DEBUG BORRAR cuando no haga falta...
 
