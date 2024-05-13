@@ -698,31 +698,26 @@ int mi_link(const char *camino1, const char *camino2)
     // Leer la entrada creada correspondiente a camino2
     struct entrada entrada;
 
-    struct entrada buff_entradas[BLOCKSIZE / sizeof(struct entrada)];
-    memset(buff_entradas, '\0', sizeof(buff_entradas));
+    //struct entrada buff_entradas[BLOCKSIZE / sizeof(struct entrada)];
+    //memset(buff_entradas, '\0', sizeof(buff_entradas));
     memset(&entrada, '\0', sizeof(struct entrada));
 
-    int num_bloque = p_entrada2 / sizeof(buff_entradas);
-    int entrada_buffer = p_entrada2 % sizeof(buff_entradas);
+    int tam_entrada = sizeof(struct entrada);
+    int offset = p_entrada2 * tam_entrada;
+    //int entrada_buffer = p_entrada2 % sizeof(buff_entradas);
 
-    /*
-    for(int i = 0; i < num_bloque; i++)
-    {
-        bytesleidos += mi_read_f(p_inodo_dir2, buff_entradas, bytesleidos, BLOCKSIZE);
-    }
-    */
+    //mi_read_f(p_inodo_dir2, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
+    mi_read_f(p_inodo_dir2, &entrada, offset, tam_entrada);
 
-    mi_read_f(p_inodo_dir2, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
-
-    memcpy(&entrada, &buff_entradas[entrada_buffer], sizeof(struct entrada));
+    //memcpy(&entrada, &buff_entradas[entrada_buffer], sizeof(struct entrada));
 
     // Asociar a esta entrada el mismo inodo que el asociado a la entrada del camino1
     entrada.ninodo = p_inodo1;
 
     // Escribir la entrada modificada en p_inodo_dir_2
-    memcpy(&buff_entradas[entrada_buffer], &entrada, sizeof(struct entrada));
+    //memcpy(&buff_entradas[entrada_buffer], &entrada, sizeof(struct entrada));
 
-    mi_write_f(p_inodo_dir2, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
+    mi_write_f(p_inodo_dir2, &entrada, offset, tam_entrada);
 
     // Liberar el inodo que se ha asociado a la entrada creada, p_inodo2
     liberar_inodo(p_inodo2);
