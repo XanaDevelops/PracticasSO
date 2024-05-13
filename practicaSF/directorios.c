@@ -778,22 +778,17 @@ int mi_unlink(const char *camino)
         return FALLO;
     }
 
-    // Leer la entrada correspondiente a camino
-    struct entrada entrada;
+    
 
     struct entrada buff_entradas[BLOCKSIZE / sizeof(struct entrada)];
     memset(buff_entradas, '\0', sizeof(buff_entradas));
-    memset(&entrada, '\0', sizeof(struct entrada));
 
     int num_bloque = p_inodo_dir / sizeof(buff_entradas);
     int entrada_buffer = p_entrada % sizeof(buff_entradas);
 
-    mi_read_f(p_inodo_dir, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
-    memcpy(&entrada, &buff_entradas[entrada_buffer], sizeof(struct entrada));
-
     struct inodo inodo_e;
     struct inodo inodo_p;
-    int num_eliminar = entrada.ninodo;
+    int num_eliminar = p_inodo;
     leer_inodo(num_eliminar, &inodo_e);
 
     if (inodo_e.tipo == 'd' && inodo_e.tamEnBytesLog > 0)
@@ -809,7 +804,7 @@ int mi_unlink(const char *camino)
         if (p_entrada != num_e - 1)
         {
             memset(buff_entradas, '\0', sizeof(buff_entradas));
-            mi_read_f(p_inodo, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
+            mi_read_f(p_inodo_dir, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
             memcpy(&buff_entradas[entrada_buffer], &buff_entradas[num_e - 1], sizeof(struct entrada));
             mi_write_f(p_inodo, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
         }
