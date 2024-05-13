@@ -7,5 +7,5 @@ Nombres participantes equipo
 
 Se han seguido las recomendaciones de los diferentes niveles
 Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
-Se ha aplicado mejora extendida mi_ls
+Se ha aplicado mejora extendida mi_ls -l, ficheros incluido
 Se ha implementado busqueda en cache
