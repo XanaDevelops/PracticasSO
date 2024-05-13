@@ -7,8 +7,6 @@ Perelló Perelló, Biel*/
 #include <stdlib.h>
 #include "directorios.h"
 
-#define DEBUG1 0
-#define DEBUG3 0
 
 void errorExit();
 

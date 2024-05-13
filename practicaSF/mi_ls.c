@@ -7,7 +7,6 @@ Perelló Perelló, Biel*/
 
 #include "directorios.h"
 
-#define DEBUG8 1
 
 #define TAMFILA 100
 #define NFILAS 1000

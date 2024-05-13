@@ -5,8 +5,6 @@
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
 static int pos_UltimaEntradaIO = 0;
 
-int auxiliarInodoEntradaDir(char *buffer, struct inodo inodo, struct entrada entrada);
-
 // Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
 
 //***************************************BUSCAR ENTRADA Y AUXILIARES**************************************
@@ -393,7 +391,7 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
             }
             else
             { // flag == 1
-                auxiliarEntradaInodo(buffer, inodoEntrada, entradas[i]);
+                auxiliarInodoEntradaDir(buffer, inodoEntrada, entradas[i], tipo);
             }
             // printf("buf: %s\n", buffer);
             nEntradas++;
@@ -401,12 +399,24 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
     }
     else
     {
-        auxiliarEntradaInodo(buffer, inodo, entradas[0]);
+        auxiliarInodoEntradaDir(buffer, inodo, entradas[0], tipo);
+        // obtener el nombre
+        char aux[strlen(camino)];
+        strcpy(aux, camino);
+        char *last = NULL;
+        char *token = strtok(aux, "/");
+        while (token != NULL)
+        {
+            last = token;
+            token = strtok(NULL, "/");
+        }
+        strcat(buffer, last);
+        strcat(buffer, "|");
     }
     return nEntradas;
 }
 
-int auxiliarEntradaInodo(char *buffer, struct inodo inodo, struct entrada entrada)
+int auxiliarInodoEntradaDir(char *buffer, struct inodo inodo, struct entrada entrada, char tipo)
 {
     char tmp[30];
     memset(tmp, '\0', sizeof(tmp));
@@ -441,9 +451,11 @@ int auxiliarEntradaInodo(char *buffer, struct inodo inodo, struct entrada entrad
 
     strcat(buffer, "\t\t");
 
-    strcat(buffer, entrada.nombre);
-    strcat(buffer, "|");
-
+    if (tipo == 'd')
+    {
+        strcat(buffer, entrada.nombre);
+        strcat(buffer, "|");
+    }
     return EXITO;
 };
 
@@ -771,10 +783,10 @@ int mi_unlink(const char *camino)
     memset(buff_entradas, '\0', sizeof(buff_entradas));
     memset(&entrada, '\0', sizeof(struct entrada));
 
-    int num_bloque = p_inodo / sizeof(buff_entradas);
+    int num_bloque = p_inodo_dir / sizeof(buff_entradas);
     int entrada_buffer = p_entrada % sizeof(buff_entradas);
 
-    mi_read_f(p_inodo, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
+    mi_read_f(p_inodo_dir, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
     memcpy(&entrada, &buff_entradas[entrada_buffer], sizeof(struct entrada));
 
     struct inodo inodo_e;
