@@ -6,11 +6,11 @@ Perelló Perelló, Biel*/
 #include <time.h>
 #include "directorios.h"
 
-#define DEBUG1 1
-#define DEBUG2 0
-#define DEBUG3 0
-#define DEBUG4 0
-#define DEBUG7 0
+#define DEBUG1LEER 1
+#define DEBUG2LEER 0
+#define DEBUG3LEER 0
+#define DEBUG4LEER 0
+
 
 struct tm *ts;
 char atime_b[80];
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
         return FALLO;
     }
 
-    #if DEBUG1
+#if DEBUG1LEER
     fprintf(stdout, "DATOS DEL SUPERBLOQUE\n\n");
 
     printf("posPrimerBloqueMB is: %d\n", SB.posPrimerBloqueMB);
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
     printf("sizeof struct inodo is: %lu\n", sizeof(struct superbloque));
     printf("sizeof struct inodo is: %lu\n", sizeof(struct inodo));
 #endif
-#if DEBUG2
+#if DEBUG2LEER
     int contInodos = SB.posPrimerBloqueAI;
 
     int num = BLOCKSIZE / INODOSIZE;
@@ -97,7 +97,7 @@ int main(int argc, char **argv)
     }*/
 #endif
     // parte nivel 3
-#if DEBUG3
+#if DEBUG3LEER
     printf("\n");
     fprintf(stdout, "RESERVAR, y liberar, BLOQUE\n");
 
@@ -156,7 +156,7 @@ int main(int argc, char **argv)
 
     imprimir_inodo(raiz);
 #endif
-#if DEBUG4
+#if DEBUG4LEER
     //parte nivel4
     int inodoReservado = reservar_inodo('f', 7); //mirar si van bien
     if(inodoReservado==FALLO){
@@ -182,7 +182,7 @@ int main(int argc, char **argv)
     imprimir_inodo(inodoR);
 #endif
 
-#if DEBUG7
+#if DEBUG7LEER
     //Mostrar creación directorios y errores
     mostrar_buscar_entrada("pruebas/", 1); //ERROR_CAMINO_INCORRECTO
     mostrar_buscar_entrada("/pruebas/", 0); //ERROR_NO_EXISTE_ENTRADA_CONSULTA

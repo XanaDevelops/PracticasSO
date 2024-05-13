@@ -568,8 +568,6 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
  */
 int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes)
 {   
-    char buff_cat[nbytes] ;
-    memset(buff_cat, '\0', sizeof(buff_cat));
     // LECTURA SUPERBLOQUE
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
@@ -612,7 +610,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
         return FALLO;
     }
 
-    bytesLeidos = mi_read_f(p_inodo, buff_cat, offset, nbytes);
+    bytesLeidos = mi_read_f(p_inodo, buf, offset, nbytes);
     return bytesLeidos;
 }
 
@@ -678,11 +676,11 @@ int mi_link(const char *camino1, const char *camino2)
         return FALLO;
     }
 
-    unsigned int *p_inodo_dir1 = &sb.posInodoRaiz;
+    unsigned int p_inodo_dir1 = sb.posInodoRaiz;
     unsigned int p_inodo1 = 0, p_entrada1 = 0;
     int return_buscar_entrada1;
 
-    return_buscar_entrada1 = buscar_entrada(camino1, p_inodo_dir1, &p_inodo1, &p_entrada1, 0, 4);
+    return_buscar_entrada1 = buscar_entrada(camino1, &p_inodo_dir1, &p_inodo1, &p_entrada1, 0, 4);
 
     if (return_buscar_entrada1 != EXITO)
     {

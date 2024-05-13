@@ -11,8 +11,6 @@ void errorExit();
 //#define BLOCKLEER  (4 * BLOCKSIZE)
 #define BLOCKLEER  1500
 
-#define DEBUG5 1
-
 int main(int argc, char **argv)
 {   
     char buff[BLOCKLEER];
