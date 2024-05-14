@@ -5,6 +5,8 @@
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
 static int pos_UltimaEntradaIO = 0;
 
+#define DEBUGMIDIR 1
+
 // Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
 
 //***************************************BUSCAR ENTRADA Y AUXILIARES**************************************
@@ -356,7 +358,7 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
         }
         return FALLO;
     }
-#if DEBUG8
+#if DEBUG8 || DEBUGMIDIR
     fprintf(stderr, GRAY "[mi_dir() -> resultado buscar_entrada() p_inodo_dir:%d, p_inodo:%d, p_entrada:%d]\n" RESET, p_inodo_dir, p_inodo, p_entrada);
 #endif
     struct inodo inodo;
@@ -368,7 +370,7 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
 
     //struct entrada entradas[BLOCKSIZE / sizeof(struct entrada)];
     struct entrada entradas[entradas_inodo * sizeof(struct entrada)];
-    if (mi_read_f(p_inodo, entradas, p_entrada, BLOCKSIZE) == FALLO)
+    if (mi_read_f(p_inodo, entradas, 0, sizeof(entradas)) == FALLO)
     {
         fprintf(stderr, RED "ERROR mi_dir() -> fallor mi_read_f\n");
         return FALLO;
@@ -380,12 +382,18 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
     {
         for (int i = 0; i < entradas_inodo; i++)
         {
-#if DEBUG8
+#if DEBUG8 || DEBUGMIDIR
             fprintf(stderr, GRAY "[mi_dir() -> entrada.nombre: %s]\n" RESET, entradas[i].nombre);
-            fprintf(stderr, GRAY "[mi_dir() -> entrada.ninodo: %d]\n" RESET, entradas[i].ninodo);
+            fprintf(stderr, GRAY "[mi_dir() -> entrada.ninodo: %u]\n" RESET, entradas[i].ninodo);
 #endif
             // mirar optimizar
             leer_inodo(entradas[i].ninodo, &inodoEntrada);
+            #if DEBUG8 || DEBUGMIDIR
+            fprintf(stderr, GRAY "tipo inoodo %c\n" RESET, inodoEntrada.tipo);
+            #endif
+            if(inodoEntrada.tipo=='l'){
+                continue;
+            }
             if (flag == 0)
             {
                 strcat(buffer, entradas[i].nombre);
@@ -420,7 +428,7 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
 
 int auxiliarInodoEntradaDir(char *buffer, struct inodo inodo, struct entrada entrada, char tipo)
 {
-    char tmp[30];
+    char tmp[64];
     memset(tmp, '\0', sizeof(tmp));
     *tmp = inodo.tipo;
     strcat(buffer, tmp);
@@ -800,8 +808,8 @@ int mi_unlink(const char *camino)
         {
             memset(buff_entradas, '\0', sizeof(buff_entradas));
             mi_read_f(p_inodo_dir, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
-            memcpy(&buff_entradas[entrada_buffer], &buff_entradas[num_e - 1], sizeof(struct entrada));
-            mi_write_f(p_inodo_dir, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
+            //memcpy(&buff_entradas[entrada_buffer], &buff_entradas[num_e - 1], sizeof(struct entrada));
+            mi_write_f(p_inodo_dir, &buff_entradas[num_e-1], entrada_buffer*sizeof(struct entrada), sizeof(struct entrada));
         }
         mi_truncar_f(p_inodo_dir, inodo_padre.tamEnBytesLog - sizeof(struct entrada));
     }
