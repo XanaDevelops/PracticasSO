@@ -82,7 +82,7 @@ int main(int argc, char **argv)
         {
             fprintf(stdout, "Total: %d\n", nEntradas);
         }
-        fprintf(stdout, "Tipo	Modo	mTime			Tamaño			Nombre\n");
+        fprintf(stdout, "Tipo	Modo	mTime			Tamaño		Nombre\n");
         fprintf(stdout, "----------------------------------------------------------------------\n");
     }
     fprintf(stdout, "%s\n", bufdir);

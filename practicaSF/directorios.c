@@ -5,7 +5,11 @@
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
 static int pos_UltimaEntradaIO = 0;
 
-#define DEBUGMIDIR 1
+#define DEBUGMIDIR 0
+#define COLORD BLUE
+#define COLORF GREEN
+
+#define ENTRADASBLOQUE BLOCKSIZE / sizeof(struct entrada)
 
 // Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
 
@@ -368,8 +372,8 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
     }
     int entradas_inodo = inodo.tamEnBytesLog / sizeof(struct entrada);
 
-    //struct entrada entradas[BLOCKSIZE / sizeof(struct entrada)];
-    struct entrada entradas[entradas_inodo * sizeof(struct entrada)];
+    struct entrada entradas[BLOCKSIZE / sizeof(struct entrada)];
+    //struct entrada entradas[entradas_inodo * sizeof(struct entrada)];
     if (mi_read_f(p_inodo, entradas, 0, sizeof(entradas)) == FALLO)
     {
         fprintf(stderr, RED "ERROR mi_dir() -> fallor mi_read_f\n");
@@ -380,7 +384,8 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
     struct inodo inodoEntrada;
     if (tipo == 'd')
     {
-        for (int i = 0; i < entradas_inodo; i++)
+        int contadorLinea = 0;
+        for (int i = 0; i < entradas_inodo && i< ENTRADASBLOQUE; i++)
         {
 #if DEBUG8 || DEBUGMIDIR
             fprintf(stderr, GRAY "[mi_dir() -> entrada.nombre: %s]\n" RESET, entradas[i].nombre);
@@ -396,8 +401,21 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
             }
             if (flag == 0)
             {
+                if(inodoEntrada.tipo=='d'){
+                    strcat(buffer, COLORD);
+                }else{
+                    strcat(buffer, COLORF);
+                }
                 strcat(buffer, entradas[i].nombre);
-                strcat(buffer, "|");
+                strcat(buffer, RESET);
+                contadorLinea+=strlen(entradas[i].nombre);
+                if(contadorLinea>80){
+                    strcat(buffer, "\n");
+                    contadorLinea=0;
+                }else{
+                    strcat(buffer, "\t");
+                }
+                
             }
             else
             { // flag == 1
@@ -420,8 +438,10 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
             last = token;
             token = strtok(NULL, "/");
         }
+        strcat(buffer, COLORF);
         strcat(buffer, last);
-        strcat(buffer, "|");
+        strcat(buffer, RESET);
+        strcat(buffer, "\n");
     }
     return nEntradas;
 }
@@ -463,7 +483,9 @@ int auxiliarInodoEntradaDir(char *buffer, struct inodo inodo, struct entrada ent
 
     if (tipo == 'd')
     {
+        strcat(buffer, COLORD);
         strcat(buffer, entrada.nombre);
+        strcat(buffer, RESET);
         strcat(buffer, "\n");
     }
     return EXITO;
