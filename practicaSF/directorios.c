@@ -464,7 +464,7 @@ int auxiliarInodoEntradaDir(char *buffer, struct inodo inodo, struct entrada ent
     if (tipo == 'd')
     {
         strcat(buffer, entrada.nombre);
-        strcat(buffer, "|");
+        strcat(buffer, "\n");
     }
     return EXITO;
 };

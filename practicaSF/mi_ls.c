@@ -76,7 +76,6 @@ int main(int argc, char **argv)
         return FALLO;
     }
     // printf("bufdir: %s\n", bufdir);
-    char *iter = strtok(bufdir, "|");
     if (extendido)
     {
         if (tipo == 'd')
@@ -86,11 +85,7 @@ int main(int argc, char **argv)
         fprintf(stdout, "Tipo	Modo	mTime			Tamaño			Nombre\n");
         fprintf(stdout, "----------------------------------------------------------------------\n");
     }
-    while (iter != NULL)
-    {
-        fprintf(stdout, "%s\n", iter);
-        iter = strtok(NULL, "|");
-    }
+    fprintf(stdout, "%s\n", bufdir);
 
     return EXITO;
 }
