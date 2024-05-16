@@ -5,14 +5,6 @@
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
 static int pos_UltimaEntradaIO = 0;
 
-#define DEBUGMIDIR 0
-#define COLORD BLUE
-#define COLORF GREEN
-
-#define ENTRADASBLOQUE (BLOCKSIZE / sizeof(struct entrada))
-
-#define USARCACHE 2
-
 // Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
 
 //***************************************BUSCAR ENTRADA Y AUXILIARES**************************************
@@ -342,7 +334,7 @@ int mi_creat(const char *camino, unsigned char permisos)
  */
 int mi_dir(const char *camino, char *buffer, char tipo, char flag)
 {
-
+    int nEntradas = 0;
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
     {
@@ -364,7 +356,7 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
         }
         return FALLO;
     }
-#if DEBUG8 || DEBUGMIDIR
+#if DEBUG8
     fprintf(stderr, GRAY "[mi_dir() -> resultado buscar_entrada() p_inodo_dir:%d, p_inodo:%d, p_entrada:%d]\n" RESET, p_inodo_dir, p_inodo, p_entrada);
 #endif
     struct inodo inodo;
@@ -374,71 +366,37 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
     }
     int entradas_inodo = inodo.tamEnBytesLog / sizeof(struct entrada);
 
-    struct entrada entradas[BLOCKSIZE / sizeof(struct entrada)];
-    // struct entrada entradas[entradas_inodo * sizeof(struct entrada)];
-
+    //struct entrada entradas[BLOCKSIZE / sizeof(struct entrada)];
+    struct entrada entradas[entradas_inodo * sizeof(struct entrada)];
+    if (mi_read_f(p_inodo, entradas, p_entrada, BLOCKSIZE) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR mi_dir() -> fallor mi_read_f\n");
+        return FALLO;
+    }
     // PROVISIONAL (chungo si se sale del buffer)
-
+    
     struct inodo inodoEntrada;
-    int nEntradas = 0;
     if (tipo == 'd')
     {
-        int contadorLinea = 0;
-        int nBloques = 0;
-        while (nEntradas < entradas_inodo)
+        for (int i = 0; i < entradas_inodo; i++)
         {
-            // mirar si esto esta bien
-            if (mi_read_f(p_inodo, entradas, nBloques * BLOCKSIZE, sizeof(entradas)) == FALLO)
-            {
-                fprintf(stderr, RED "ERROR mi_dir() -> fallor mi_read_f\n");
-                return FALLO;
-            }
-            for (int i = 0; nEntradas < entradas_inodo && i < ENTRADASBLOQUE; i++)
-            {
-#if DEBUG8 || DEBUGMIDIR
-                fprintf(stderr, GRAY "[mi_dir() -> entrada.nombre: %s]\n" RESET, entradas[i].nombre);
-                fprintf(stderr, GRAY "[mi_dir() -> entrada.ninodo: %u]\n" RESET, entradas[i].ninodo);
+#if DEBUG8
+            fprintf(stderr, GRAY "[mi_dir() -> entrada.nombre: %s]\n" RESET, entradas[i].nombre);
+            fprintf(stderr, GRAY "[mi_dir() -> entrada.ninodo: %d]\n" RESET, entradas[i].ninodo);
 #endif
-                // mirar optimizar
-                leer_inodo(entradas[i].ninodo, &inodoEntrada);
-#if DEBUG8 || DEBUGMIDIR
-                fprintf(stderr, GRAY "tipo inoodo %c\n" RESET, inodoEntrada.tipo);
-#endif
-                if (inodoEntrada.tipo == 'l')
-                {
-                    continue;
-                }
-                if (flag == 0)
-                {
-                    if (inodoEntrada.tipo == 'd')
-                    {
-                        strcat(buffer, COLORD);
-                    }
-                    else
-                    {
-                        strcat(buffer, COLORF);
-                    }
-                    strcat(buffer, entradas[i].nombre);
-                    strcat(buffer, RESET);
-                    contadorLinea += strlen(entradas[i].nombre);
-                    if (contadorLinea > 80)
-                    {
-                        strcat(buffer, "\n");
-                        contadorLinea = 0;
-                    }
-                    else
-                    {
-                        strcat(buffer, "\t");
-                    }
-                }
-                else
-                { // flag == 1
-                    auxiliarInodoEntradaDir(buffer, inodoEntrada, entradas[i], tipo);
-                }
-                // printf("buf: %s\n", buffer);
-                nEntradas++;
+            // mirar optimizar
+            leer_inodo(entradas[i].ninodo, &inodoEntrada);
+            if (flag == 0)
+            {
+                strcat(buffer, entradas[i].nombre);
+                strcat(buffer, "|");
             }
-            nBloques++;
+            else
+            { // flag == 1
+                auxiliarInodoEntradaDir(buffer, inodoEntrada, entradas[i], tipo);
+            }
+            // printf("buf: %s\n", buffer);
+            nEntradas++;
         }
     }
     else
@@ -454,17 +412,15 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
             last = token;
             token = strtok(NULL, "/");
         }
-        strcat(buffer, COLORF);
         strcat(buffer, last);
-        strcat(buffer, RESET);
-        strcat(buffer, "\n");
+        strcat(buffer, "|");
     }
     return nEntradas;
 }
 
 int auxiliarInodoEntradaDir(char *buffer, struct inodo inodo, struct entrada entrada, char tipo)
 {
-    char tmp[64];
+    char tmp[30];
     memset(tmp, '\0', sizeof(tmp));
     *tmp = inodo.tipo;
     strcat(buffer, tmp);
@@ -499,10 +455,8 @@ int auxiliarInodoEntradaDir(char *buffer, struct inodo inodo, struct entrada ent
 
     if (tipo == 'd')
     {
-        strcat(buffer, COLORD);
         strcat(buffer, entrada.nombre);
-        strcat(buffer, RESET);
-        strcat(buffer, "\n");
+        strcat(buffer, "|");
     }
     return EXITO;
 };
@@ -758,7 +712,7 @@ int mi_link(const char *camino1, const char *camino2)
 
     int tam_entrada = sizeof(struct entrada);
     int offset = p_entrada2 * tam_entrada;
-
+    
     mi_read_f(p_inodo_dir2, &entrada, offset, tam_entrada);
 
     // Asociar a esta entrada el mismo inodo que el asociado a la entrada del camino1
@@ -846,21 +800,8 @@ int mi_unlink(const char *camino)
         {
             memset(buff_entradas, '\0', sizeof(buff_entradas));
             mi_read_f(p_inodo_dir, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
-            // memcpy(&buff_entradas[entrada_buffer], &buff_entradas[num_e - 1], sizeof(struct entrada));
-            //asumiendo continuidad, creo que esta mal
-            fprintf(stderr, "%d\n", num_e%ENTRADASBLOQUE);
-            if ((num_e % ENTRADASBLOQUE) == num_bloque)
-            {
-                //mi_write_f(p_inodo_dir, &buff_entradas[num_e - 1], entrada_buffer * sizeof(struct entrada), sizeof(struct entrada));
-                memcpy(&buff_entradas[entrada_buffer], &buff_entradas[num_e - 1], sizeof(struct entrada));
-            }else{
-                struct entrada lastEntradas[BLOCKSIZE / sizeof(struct entrada)];
-                mi_read_f(p_inodo_dir, lastEntradas, ((num_e-1)/ENTRADASBLOQUE)*BLOCKSIZE, BLOCKSIZE);
-                //mi_write_f(p_inodo_dir, &buff_entradas[num_e - 1], entrada_buffer * sizeof(struct entrada), sizeof(struct entrada));
-                memcpy(&buff_entradas[entrada_buffer], &lastEntradas[(num_e)%ENTRADASBLOQUE-1], sizeof(struct entrada));
-
-            }
-            mi_write_f(p_inodo_dir, buff_entradas, num_bloque*BLOCKSIZE, BLOCKSIZE);
+            memcpy(&buff_entradas[entrada_buffer], &buff_entradas[num_e - 1], sizeof(struct entrada));
+            mi_write_f(p_inodo_dir, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
         }
         mi_truncar_f(p_inodo_dir, inodo_padre.tamEnBytesLog - sizeof(struct entrada));
     }
@@ -890,10 +831,6 @@ int mi_unlink(const char *camino)
  */
 int buscar_en_cache(const char *camino)
 {
-#if USARCACHE == 0
-    return FALLO;
-#endif
-#if USARCACHE > 0
     for (int i = 0; i < CACHE_SIZE; i++)
     {
         if (strcmp(UltimaEntradaIO[i].camino, camino) == 0)
@@ -903,7 +840,6 @@ int buscar_en_cache(const char *camino)
     }
     // Indica que el camino no se encontró en la caché
     return -1;
-#endif
 }
 
 /**
@@ -911,7 +847,6 @@ int buscar_en_cache(const char *camino)
  */
 void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 {
-#if USARCACHE > 0
     // Si el camino ya está en la caché, no es necesario actualizar
     if (buscar_en_cache(nueva_entrada->camino) != -1)
     {
@@ -924,6 +859,4 @@ void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 
     // Avanzar el puntero de cola circular
     pos_UltimaEntradaIO = (pos_UltimaEntradaIO + 1) % CACHE_SIZE;
-#endif
-    return;
 }

@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     // comprobamos argumentos de consola
     if (argc < 3)
     {
-        fprintf(stderr, RED "ARGUMENTOS INSUFICIENTES--> Sintaxis: mi_rm <disco> </ruta>\n" RESET);
+        fprintf(stderr, RED "ARGUMENTOS INSUFICIENTES--> Sintaxis: mi_rmdir <disco> </ruta>\n" RESET);
         return FALLO;
     }
 
@@ -39,13 +39,13 @@ int main(int argc, char **argv)
     int longitud_ruta = strlen(camino);
     if (strcmp(camino, "/") == 0)
     {
-        fprintf(stderr, RED "Error: mi_rm -> No se ha de poder borrar el directorio raíz\n" RESET);
+        fprintf(stderr, RED "Error: mi_rmdir -> No se ha de poder borrar el directorio raíz\n" RESET);
         return exitError();
     }
 
-    if ((*(camino + longitud_ruta - 1) == '/'))
+    if ((*(camino + longitud_ruta - 1) != '/'))
     {
-        fprintf(stderr, RED "ERROR: mi_rm(): Las rutas especificadas no se corresponden a un fichero\n" RESET);
+        fprintf(stderr, RED "ERROR: mi_rmdir(): Las rutas especificadas no se corresponden a un directorio\n" RESET);
         return exitError();
     }
     mi_unlink(camino);

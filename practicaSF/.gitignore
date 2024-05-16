@@ -15,6 +15,7 @@ mi_escribir_varios
 mi_touch
 mi_link
 mi_rm
+mi_rmdir
 *.dsk*
 *.txt
 testd.sh
