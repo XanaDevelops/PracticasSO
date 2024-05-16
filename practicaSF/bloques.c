@@ -3,9 +3,16 @@ García Vázquez, Daniel
 Perelló Perelló, Biel*/
 
 #include "bloques.h"
+#include "semaforo_mutex_posix.h"
 
 static int descriptor = 0;
-static int debug_print = 0; //imprime bloque leer/escribir DEBUG BORRAR cuando no haga falta...
+static int debug_print = 0; //imprime bloque leer/escribir DEBUG 
+
+// Variable global para el semáforo
+static sem_t *mutex;
+// Evitar multiples waits
+static unsigned int inside_sc = 0;
+
 
 /**
  *  Montar el dispositivo virtual
@@ -24,6 +31,16 @@ int bmount(const char *camino)
         return FALLO;
     }
 
+    // el semáforo es único en el sistema y sólo se ha de inicializar 1 vez (padre)
+    if (!mutex) 
+    { 
+        mutex = initSem(); 
+        if (mutex == SEM_FAILED) 
+        {
+            return -1;
+        }
+    }
+
     // Devolver el descriptor del fichero
     return descriptor;
 }
@@ -35,6 +52,7 @@ int bumount()
 {
     if (close(descriptor) == 0)
     {
+        deleteSem(); 
         return EXITO;
     }
     else
@@ -116,6 +134,26 @@ int bread(unsigned int nbloque, void *buf)
 #endif
    // Devolver el número de bytes que se ha podido leer
     return numBytes;
+}
+
+void mi_waitSem() {
+    if (!inside_sc) 
+    { 
+        // inside_sc==0, no se ha hecho ya un wait
+        waitSem(mutex);
+    }
+   inside_sc++;
+}
+
+
+void mi_signalSem() {
+    inside_sc--;
+    
+    if (!inside_sc) 
+    {
+        signalSem(mutex);
+    }
+
 }
 
 
