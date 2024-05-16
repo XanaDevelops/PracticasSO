@@ -9,7 +9,7 @@ static int pos_UltimaEntradaIO = 0;
 #define COLORD BLUE
 #define COLORF GREEN
 
-#define ENTRADASBLOQUE BLOCKSIZE / sizeof(struct entrada)
+#define ENTRADASBLOQUE (BLOCKSIZE / sizeof(struct entrada))
 
 #define USARCACHE 2
 
@@ -342,7 +342,7 @@ int mi_creat(const char *camino, unsigned char permisos)
  */
 int mi_dir(const char *camino, char *buffer, char tipo, char flag)
 {
-    
+
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
     {
@@ -387,8 +387,8 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
         int nBloques = 0;
         while (nEntradas < entradas_inodo)
         {
-            //mirar si esto esta bien
-            if (mi_read_f(p_inodo, entradas, nBloques*BLOCKSIZE, sizeof(entradas)) == FALLO)
+            // mirar si esto esta bien
+            if (mi_read_f(p_inodo, entradas, nBloques * BLOCKSIZE, sizeof(entradas)) == FALLO)
             {
                 fprintf(stderr, RED "ERROR mi_dir() -> fallor mi_read_f\n");
                 return FALLO;
@@ -847,7 +847,20 @@ int mi_unlink(const char *camino)
             memset(buff_entradas, '\0', sizeof(buff_entradas));
             mi_read_f(p_inodo_dir, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
             // memcpy(&buff_entradas[entrada_buffer], &buff_entradas[num_e - 1], sizeof(struct entrada));
-            mi_write_f(p_inodo_dir, &buff_entradas[num_e - 1], entrada_buffer * sizeof(struct entrada), sizeof(struct entrada));
+            //asumiendo continuidad, creo que esta mal
+            fprintf(stderr, "%d\n", num_e%ENTRADASBLOQUE);
+            if ((num_e % ENTRADASBLOQUE) == num_bloque)
+            {
+                //mi_write_f(p_inodo_dir, &buff_entradas[num_e - 1], entrada_buffer * sizeof(struct entrada), sizeof(struct entrada));
+                memcpy(&buff_entradas[entrada_buffer], &buff_entradas[num_e - 1], sizeof(struct entrada));
+            }else{
+                struct entrada lastEntradas[BLOCKSIZE / sizeof(struct entrada)];
+                mi_read_f(p_inodo_dir, lastEntradas, ((num_e-1)/ENTRADASBLOQUE)*BLOCKSIZE, BLOCKSIZE);
+                //mi_write_f(p_inodo_dir, &buff_entradas[num_e - 1], entrada_buffer * sizeof(struct entrada), sizeof(struct entrada));
+                memcpy(&buff_entradas[entrada_buffer], &lastEntradas[(num_e)%ENTRADASBLOQUE-1], sizeof(struct entrada));
+
+            }
+            mi_write_f(p_inodo_dir, buff_entradas, num_bloque*BLOCKSIZE, BLOCKSIZE);
         }
         mi_truncar_f(p_inodo_dir, inodo_padre.tamEnBytesLog - sizeof(struct entrada));
     }
