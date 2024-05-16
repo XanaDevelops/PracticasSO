@@ -342,7 +342,7 @@ int mi_creat(const char *camino, unsigned char permisos)
  */
 int mi_dir(const char *camino, char *buffer, char tipo, char flag)
 {
-    int nEntradas = 0;
+    
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
     {
@@ -376,61 +376,69 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
 
     struct entrada entradas[BLOCKSIZE / sizeof(struct entrada)];
     // struct entrada entradas[entradas_inodo * sizeof(struct entrada)];
-    if (mi_read_f(p_inodo, entradas, 0, sizeof(entradas)) == FALLO)
-    {
-        fprintf(stderr, RED "ERROR mi_dir() -> fallor mi_read_f\n");
-        return FALLO;
-    }
+
     // PROVISIONAL (chungo si se sale del buffer)
 
     struct inodo inodoEntrada;
+    int nEntradas = 0;
     if (tipo == 'd')
     {
         int contadorLinea = 0;
-        for (int i = 0; i < entradas_inodo && i < ENTRADASBLOQUE; i++)
+        int nBloques = 0;
+        while (nEntradas < entradas_inodo)
         {
-#if DEBUG8 || DEBUGMIDIR
-            fprintf(stderr, GRAY "[mi_dir() -> entrada.nombre: %s]\n" RESET, entradas[i].nombre);
-            fprintf(stderr, GRAY "[mi_dir() -> entrada.ninodo: %u]\n" RESET, entradas[i].ninodo);
-#endif
-            // mirar optimizar
-            leer_inodo(entradas[i].ninodo, &inodoEntrada);
-#if DEBUG8 || DEBUGMIDIR
-            fprintf(stderr, GRAY "tipo inoodo %c\n" RESET, inodoEntrada.tipo);
-#endif
-            if (inodoEntrada.tipo == 'l')
+            //mirar si esto esta bien
+            if (mi_read_f(p_inodo, entradas, nBloques*BLOCKSIZE, sizeof(entradas)) == FALLO)
             {
-                continue;
+                fprintf(stderr, RED "ERROR mi_dir() -> fallor mi_read_f\n");
+                return FALLO;
             }
-            if (flag == 0)
+            for (int i = 0; nEntradas < entradas_inodo && i < ENTRADASBLOQUE; i++)
             {
-                if (inodoEntrada.tipo == 'd')
+#if DEBUG8 || DEBUGMIDIR
+                fprintf(stderr, GRAY "[mi_dir() -> entrada.nombre: %s]\n" RESET, entradas[i].nombre);
+                fprintf(stderr, GRAY "[mi_dir() -> entrada.ninodo: %u]\n" RESET, entradas[i].ninodo);
+#endif
+                // mirar optimizar
+                leer_inodo(entradas[i].ninodo, &inodoEntrada);
+#if DEBUG8 || DEBUGMIDIR
+                fprintf(stderr, GRAY "tipo inoodo %c\n" RESET, inodoEntrada.tipo);
+#endif
+                if (inodoEntrada.tipo == 'l')
                 {
-                    strcat(buffer, COLORD);
+                    continue;
+                }
+                if (flag == 0)
+                {
+                    if (inodoEntrada.tipo == 'd')
+                    {
+                        strcat(buffer, COLORD);
+                    }
+                    else
+                    {
+                        strcat(buffer, COLORF);
+                    }
+                    strcat(buffer, entradas[i].nombre);
+                    strcat(buffer, RESET);
+                    contadorLinea += strlen(entradas[i].nombre);
+                    if (contadorLinea > 80)
+                    {
+                        strcat(buffer, "\n");
+                        contadorLinea = 0;
+                    }
+                    else
+                    {
+                        strcat(buffer, "\t");
+                    }
                 }
                 else
-                {
-                    strcat(buffer, COLORF);
+                { // flag == 1
+                    auxiliarInodoEntradaDir(buffer, inodoEntrada, entradas[i], tipo);
                 }
-                strcat(buffer, entradas[i].nombre);
-                strcat(buffer, RESET);
-                contadorLinea += strlen(entradas[i].nombre);
-                if (contadorLinea > 80)
-                {
-                    strcat(buffer, "\n");
-                    contadorLinea = 0;
-                }
-                else
-                {
-                    strcat(buffer, "\t");
-                }
+                // printf("buf: %s\n", buffer);
+                nEntradas++;
             }
-            else
-            { // flag == 1
-                auxiliarInodoEntradaDir(buffer, inodoEntrada, entradas[i], tipo);
-            }
-            // printf("buf: %s\n", buffer);
-            nEntradas++;
+            nBloques++;
         }
     }
     else
