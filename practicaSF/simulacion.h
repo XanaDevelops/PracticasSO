@@ -1,6 +1,7 @@
-#include "bloques.h"
+#include "directorios.h"
 
 #define REGMAX 500000
+#define NUMPROCESOS 100
 
 struct REGISTRO { //sizeof(struct REGISTRO): 24 bytes
    time_t fecha; //Precisión segundos [opcionalmente microsegundos con struct timeval]
