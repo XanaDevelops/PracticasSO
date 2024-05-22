@@ -136,6 +136,7 @@ int bread(unsigned int nbloque, void *buf)
     return numBytes;
 }
 
+//************************************FUNCIONES SEMAFORO**********************
 void mi_waitSem() {
     if (!inside_sc) 
     { 
