@@ -1,4 +1,6 @@
-#include <ctime>
+#include "bloques.h"
+
+#define REGMAX 500000
 
 struct REGISTRO { //sizeof(struct REGISTRO): 24 bytes
    time_t fecha; //Precisión segundos [opcionalmente microsegundos con struct timeval]
