@@ -1,4 +1,4 @@
-#include "simulacion_simulacion.h"
+#include "simulacion.h"
 
 
 struct INFORMACION {
