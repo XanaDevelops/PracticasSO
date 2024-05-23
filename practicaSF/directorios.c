@@ -848,7 +848,7 @@ int mi_unlink(const char *camino)
             mi_read_f(p_inodo_dir, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
             // memcpy(&buff_entradas[entrada_buffer], &buff_entradas[num_e - 1], sizeof(struct entrada));
             //asumiendo continuidad, creo que esta mal
-            fprintf(stderr, "%d\n", num_e%ENTRADASBLOQUE);
+            //fprintf(stderr, "%d\n", num_e%ENTRADASBLOQUE); si esto se tenia que mostrar descomentar...
             if ((num_e % ENTRADASBLOQUE) == num_bloque)
             {
                 //mi_write_f(p_inodo_dir, &buff_entradas[num_e - 1], entrada_buffer * sizeof(struct entrada), sizeof(struct entrada));

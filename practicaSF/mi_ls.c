@@ -56,7 +56,6 @@ int main(int argc, char **argv)
 #if DEBUG8
     fprintf(stderr, GRAY "[main() -> disco:%s, camino:%s, tipo:%c, modo:%d]\n" RESET, disco, camino, tipo, extendido);
 #endif
-    char buff[NFILAS][TAMFILA];
     // asumiendo leer solo una entrada
     char bufdir[TAMBUFFER];
     memset(bufdir, '\0', sizeof(bufdir));
