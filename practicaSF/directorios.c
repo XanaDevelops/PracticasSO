@@ -898,6 +898,8 @@ int buscar_en_cache(const char *camino)
     {
         if (strcmp(UltimaEntradaIO[i].camino, camino) == 0)
         {
+            fprintf(stderr, BLUE "mi_write() -> usar cache[%d] con %s\n" RESET, i, camino);
+
             return i;
         }
     }
@@ -919,11 +921,14 @@ void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
     }
 
     // Si no se encuentra el camino en la caché, actualizar la entrada en la posición del puntero de cola circular
+
     strcpy(UltimaEntradaIO[pos_UltimaEntradaIO].camino, nueva_entrada->camino);
     UltimaEntradaIO[pos_UltimaEntradaIO].p_inodo = nueva_entrada->p_inodo;
-
+    fprintf(stderr, ORANGE "mi_write() -> actulizar cache[%d] con %s\n" RESET, pos_UltimaEntradaIO, nueva_entrada->camino);
     // Avanzar el puntero de cola circular
     pos_UltimaEntradaIO = (pos_UltimaEntradaIO + 1) % CACHE_SIZE;
+
+
 #endif
     return;
 }
