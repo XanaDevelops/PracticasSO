@@ -847,20 +847,21 @@ int mi_unlink(const char *camino)
             memset(buff_entradas, '\0', sizeof(buff_entradas));
             mi_read_f(p_inodo_dir, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
             // memcpy(&buff_entradas[entrada_buffer], &buff_entradas[num_e - 1], sizeof(struct entrada));
-            //asumiendo continuidad, creo que esta mal
-            //fprintf(stderr, "%d\n", num_e%ENTRADASBLOQUE); si esto se tenia que mostrar descomentar...
+            // asumiendo continuidad, creo que esta mal
+            // fprintf(stderr, "%d\n", num_e%ENTRADASBLOQUE); si esto se tenia que mostrar descomentar...
             if ((num_e % ENTRADASBLOQUE) == num_bloque)
             {
-                //mi_write_f(p_inodo_dir, &buff_entradas[num_e - 1], entrada_buffer * sizeof(struct entrada), sizeof(struct entrada));
+                // mi_write_f(p_inodo_dir, &buff_entradas[num_e - 1], entrada_buffer * sizeof(struct entrada), sizeof(struct entrada));
                 memcpy(&buff_entradas[entrada_buffer], &buff_entradas[num_e - 1], sizeof(struct entrada));
-            }else{
-                struct entrada lastEntradas[BLOCKSIZE / sizeof(struct entrada)];
-                mi_read_f(p_inodo_dir, lastEntradas, ((num_e-1)/ENTRADASBLOQUE)*BLOCKSIZE, BLOCKSIZE);
-                //mi_write_f(p_inodo_dir, &buff_entradas[num_e - 1], entrada_buffer * sizeof(struct entrada), sizeof(struct entrada));
-                memcpy(&buff_entradas[entrada_buffer], &lastEntradas[(num_e)%ENTRADASBLOQUE-1], sizeof(struct entrada));
-
             }
-            mi_write_f(p_inodo_dir, buff_entradas, num_bloque*BLOCKSIZE, BLOCKSIZE);
+            else
+            {
+                struct entrada lastEntradas[BLOCKSIZE / sizeof(struct entrada)];
+                mi_read_f(p_inodo_dir, lastEntradas, ((num_e - 1) / ENTRADASBLOQUE) * BLOCKSIZE, BLOCKSIZE);
+                // mi_write_f(p_inodo_dir, &buff_entradas[num_e - 1], entrada_buffer * sizeof(struct entrada), sizeof(struct entrada));
+                memcpy(&buff_entradas[entrada_buffer], &lastEntradas[(num_e) % ENTRADASBLOQUE - 1], sizeof(struct entrada));
+            }
+            mi_write_f(p_inodo_dir, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
         }
         mi_truncar_f(p_inodo_dir, inodo_padre.tamEnBytesLog - sizeof(struct entrada));
     }
@@ -898,8 +899,9 @@ int buscar_en_cache(const char *camino)
     {
         if (strcmp(UltimaEntradaIO[i].camino, camino) == 0)
         {
+#if DEBUG9
             fprintf(stderr, BLUE "mi_write() -> usar cache[%d] con %s\n" RESET, i, camino);
-
+#endif
             return i;
         }
     }
@@ -924,10 +926,11 @@ void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 
     strcpy(UltimaEntradaIO[pos_UltimaEntradaIO].camino, nueva_entrada->camino);
     UltimaEntradaIO[pos_UltimaEntradaIO].p_inodo = nueva_entrada->p_inodo;
+#if DEBUG9
     fprintf(stderr, ORANGE "mi_write() -> actulizar cache[%d] con %s\n" RESET, pos_UltimaEntradaIO, nueva_entrada->camino);
+#endif
     // Avanzar el puntero de cola circular
     pos_UltimaEntradaIO = (pos_UltimaEntradaIO + 1) % CACHE_SIZE;
-
 
 #endif
     return;
