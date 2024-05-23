@@ -87,6 +87,7 @@ int main(int argc, char **argv)
         strcat(prueba, buff_entradas[i].nombre);
         strcat(prueba, "/prueba.dat");
 
+        struct REGISTRO ultimo;
         int escriturasLeidas = 0;
         int leidosT = 0;
         int leidos = mi_read(informe, buff_reg, leidosT, sizeof(buff_reg));
@@ -110,11 +111,11 @@ int main(int argc, char **argv)
                     else
                     {
                         // Comparar nº de escritura (para obtener primera y última) y actualizarlas si es preciso
-                        if (buff_reg[j].nEscritura < buff_info[i].PrimeraEscritura)
+                        if (buff_reg[j].nEscritura < buff_info[i].PrimeraEscritura.nEscritura)
                         {
                             buff_info[i].PrimeraEscritura = buff_reg[j];
                         }
-                        if (buff_reg[j].nEscritura > buff_info[i].UltimaEscritura)
+                        if (buff_reg[j].nEscritura > buff_info[i].UltimaEscritura.nEscritura)
                         {
                             buff_info[i].UltimaEscritura = buff_reg[j];
                         }
@@ -122,8 +123,8 @@ int main(int argc, char **argv)
                     // Incrementar contador escrituras validadas.
                     escriturasLeidas++;
                 }
-            }
-            struct REGISTRO ultimo;
+            } 
+
             ultimo = buff_reg[ulitmoreg - 1];
 
             memset(buff_reg, '\0', sizeof(buff_reg));
@@ -132,9 +133,9 @@ int main(int argc, char **argv)
         }
         // Obtener la escritura de la última posición.
         buff_info[i].MayorPosicion = ultimo;
-        buff_info[i].nEscrituras= escriturasLeidas;
+        buff_info[i].nEscrituras = escriturasLeidas;
     }
-    mi_write(informe, buff_info,0,sizeof(buff_info));
+    mi_write(informe, &buff_info, 0, sizeof(buff_info));
 
     // Desmontar disco
     if (bumount() == FALLO)
