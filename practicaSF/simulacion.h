@@ -2,6 +2,7 @@
 
 #define REGMAX 50
 #define NUMPROCESOS 100
+#define NUMESCRITURAS 50
 
 struct REGISTRO { //sizeof(struct REGISTRO): 24 bytes
    int fecha; //Precisión segundos [opcionalmente microsegundos con struct timeval]
