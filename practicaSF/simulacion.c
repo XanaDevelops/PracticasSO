@@ -69,11 +69,16 @@ int main(int argc, char **argv)
             memset(rutaHijo, '\0', sizeof(rutaHijo));
 
             sprintf(rutaHijo, "%sproceso_PID%d/", nombreCarpeta, getpid());
+            
             if(mi_creat(rutaHijo, 0b111)==FALLO){
                 fprintf(stderr, RED "ERROR: hijo:%d no ha podido crear carpeta %s\n" RESET, getpid(), rutaHijo);
                 bumount();
                 exit(FALLO);
             }
+
+            #if DEBUG12 || 1
+                fprintf(stderr, GRAY "[hijo:%d -> carpeta creada %s]\n" RESET, getpid(), rutaHijo);
+            #endif
 
             strcat(rutaHijo, "prueba.dat");
             if(mi_creat(rutaHijo, 0b111)==FALLO){
