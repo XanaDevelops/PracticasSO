@@ -29,6 +29,8 @@ int main(int argc, char **argv)
         return FALLO;
     }
 
+    fprintf(stdout, NEGRITA "SIMULACION: %d PROCESOS, %d ESCRITURAS\n" RESET, NUMPROCESOS, NUMESCRITURAS);
+
     // asociar señal
     signal(SIGCHLD, reaper);
 
@@ -43,14 +45,16 @@ int main(int argc, char **argv)
 
     sprintf(nombreCarpeta, "/simul_%d%02d%02d%02d%02d%02d/",
             tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-
-    if(mi_creat(nombreCarpeta, 6)==FALLO){
+    
+    if(mi_creat(nombreCarpeta, 0b111)==FALLO){
         return FALLO;
     }
 
+    fprintf(stdout, "dirsim: %s\n", nombreCarpeta);
+
     srand(time(NULL) + getpid());
     struct REGISTRO escribir;
-    for (int i = 1; i < NUMPROCESOS; i++)
+    for (int i = 0; i < NUMPROCESOS; i++)
     {
         pid_t pid = fork();
         if (pid == 0)
@@ -65,34 +69,43 @@ int main(int argc, char **argv)
             memset(rutaHijo, '\0', sizeof(rutaHijo));
 
             sprintf(rutaHijo, "%sproceso_PID%d/", nombreCarpeta, getpid());
-            if(mi_creat(rutaHijo, 6)==FALLO){
+            if(mi_creat(rutaHijo, 0b111)==FALLO){
                 fprintf(stderr, RED "ERROR: hijo:%d no ha podido crear carpeta %s\n" RESET, getpid(), rutaHijo);
                 bumount();
                 exit(FALLO);
             }
 
             strcat(rutaHijo, "prueba.dat");
-            if(mi_creat(rutaHijo, 6)==FALLO){
+            if(mi_creat(rutaHijo, 0b111)==FALLO){
                 fprintf(stderr, RED "ERROR: hijo:%d no ha podido crear archivo %s\n" RESET, getpid(), rutaHijo);
                 bumount();
                 exit(FALLO);
             }
 
-            for (int j = 1; j < NUMESCRITURAS; j++)
+            for (int j = 1; j <= NUMESCRITURAS; j++)
             {
                 memset(&escribir, '\0', sizeof(struct REGISTRO));
-                escribir.pid = i;
+                escribir.pid = getpid();
                 escribir.nRegistro = rand() % REGMAX;
                 escribir.nEscritura = j;
                 escribir.fecha = time(NULL);
+
+                #if DEBUG12
+                fprintf(stderr, GRAY "[hijo:%d -> escribiendo %d]\n" RESET, escribir.pid, escribir.nEscritura);
+                #endif
 
                 mi_write(rutaHijo, &escribir, escribir.nRegistro * sizeof(struct REGISTRO), sizeof(struct REGISTRO));
                 usleep(50);
 
             }
             exit(bumount());
+        }else{
+            #if DEBUG12
+            fprintf(stderr, GRAY "[main() -> creado hijo %d]\n" RESET, pid);
+            #endif
+            usleep(150);
         }
-        usleep(150);
+        
 
     }
     // Desmontar disco
