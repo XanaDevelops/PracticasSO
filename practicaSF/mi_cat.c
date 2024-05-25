@@ -13,7 +13,9 @@ int main(int argc, char **argv)
 {
    
     char buff[BLOCKCAT];
+    char cmpbuff[BLOCKCAT];
     memset(buff, '\0', sizeof(buff));
+    memset(cmpbuff, '\0', sizeof(buff));
 
     // comprobamos argumentos de consola
     if (argc < 3)
@@ -75,7 +77,7 @@ int main(int argc, char **argv)
 
         bytesLeidos += cont_bytes;
         //fix tiempo
-        if(strcmp(buff, "")==0){
+        if(memcmp(buff, cmpbuff, sizeof(buff))==0){
             continue;
         }
         fwrite(buff, 1, cont_bytes, stdout);
