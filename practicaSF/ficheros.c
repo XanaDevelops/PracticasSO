@@ -6,17 +6,20 @@ Perelló Perelló, Biel*/
 
 int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offset, unsigned int nbytes)
 {
+    mi_waitSem();
     // LECTURA INODO
     struct inodo inodo;
     if (leer_inodo(ninodo, &inodo) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_write_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
+        mi_signalSem();
         return FALLO;
     }
 
     if ((inodo.permisos & 2) != 2)
     {
         fprintf(stderr, RED "ERROR: mi_write_f(): No hay permisos de escritura\n" RESET);
+        mi_signalSem();
         return FALLO;
     }
 
@@ -85,9 +88,11 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
     if (escribir_inodo(ninodo, &inodo) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_write_f(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
+        mi_signalSem();
         return FALLO;
     }
 
+    mi_signalSem();
     return bytesescritos;
 }
 

@@ -310,11 +310,14 @@ void mostrar_error_buscar_entrada(int error)
  */
 int mi_creat(const char *camino, unsigned char permisos)
 {
+    mi_waitSem();
     // LECTURA SUPERBLOQUE
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_creat(): No se ha podido leer SB\n" RESET);
+        mi_signalSem();
+
         return FALLO;
     }
 
@@ -328,9 +331,11 @@ int mi_creat(const char *camino, unsigned char permisos)
         // Notificar error devuelto por buscar_entrada()
         mostrar_error_buscar_entrada(return_buscar_entrada);
         // Devolver FALLO
+        mi_signalSem();
         return FALLO;
     }
 
+    mi_signalSem();
     return EXITO;
 }
 
@@ -697,6 +702,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
  */
 int mi_link(const char *camino1, const char *camino2)
 {
+    mi_waitSem();
     int longitud_ruta1 = strlen(camino1);
     int longitud_ruta2 = strlen(camino2);
 
@@ -704,6 +710,7 @@ int mi_link(const char *camino1, const char *camino2)
     if ((*(camino1 + longitud_ruta1 - 1) == '/') || (*(camino2 + longitud_ruta2 - 1) == '/'))
     {
         fprintf(stderr, RED "ERROR: mi_link(): Las rutas especificadas no se corresponden a un fichero\n" RESET);
+        mi_signalSem();
         return FALLO;
     }
 
@@ -712,6 +719,7 @@ int mi_link(const char *camino1, const char *camino2)
     if (bread(posSB, &sb) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_link(): No se ha podido leer SB\n" RESET);
+        mi_signalSem();
         return FALLO;
     }
 
@@ -725,6 +733,7 @@ int mi_link(const char *camino1, const char *camino2)
     {
         // Notificar error devuelto por buscar_entrada()
         mostrar_error_buscar_entrada(return_buscar_entrada1);
+        mi_signalSem();
         // Devolver FALLO
         return FALLO;
     }
@@ -739,6 +748,7 @@ int mi_link(const char *camino1, const char *camino2)
     {
         // Notificar error devuelto por buscar_entrada()
         mostrar_error_buscar_entrada(return_buscar_entrada2);
+        mi_signalSem();
         // Devolver FALLO
         return FALLO;
     }
@@ -777,7 +787,7 @@ int mi_link(const char *camino1, const char *camino2)
     if (leer_inodo(p_inodo1, &inodo_enlace) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_link(): No se pudo leer el inodo\n" RESET);
-
+        mi_signalSem();
         return FALLO;
     }
 
@@ -790,9 +800,11 @@ int mi_link(const char *camino1, const char *camino2)
     if (escribir_inodo(p_inodo1, &inodo_enlace) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_link(): No se pudo escribir el inodo\n" RESET);
+        mi_signalSem();
         return FALLO;
     }
 
+    mi_signalSem();
     // Devolver ÉXITO
     return EXITO;
 }
@@ -803,11 +815,13 @@ int mi_link(const char *camino1, const char *camino2)
  * */
 int mi_unlink(const char *camino)
 {
+    mi_waitSem();
     // LECTURA SUPERBLOQUE
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_unlink(): No se ha podido leer SB\n" RESET);
+        mi_signalSem();
         return FALLO;
     }
     unsigned int p_inodo_dir = sb.posInodoRaiz;
@@ -819,6 +833,7 @@ int mi_unlink(const char *camino)
     {
         // Notificar error devuelto por buscar_entrada()
         mostrar_error_buscar_entrada(rt_be);
+        mi_signalSem();
         // Devolver FALLO
         return FALLO;
     }
@@ -835,6 +850,7 @@ int mi_unlink(const char *camino)
     if (inodo_eliminar.tipo == 'd' && inodo_eliminar.tamEnBytesLog > 0)
     {
         fprintf(stderr, RED "ERROR: mi_unlink(): El directorio %s no está vacio\n" RESET, camino);
+        mi_signalSem();
         return FALLO;
     }
 
@@ -877,9 +893,12 @@ int mi_unlink(const char *camino)
         if (escribir_inodo(num_eliminar, &inodo_eliminar) == FALLO)
         {
             fprintf(stderr, RED "ERROR: mi_unlink(): No se ha podido escribir el inodo %d \n" RESET, num_eliminar);
+            mi_signalSem();
             return FALLO;
         }
     }
+
+    mi_signalSem();
     return EXITO;
 }
 //************************************* MILLORA NIVELL 9***********************************************
