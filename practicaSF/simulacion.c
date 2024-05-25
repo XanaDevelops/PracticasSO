@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 #define FALLO -1
 #define EXITO 0
@@ -34,13 +35,16 @@ int main(int argc, char **argv)
     acabados = 0;
 
     struct tm *tm;
-    tm = localtime(time(NULL));
+    time_t timeAct = time(NULL);
+    tm = localtime(&timeAct);
 
-    char *nombreCarpeta[23]; //tamaño '/simul_aaaammddhhmmss/'
+    char nombreCarpeta[128]; //tamaño '/simul_aaaammddhhmmss/'
+    memset(nombreCarpeta, '\0', sizeof(nombreCarpeta));
 
-    sprintf(nombreCarpeta, "/simul_%d%02d%02d%02d%02d%02d/", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
+    sprintf(nombreCarpeta, "/simul_%d%02d%02d%02d%02d%02d/",
+            tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
 
-    if(mi_creat(nombreCarpeta, 7)==FALLO){
+    if(mi_creat(nombreCarpeta, 6)==FALLO){
         return FALLO;
     }
 
@@ -56,6 +60,24 @@ int main(int argc, char **argv)
                 fprintf(stderr, RED "simulacion() -> ERROR montar hijo\n" RESET);
                 exit(FALLO);
             }
+            //crear directorio hijo
+            char rutaHijo[256];
+            memset(rutaHijo, '\0', sizeof(rutaHijo));
+
+            sprintf(rutaHijo, "%sproceso_PID%d/", nombreCarpeta, getpid());
+            if(mi_creat(rutaHijo, 7)==FALLO){
+                fprintf(stderr, RED "ERROR: hijo:%d no ha podido crear carpeta %s\n" RESET, getpid(), rutaHijo);
+                bumount();
+                exit(FALLO);
+            }
+
+            strcat(rutaHijo, "prueba.dat");
+            if(mi_creat(rutaHijo, 7)==FALLO){
+                fprintf(stderr, RED "ERROR: hijo:%d no ha podido crear archivo %s\n" RESET, getpid(), rutaHijo);
+                bumount();
+                exit(FALLO);
+            }
+
             for (int j = 1; j < NUMESCRITURAS; j++)
             {
                 memset(&escribir, '\0', sizeof(struct REGISTRO));
@@ -64,16 +86,13 @@ int main(int argc, char **argv)
                 escribir.nEscritura = j;
                 escribir.fecha = time(NULL);
 
-                char prueba[100];
+                mi_write(rutaHijo, &escribir, escribir.nRegistro * sizeof(struct REGISTRO), sizeof(struct REGISTRO));
+                usleep(50);
 
-                strcpy(prueba, "/p1/p_");
-                strcat(prueba, (char[]){(char)(i + '0'), '\0'}); //what!?
-                strcat(prueba, "/prueba.dat");
-
-                mi_write(prueba, &escribir, escribir.nRegistro * sizeof(struct REGISTRO), sizeof(struct REGISTRO));
             }
             exit(bumount());
         }
+        usleep(150);
 
     }
     // Desmontar disco
