@@ -12,6 +12,7 @@ mi_ls
 mi_cat
 mi_escribir
 mi_escribir_varios
+prueba_cache_tabla
 mi_touch
 mi_link
 mi_rm
@@ -22,6 +23,7 @@ testd.sh
 *.sh
 !README.txt
 !scripte1.sh
+!scripte2.sh
 !texto2.txt
 .sh
 fic1
@@ -29,3 +31,6 @@ fic2
 fic3
 fic4
 fic5
+simulacion
+verificacion
+proves.sh
