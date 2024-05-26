@@ -104,8 +104,8 @@ int main(int argc, char **argv)
 
         while (leidos != 0)
         {
-            //int ultimoreg = leidos / sizeof(struct REGISTRO);
-            int ultimoreg = sizeof(buff_reg) / sizeof(struct REGISTRO);
+            int ultimoreg = leidos / sizeof(struct REGISTRO);
+           // int ultimoreg = sizeof(buff_reg) / sizeof(struct REGISTRO);
 
             for (int j = 0; j < ultimoreg; j++)
             {
