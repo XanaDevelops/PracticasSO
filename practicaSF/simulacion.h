@@ -1,7 +1,7 @@
 #include "directorios.h"
 
-#define REGMAX 50
-#define NUMPROCESOS 1
+#define REGMAX 500000
+#define NUMPROCESOS 50
 #define NUMESCRITURAS 50
 
 struct REGISTRO { //sizeof(struct REGISTRO): 24 bytes

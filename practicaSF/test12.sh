@@ -1,3 +1,4 @@
+clear
 make clean
 make -j16
 echo
