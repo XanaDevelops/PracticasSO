@@ -44,6 +44,7 @@ Perelló Perelló, Biel*/
 #define DEBUG8 0
 #define DEBUG9 0
 #define DEBUG12 0
+#define DEBUG13 1
 
 //BORRAR
 void enablepd();

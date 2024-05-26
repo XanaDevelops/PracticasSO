@@ -39,11 +39,20 @@ int main(int argc, char **argv)
     {
         return exitError();
     }
+#if DEBUG13
+    fprintf(stderr, "[dir_sim: %s]\n" RESET, argv[2]);
+#endif
+
     int numentradas = s_stat.tamEnBytesLog / sizeof(struct entrada);
 
-    /*  if (numentradas != NUMPROCESOS)
-      {
-          return  exitError();}*/
+    if (numentradas != NUMPROCESOS)
+    {
+        return exitError();
+    }
+
+#if DEBUG13
+    fprintf(stderr, "[numentradas: %d NUMPROCESOS: %d]\n" RESET, numentradas, NUMPROCESOS);
+#endif
 
     // Crear el fichero "informe.txt" dentro del directorio de simulación.
     char informe[100];
@@ -61,23 +70,23 @@ int main(int argc, char **argv)
         return exitError();
     }
 
-    struct INFORMACION buff_info[numentradas];
+    struct INFORMACION buff_info;
+    int offset_info = 0;
     struct REGISTRO buff_reg[NREGISTROS];
     memset(buff_reg, '\0', sizeof(buff_reg));
-    memset(buff_info, '\0', sizeof(buff_info));
 
     for (int i = 0; i < numentradas; i++)
     {
-        char *inici = strchr(buff_entradas[i].nombre, '_');
+        char *inici = strchr(buff_entradas[i].nombre, 'D');
 
         if (inici)
         {
-            buff_info[i].pid = atoi(inici + 1);
+            buff_info.pid = atoi(inici + 1);
         }
         else
         {
             // Manejar el caso en que no se encuentre el caracter '_'
-            buff_info[i].pid = FALLO;
+            buff_info.pid = FALLO;
             return exitError();
         }
 
@@ -90,52 +99,94 @@ int main(int argc, char **argv)
         struct REGISTRO ultimo;
         int escriturasLeidas = 0;
         int leidosT = 0;
-        int leidos = mi_read(informe, buff_reg, leidosT, sizeof(buff_reg));
+        int leidos = mi_read(prueba, buff_reg, leidosT, sizeof(buff_reg));
         leidosT += leidos;
 
         while (leidos != 0)
         {
-            int ulitmoreg = leidos / sizeof(struct REGISTRO);
+            //int ultimoreg = leidos / sizeof(struct REGISTRO);
+            int ultimoreg = sizeof(buff_reg) / sizeof(struct REGISTRO);
 
-            for (int j = 0; j < ulitmoreg; j++)
+            for (int j = 0; j < ultimoreg; j++)
             {
-                if (buff_reg[j].pid == buff_info[i].pid)
+                if (buff_reg[j].pid == buff_info.pid)
                 {
                     if (escriturasLeidas == 0)
                     {
                         // Inicializar los registros significativos con los datos de esa escritura.
-                        buff_info[i].MenorPosicion = buff_reg[j];
-                        buff_info[i].PrimeraEscritura = buff_reg[j];
-                        buff_info[i].UltimaEscritura = buff_reg[j];
+                        buff_info.MenorPosicion = buff_reg[j];
+                        buff_info.PrimeraEscritura = buff_reg[j];
+                        buff_info.UltimaEscritura = buff_reg[j];
                     }
                     else
                     {
                         // Comparar nº de escritura (para obtener primera y última) y actualizarlas si es preciso
-                        if (buff_reg[j].nEscritura < buff_info[i].PrimeraEscritura.nEscritura)
+                        if (buff_reg[j].nEscritura < buff_info.PrimeraEscritura.nEscritura)
                         {
-                            buff_info[i].PrimeraEscritura = buff_reg[j];
+                            buff_info.PrimeraEscritura = buff_reg[j];
                         }
-                        if (buff_reg[j].nEscritura > buff_info[i].UltimaEscritura.nEscritura)
+                        if (buff_reg[j].nEscritura > buff_info.UltimaEscritura.nEscritura)
                         {
-                            buff_info[i].UltimaEscritura = buff_reg[j];
+                            buff_info.UltimaEscritura = buff_reg[j];
                         }
                     }
                     // Incrementar contador escrituras validadas.
                     escriturasLeidas++;
+                    ultimo = buff_reg[j];
                 }
-            } 
-
-            ultimo = buff_reg[ulitmoreg - 1];
+            }
 
             memset(buff_reg, '\0', sizeof(buff_reg));
             leidos = mi_read(informe, buff_reg, leidosT, sizeof(buff_reg));
             leidosT += leidos;
         }
+#if DEBUG13
+        fprintf(stderr, GRAY "[%d) %d escrituras validadas en %s]\n" RESET, i, escriturasLeidas, prueba);
+#endif
         // Obtener la escritura de la última posición.
-        buff_info[i].MayorPosicion = ultimo;
-        buff_info[i].nEscrituras = escriturasLeidas;
+        buff_info.MayorPosicion = ultimo;
+        buff_info.nEscrituras = escriturasLeidas;
+
+        char info_escribir[500]; // Incrementamos el tamaño del buffer para evitar desbordamiento
+        char buffer[100];        // Buffer temporal para conversiones
+
+        // Limpiamos el buffer
+        memset(info_escribir, 0, sizeof(info_escribir));
+
+        // Concatenamos PID
+        strcat(info_escribir, "Pid: ");
+        sprintf(buffer, "%d\n", buff_info.pid);
+        strcat(info_escribir, buffer);
+
+        // Concatenamos Nº Escrituras
+        strcat(info_escribir, "Nº Escrituras: ");
+        sprintf(buffer, "%u\n", buff_info.nEscrituras);
+        strcat(info_escribir, buffer);
+
+        // Concatenamos Primera Escritura
+        strcat(info_escribir, "PrimeraEscritura: ");
+        sprintf(buffer, "%d\n", buff_info.PrimeraEscritura.nEscritura);
+        strcat(info_escribir, buffer);
+
+        // Concatenamos Última Escritura
+        strcat(info_escribir, "UltimaEscritura: ");
+        sprintf(buffer, "%d\n", buff_info.UltimaEscritura.nEscritura);
+        strcat(info_escribir, buffer);
+
+        // Concatenamos Menor Posición
+        strcat(info_escribir, "Nº MenorPosicion: ");
+        sprintf(buffer, "%d\n", buff_info.MenorPosicion.nRegistro);
+        strcat(info_escribir, buffer);
+
+        // Concatenamos Mayor Posición
+        strcat(info_escribir, "Nº MayorPosicion: ");
+        sprintf(buffer, "%d\n", buff_info.MayorPosicion.nRegistro);
+        strcat(info_escribir, buffer);
+
+        strcat(info_escribir, "\n");
+
+        offset_info += mi_write(informe, &info_escribir, offset_info, sizeof(info_escribir));
     }
-    mi_write(informe, &buff_info, 0, sizeof(buff_info));
 
     // Desmontar disco
     if (bumount() == FALLO)
