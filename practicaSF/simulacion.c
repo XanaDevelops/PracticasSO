@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     sprintf(nombreCarpeta, "/simul_%d%02d%02d%02d%02d%02d/",
             tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
     
-    if(mi_creat(nombreCarpeta, 0b111)==FALLO){
+    if(mi_creat(nombreCarpeta, 0b110)==FALLO){
         return FALLO;
     }
 
@@ -70,18 +70,18 @@ int main(int argc, char **argv)
 
             sprintf(rutaHijo, "%sproceso_PID%d/", nombreCarpeta, getpid());
             
-            if(mi_creat(rutaHijo, 0b111)==FALLO){
+            if(mi_creat(rutaHijo, 0b110)==FALLO){
                 fprintf(stderr, RED "ERROR: hijo:%d no ha podido crear carpeta %s\n" RESET, getpid(), rutaHijo);
                 bumount();
                 exit(FALLO);
             }
 
-            #if DEBUG12 || 1
+            #if DEBUG12
                 fprintf(stderr, GRAY "[hijo:%d -> carpeta creada %s]\n" RESET, getpid(), rutaHijo);
             #endif
 
             strcat(rutaHijo, "prueba.dat");
-            if(mi_creat(rutaHijo, 0b111)==FALLO){
+            if(mi_creat(rutaHijo, 0b110)==FALLO){
                 fprintf(stderr, RED "ERROR: hijo:%d no ha podido crear archivo %s\n" RESET, getpid(), rutaHijo);
                 bumount();
                 exit(FALLO);
@@ -99,7 +99,12 @@ int main(int argc, char **argv)
                 fprintf(stderr, GRAY "[hijo:%d -> escribiendo %d]\n" RESET, escribir.pid, escribir.nEscritura);
                 #endif
 
-                mi_write(rutaHijo, &escribir, escribir.nRegistro * sizeof(struct REGISTRO), sizeof(struct REGISTRO));
+                if(mi_write(rutaHijo, &escribir, escribir.nRegistro * sizeof(struct REGISTRO), sizeof(struct REGISTRO)) == FALLO){
+                    fprintf(stderr, RED "ERROR hijo:%d -> no se ha podido escribir registro:%d con nEscr: %d\n" RESET,
+                    getpid(), escribir.nRegistro, escribir.nEscritura);
+                    bumount();
+                    exit(FALLO);
+                }
                 usleep(50);
 
             }
