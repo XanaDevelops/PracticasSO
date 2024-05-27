@@ -15,7 +15,8 @@ echo
 result=$(./mi_ls disco /)
 trimmed_result=$(echo "$result" | sed 's/^[ \t]*//;s/[ \t]*$//')
 echo /$trimmed_result/
-echo ./verificacion disco /$(echo "$trimmed_result")/
-## ejecutarlo desde aqui error??
+echo copia y ejecuta esto:
+echo ./verificacion disco /$(echo "$trimmed_result")/ && ./mi_cat disco /$(echo "$trimmed_result")/informe.txt
+## ejecutarlo desde aqui error?? no verificacion, sino que no encuentra la ruta, 
 
 
