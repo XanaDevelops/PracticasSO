@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 
     int numentradas = s_stat.tamEnBytesLog / sizeof(struct entrada);
 
-   if (numentradas != NUMPROCESOS)
+    if (numentradas != NUMPROCESOS)
     {
         return exitError();
     }
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
     for (int i = 0; i < numentradas; i++)
     {
         struct INFORMACION buff_info;
-        
+
         char *inici = strchr(buff_entradas[i].nombre, 'D');
 
         if (inici)
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
         }
 
         char prueba[100];
-         memset(prueba, '\0', sizeof(prueba));
+        memset(prueba, '\0', sizeof(prueba));
 
         strcpy(prueba, argv[2]);
         strcat(prueba, buff_entradas[i].nombre);
@@ -107,12 +107,12 @@ int main(int argc, char **argv)
         while (leidos > 0)
         {
             int ultimoreg = leidos / sizeof(struct REGISTRO);
-           
+
             for (int j = 0; j < ultimoreg; j++)
             {
-                #if DEBUG13
-                //fprintf(stderr, GRAY "[verificacion() -> comprobando %d respecto %d]\n" RESET, buff_reg[j].pid, buff_info.pid);
-                #endif
+#if DEBUG13
+// fprintf(stderr, GRAY "[verificacion() -> comprobando %d respecto %d]\n" RESET, buff_reg[j].pid, buff_info.pid);
+#endif
                 if (buff_reg[j].pid == buff_info.pid)
                 {
                     if (escriturasLeidas == 0)
@@ -153,6 +153,8 @@ int main(int argc, char **argv)
 
         char info_escribir[500]; // Incrementamos el tamaño del buffer para evitar desbordamiento
         char buffer[100];        // Buffer temporal para conversiones
+        char fecha_formateada[50];
+        struct tm *tiempo_descompuesto;
 
         // Limpiamos el buffer
         memset(info_escribir, 0, sizeof(info_escribir));
@@ -168,23 +170,32 @@ int main(int argc, char **argv)
         strcat(info_escribir, buffer);
 
         // Concatenamos Primera Escritura
+        time_t tiempo = buff_info.PrimeraEscritura.fecha;
+        tiempo_descompuesto = localtime(&tiempo);
         strcat(info_escribir, "PrimeraEscritura: ");
-        sprintf(buffer, "%d - %d - ", buff_info.PrimeraEscritura.nEscritura,buff_info.PrimeraEscritura.nRegistro, buff_info.PrimeraEscritura.fecha );
+        strftime(fecha_formateada, sizeof(fecha_formateada), "%a %d-%m-%Y %H:%M:%S", tiempo_descompuesto);
+        sprintf(buffer, "%d - %d - %s\n", buff_info.PrimeraEscritura.nEscritura, buff_info.PrimeraEscritura.nRegistro, fecha_formateada);
         strcat(info_escribir, buffer);
 
         // Concatenamos Última Escritura
+         tiempo = buff_info.UltimaEscritura.fecha;
+        tiempo_descompuesto = localtime(&tiempo);
         strcat(info_escribir, "UltimaEscritura: ");
-        sprintf(buffer, "%d\n", buff_info.UltimaEscritura.nEscritura);
+        sprintf(buffer, "%d - %d - %s\n", buff_info.UltimaEscritura.nEscritura, buff_info.UltimaEscritura.nRegistro, fecha_formateada);
         strcat(info_escribir, buffer);
 
         // Concatenamos Menor Posición
-        strcat(info_escribir, "Nº MenorPosicion: ");
-        sprintf(buffer, "%d\n", buff_info.MenorPosicion.nRegistro);
+         tiempo = buff_info.MenorPosicion.fecha;
+        tiempo_descompuesto = localtime(&tiempo);
+        strcat(info_escribir, "MenorPosicion:: ");
+        sprintf(buffer, "%d - %d - %s\n", buff_info.MenorPosicion.nEscritura, buff_info.MenorPosicion.nRegistro, fecha_formateada);
         strcat(info_escribir, buffer);
 
         // Concatenamos Mayor Posición
-        strcat(info_escribir, "Nº MayorPosicion: ");
-        sprintf(buffer, "%d\n", buff_info.MayorPosicion.nRegistro);
+         tiempo = buff_info.MayorPosicion.fecha;
+        tiempo_descompuesto = localtime(&tiempo);
+        strcat(info_escribir, "MayorPosicion:: ");
+        sprintf(buffer, "%d - %d - %s\n", buff_info.MayorPosicion.nEscritura, buff_info.MayorPosicion.nRegistro, fecha_formateada);
         strcat(info_escribir, buffer);
 
         strcat(info_escribir, "\n");
