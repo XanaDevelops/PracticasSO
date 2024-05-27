@@ -198,8 +198,6 @@ int main(int argc, char **argv)
         sprintf(buffer, "%d - %d - %s\n", buff_info.MayorPosicion.nEscritura, buff_info.MayorPosicion.nRegistro, fecha_formateada);
         strcat(info_escribir, buffer);
 
-        strcat(info_escribir, "\n");
-
         offset_info += mi_write(informe, &info_escribir, offset_info, sizeof(info_escribir));
     }
 
