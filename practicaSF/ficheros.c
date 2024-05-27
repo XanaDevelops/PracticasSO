@@ -98,17 +98,20 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
 
 int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsigned int nbytes)
 {
+    mi_waitSem();
     // LECTURA INODO
     struct inodo inodo;
     if (leer_inodo(ninodo, &inodo) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_read_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
+        mi_signalSem();
         return FALLO;
     }
 
     if ((inodo.permisos & 4) != 4)
     {
         fprintf(stderr, RED "No hay permisos de lectura\n" RESET);
+        mi_signalSem();
         return FALLO;
     }
 
@@ -195,8 +198,11 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
     if (escribir_inodo(ninodo, &inodo) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_read_f(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
+        mi_signalSem();
         return FALLO;
     }
+
+    mi_signalSem();
     return bytesleidos;
 }
 
