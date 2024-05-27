@@ -458,7 +458,10 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
             last = token;
             token = strtok(NULL, "/");
         }
-        strcat(buffer, COLORF);
+        if(inodo.tipo == 'f')
+            strcat(buffer, COLORF);
+        else
+            strcat(buffer, COLORD);
         strcat(buffer, last);
         strcat(buffer, RESET);
         strcat(buffer, "\n");
@@ -503,7 +506,10 @@ int auxiliarInodoEntradaDir(char *buffer, struct inodo inodo, struct entrada ent
 
     if (tipo == 'd')
     {
-        strcat(buffer, COLORD);
+        if(inodo.tipo == 'f')
+            strcat(buffer, COLORF);
+        else
+            strcat(buffer, COLORD);
         strcat(buffer, entrada.nombre);
         strcat(buffer, RESET);
         strcat(buffer, "\n");
