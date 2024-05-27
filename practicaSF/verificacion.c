@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 
     int numentradas = s_stat.tamEnBytesLog / sizeof(struct entrada);
 
-   if (numentradas != NUMPROCESOS)
+    if (numentradas != NUMPROCESOS)
     {
         return exitError();
     }
@@ -70,14 +70,13 @@ int main(int argc, char **argv)
         return exitError();
     }
 
+    struct INFORMACION buff_info;
     int offset_info = 0;
-    struct REGISTRO buff_reg[REGMAX];
+    struct REGISTRO buff_reg[NREGISTROS];
     memset(buff_reg, '\0', sizeof(buff_reg));
 
     for (int i = 0; i < numentradas; i++)
     {
-        struct INFORMACION buff_info;
-        
         char *inici = strchr(buff_entradas[i].nombre, 'D');
 
         if (inici)
@@ -92,7 +91,6 @@ int main(int argc, char **argv)
         }
 
         char prueba[100];
-         memset(prueba, '\0', sizeof(prueba));
 
         strcpy(prueba, argv[2]);
         strcat(prueba, buff_entradas[i].nombre);
@@ -104,15 +102,13 @@ int main(int argc, char **argv)
         int leidos = mi_read(prueba, buff_reg, leidosT, sizeof(buff_reg));
         leidosT += leidos;
 
-        while (leidos > 0)
+        while (leidos != 0)
         {
-            int ultimoreg = leidos / sizeof(struct REGISTRO);
-           
+            //int ultimoreg = leidos / sizeof(struct REGISTRO);
+            int ultimoreg = sizeof(buff_reg) / sizeof(struct REGISTRO);
+
             for (int j = 0; j < ultimoreg; j++)
             {
-                #if DEBUG13
-                //fprintf(stderr, GRAY "[verificacion() -> comprobando %d respecto %d]\n" RESET, buff_reg[j].pid, buff_info.pid);
-                #endif
                 if (buff_reg[j].pid == buff_info.pid)
                 {
                     if (escriturasLeidas == 0)
@@ -169,7 +165,7 @@ int main(int argc, char **argv)
 
         // Concatenamos Primera Escritura
         strcat(info_escribir, "PrimeraEscritura: ");
-        sprintf(buffer, "%d - %d - ", buff_info.PrimeraEscritura.nEscritura,buff_info.PrimeraEscritura.nRegistro, buff_info.PrimeraEscritura.fecha );
+        sprintf(buffer, "%d\n", buff_info.PrimeraEscritura.nEscritura);
         strcat(info_escribir, buffer);
 
         // Concatenamos Última Escritura
