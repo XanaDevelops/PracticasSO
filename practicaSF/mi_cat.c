@@ -82,7 +82,6 @@ int main(int argc, char **argv)
             continue;
         }
         fwrite(buff, 1, cont_bytes, stdout);
-        fflush(stdout);
         memset(buff, '\0', sizeof(buff));
     }
 

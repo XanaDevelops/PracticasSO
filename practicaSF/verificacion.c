@@ -157,7 +157,9 @@ int main(int argc, char **argv)
         struct tm *tiempo_descompuesto;
 
         // Limpiamos el buffer
-        memset(info_escribir, 0, sizeof(info_escribir));
+        memset(info_escribir, '\0', sizeof(info_escribir));
+        memset(buffer, '\0', sizeof(buffer));
+        memset(fecha_formateada, '\0', sizeof(fecha_formateada));
 
         // Concatenamos PID
         strcat(info_escribir, "Pid: ");
@@ -178,27 +180,27 @@ int main(int argc, char **argv)
         strcat(info_escribir, buffer);
 
         // Concatenamos Última Escritura
-         tiempo = buff_info.UltimaEscritura.fecha;
+        tiempo = buff_info.UltimaEscritura.fecha;
         tiempo_descompuesto = localtime(&tiempo);
         strcat(info_escribir, "UltimaEscritura: ");
         sprintf(buffer, "%d - %d - %s\n", buff_info.UltimaEscritura.nEscritura, buff_info.UltimaEscritura.nRegistro, fecha_formateada);
         strcat(info_escribir, buffer);
 
         // Concatenamos Menor Posición
-         tiempo = buff_info.MenorPosicion.fecha;
+        tiempo = buff_info.MenorPosicion.fecha;
         tiempo_descompuesto = localtime(&tiempo);
         strcat(info_escribir, "MenorPosicion:: ");
         sprintf(buffer, "%d - %d - %s\n", buff_info.MenorPosicion.nEscritura, buff_info.MenorPosicion.nRegistro, fecha_formateada);
         strcat(info_escribir, buffer);
 
         // Concatenamos Mayor Posición
-         tiempo = buff_info.MayorPosicion.fecha;
+        tiempo = buff_info.MayorPosicion.fecha;
         tiempo_descompuesto = localtime(&tiempo);
         strcat(info_escribir, "MayorPosicion:: ");
-        sprintf(buffer, "%d - %d - %s\n", buff_info.MayorPosicion.nEscritura, buff_info.MayorPosicion.nRegistro, fecha_formateada);
+        sprintf(buffer, "%d - %d - %s\n\n", buff_info.MayorPosicion.nEscritura, buff_info.MayorPosicion.nRegistro, fecha_formateada);
         strcat(info_escribir, buffer);
 
-        offset_info += mi_write(informe, &info_escribir, offset_info, sizeof(info_escribir));
+        offset_info += mi_write(informe, &info_escribir, offset_info, (strlen(info_escribir)*sizeof(info_escribir[0])));
     }
 
     // Desmontar disco
