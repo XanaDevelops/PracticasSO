@@ -45,10 +45,10 @@ int main(int argc, char **argv)
 
     int numentradas = s_stat.tamEnBytesLog / sizeof(struct entrada);
 
-   /* if (numentradas != NUMPROCESOS)
+   if (numentradas != NUMPROCESOS)
     {
         return exitError();
-    }*/
+    }
 
 #if DEBUG13
     fprintf(stderr, "[numentradas: %d NUMPROCESOS: %d]\n" RESET, numentradas, NUMPROCESOS);
@@ -104,11 +104,10 @@ int main(int argc, char **argv)
         int leidos = mi_read(prueba, buff_reg, leidosT, sizeof(buff_reg));
         leidosT += leidos;
 
-        while (leidos != 0)
+        while (leidos > 0)
         {
             int ultimoreg = leidos / sizeof(struct REGISTRO);
-           // int ultimoreg = sizeof(buff_reg) / sizeof(struct REGISTRO);
-
+           
             for (int j = 0; j < ultimoreg; j++)
             {
                 #if DEBUG13
@@ -170,7 +169,7 @@ int main(int argc, char **argv)
 
         // Concatenamos Primera Escritura
         strcat(info_escribir, "PrimeraEscritura: ");
-        sprintf(buffer, "%d\n", buff_info.PrimeraEscritura.nEscritura);
+        sprintf(buffer, "%d - %d - ", buff_info.PrimeraEscritura.nEscritura,buff_info.PrimeraEscritura.nRegistro, buff_info.PrimeraEscritura.fecha );
         strcat(info_escribir, buffer);
 
         // Concatenamos Última Escritura
