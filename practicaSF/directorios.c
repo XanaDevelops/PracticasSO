@@ -317,7 +317,6 @@ int mi_creat(const char *camino, unsigned char permisos)
     {
         fprintf(stderr, RED "ERROR: mi_creat(): No se ha podido leer SB\n" RESET);
         mi_signalSem();
-
         return FALLO;
     }
 

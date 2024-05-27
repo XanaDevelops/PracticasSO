@@ -232,11 +232,13 @@ int mi_stat_f(unsigned int ninodo, struct STAT *p_stat)
 
 int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
 {
+    mi_waitSem();
     // Declarar y leer el inodo correspondiente
     struct inodo inodo;
     if (leer_inodo(ninodo, &inodo) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_chmod_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
+        mi_signalSem();
         return FALLO;
     }
 
@@ -248,9 +250,11 @@ int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
     if (escribir_inodo(ninodo, &inodo) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_chmod_f(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
+        mi_signalSem();
         return FALLO;
     }
 
+    mi_signalSem();
     return EXITO;
 }
 /**

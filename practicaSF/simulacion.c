@@ -87,6 +87,8 @@ int main(int argc, char **argv)
                 exit(FALLO);
             }
 
+            srand(time(NULL) + getpid());
+
             for (int j = 1; j <= NUMESCRITURAS; j++)
             {
                 memset(&escribir, '\0', sizeof(struct REGISTRO));
