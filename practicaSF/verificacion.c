@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     }
 
     int offset_info = 0;
-    struct REGISTRO buff_reg[NREGISTROS];
+    struct REGISTRO buff_reg[REGMAX];
     memset(buff_reg, '\0', sizeof(buff_reg));
 
     for (int i = 0; i < numentradas; i++)
@@ -111,6 +111,9 @@ int main(int argc, char **argv)
 
             for (int j = 0; j < ultimoreg; j++)
             {
+                #if DEBUG13
+                //fprintf(stderr, GRAY "[verificacion() -> comprobando %d respecto %d]\n" RESET, buff_reg[j].pid, buff_info.pid);
+                #endif
                 if (buff_reg[j].pid == buff_info.pid)
                 {
                     if (escriturasLeidas == 0)
