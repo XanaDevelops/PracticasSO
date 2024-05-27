@@ -11,7 +11,7 @@ Perelló Perelló, Biel*/
 
 int main(int argc, char **argv)
 {
-   
+
     char buff[BLOCKCAT];
     char cmpbuff[BLOCKCAT];
     memset(buff, '\0', sizeof(buff));
@@ -68,20 +68,20 @@ int main(int argc, char **argv)
 
     for (int offset = 0; offset <= final_f; offset += BLOCKCAT)
     {
-        cont_bytes = mi_read(ruta, buff, offset, BLOCKCAT); 
-        
+        cont_bytes = mi_read(ruta, buff, offset, BLOCKCAT);
+
         if (cont_bytes == FALLO)
         {
             break;
         }
 
         bytesLeidos += cont_bytes;
-        //fix tiempo
-        if(memcmp(buff, cmpbuff, sizeof(buff))==0){
+        // fix tiempo
+        if (memcmp(buff, cmpbuff, sizeof(buff)) == 0)
+        {
             continue;
         }
         fwrite(buff, 1, cont_bytes, stdout);
-        fflush(stdout);
         memset(buff, '\0', sizeof(buff));
     }
 
