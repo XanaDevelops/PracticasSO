@@ -45,10 +45,10 @@ int main(int argc, char **argv)
 
     int numentradas = s_stat.tamEnBytesLog / sizeof(struct entrada);
 
-    if (numentradas != NUMPROCESOS)
+   /* if (numentradas != NUMPROCESOS)
     {
         return exitError();
-    }
+    }*/
 
 #if DEBUG13
     fprintf(stderr, "[numentradas: %d NUMPROCESOS: %d]\n" RESET, numentradas, NUMPROCESOS);
@@ -70,13 +70,14 @@ int main(int argc, char **argv)
         return exitError();
     }
 
-    struct INFORMACION buff_info;
     int offset_info = 0;
     struct REGISTRO buff_reg[NREGISTROS];
     memset(buff_reg, '\0', sizeof(buff_reg));
 
     for (int i = 0; i < numentradas; i++)
     {
+        struct INFORMACION buff_info;
+        
         char *inici = strchr(buff_entradas[i].nombre, 'D');
 
         if (inici)
@@ -91,6 +92,7 @@ int main(int argc, char **argv)
         }
 
         char prueba[100];
+         memset(prueba, '\0', sizeof(prueba));
 
         strcpy(prueba, argv[2]);
         strcat(prueba, buff_entradas[i].nombre);
