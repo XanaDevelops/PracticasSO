@@ -3,6 +3,7 @@ García Vázquez, Daniel
 Perelló Perelló, Biel*/
 
 #include "ficheros.h"
+#include <sys/time.h>
 
 #define TAMNOMBRE 60 // tamaño del nombre de directorio o fichero
 #define ERROR_CAMINO_INCORRECTO -2
@@ -16,6 +17,12 @@ Perelló Perelló, Biel*/
 #define PROFUNDIDAD 32 //profundidad máxima del árbol de directorios
 #define CACHE_SIZE 3 // Tamaño máximo de la caché
 
+// 0 -> NO CACHE
+// 1 -> No implenentado
+// 2 -> FIFO
+// 3 -> LRU
+#define USARCACHE 2
+
 struct entrada
 {
     char nombre[TAMNOMBRE];
@@ -26,6 +33,9 @@ struct entrada
 struct UltimaEntrada{
    char camino[TAMNOMBRE*PROFUNDIDAD];
    int p_inodo;
+   #if USARCACHE == 3
+   struct timeval ultimaConsulta;
+   #endif
 };
 
 /* NIVEL 7 */

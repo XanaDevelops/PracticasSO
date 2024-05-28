@@ -7,3 +7,4 @@ Nombres participantes equipo
 
 Se han seguido las recomendaciones de los diferentes niveles
 Se ha implementado leer en bloques en verificacion.c
+De nivel 9, se ha añadido cache LRU

@@ -2,16 +2,19 @@
 #include <string.h>
 
 // Implementada mejora nivel 9
+#if USARCACHE == 2 || USARCACHE == 3
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
+#if USARCACHE == 2
 static int pos_UltimaEntradaIO = 0;
-
+#endif
+#endif
 #define DEBUGMIDIR 0
 #define COLORD BLUE
 #define COLORF GREEN
 
 #define ENTRADASBLOQUE (BLOCKSIZE / sizeof(struct entrada))
 
-#define USARCACHE 2
+
 
 // Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
 
@@ -923,6 +926,9 @@ int buscar_en_cache(const char *camino)
     {
         if (strcmp(UltimaEntradaIO[i].camino, camino) == 0)
         {
+            #if USARCACHE == 3
+            gettimeofday(&UltimaEntradaIO[i].ultimaConsulta, NULL);
+            #endif
 #if DEBUG9
             fprintf(stderr, BLUE "mi_write() -> usar cache[%d] con %s\n" RESET, i, camino);
 #endif
@@ -939,7 +945,7 @@ int buscar_en_cache(const char *camino)
  */
 void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 {
-#if USARCACHE > 0
+#if USARCACHE == 2 //FIFO Circular
     // Si el camino ya está en la caché, no es necesario actualizar
     if (buscar_en_cache(nueva_entrada->camino) != -1)
     {
@@ -955,6 +961,32 @@ void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 #endif
     // Avanzar el puntero de cola circular
     pos_UltimaEntradaIO = (pos_UltimaEntradaIO + 1) % CACHE_SIZE;
+
+#endif
+#if USARCACHE == 3 //LRU
+if (buscar_en_cache(nueva_entrada->camino) != -1)
+    {
+        return;
+    }
+    int i = 0;
+    struct timeval antiguo = UltimaEntradaIO[i].ultimaConsulta;
+    for(int j=0;j<CACHE_SIZE;j++){
+        struct timeval check = UltimaEntradaIO[j].ultimaConsulta;
+        if((check.tv_sec+check.tv_usec) <(antiguo.tv_sec+antiguo.tv_usec)){
+            i=j;
+            antiguo = UltimaEntradaIO[j].ultimaConsulta;
+        }
+    }
+    memcpy(&UltimaEntradaIO[i], nueva_entrada, sizeof(struct UltimaEntrada));
+    gettimeofday(&UltimaEntradaIO[i].ultimaConsulta, NULL);
+    #if DEBUG9
+    #if USARCACHE == 2
+    fprintf(stderr, ORANGE "mi_write() -> actulizar cache[%d] con %s\n" RESET, pos_UltimaEntradaIO, nueva_entrada->camino);
+    #endif
+    #if USARCACHE == 3
+    fprintf(stderr, ORANGE "mi_write() -> actulizar cache[%d] con %s\n" RESET, i, nueva_entrada->camino);
+    #endif
+    #endif
 
 #endif
     return;

@@ -42,7 +42,7 @@ Perelló Perelló, Biel*/
 #define DEBUG7A 0
 #define DEBUG7B 0
 #define DEBUG8 0
-#define DEBUG9 0
+#define DEBUG9 9
 #define DEBUG12 0
 #define DEBUG13 1
 
