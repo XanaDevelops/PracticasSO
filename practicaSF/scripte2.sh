@@ -350,4 +350,5 @@ echo -e "\x1B[38;2;17;245;120m$ ./mi_ls -l disco /dir3/\x1b[0m"
 ./mi_ls -l disco /dir3/
 
 echo "################################################################################"
-#make clean
+make clean
+rm ext1.txt
