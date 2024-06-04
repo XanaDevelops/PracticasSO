@@ -14,8 +14,6 @@ static int pos_UltimaEntradaIO = 0;
 
 #define ENTRADASBLOQUE (BLOCKSIZE / sizeof(struct entrada))
 
-
-
 // Se ha aplicado mejora nivell7 pagina 10 nota de pie 7
 
 //***************************************BUSCAR ENTRADA Y AUXILIARES**************************************
@@ -461,7 +459,7 @@ int mi_dir(const char *camino, char *buffer, char tipo, char flag)
             last = token;
             token = strtok(NULL, "/");
         }
-        if(inodo.tipo == 'f')
+        if (inodo.tipo == 'f')
             strcat(buffer, COLORF);
         else
             strcat(buffer, COLORD);
@@ -509,7 +507,7 @@ int auxiliarInodoEntradaDir(char *buffer, struct inodo inodo, struct entrada ent
 
     if (tipo == 'd')
     {
-        if(inodo.tipo == 'f')
+        if (inodo.tipo == 'f')
             strcat(buffer, COLORF);
         else
             strcat(buffer, COLORD);
@@ -926,9 +924,9 @@ int buscar_en_cache(const char *camino)
     {
         if (strcmp(UltimaEntradaIO[i].camino, camino) == 0)
         {
-            #if USARCACHE == 3
+#if USARCACHE == 3
             gettimeofday(&UltimaEntradaIO[i].ultimaConsulta, NULL);
-            #endif
+#endif
 #if DEBUG9
             fprintf(stderr, BLUE "mi_write() -> usar cache[%d] con %s\n" RESET, i, camino);
 #endif
@@ -945,7 +943,7 @@ int buscar_en_cache(const char *camino)
  */
 void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 {
-#if USARCACHE == 2 //FIFO Circular
+#if USARCACHE == 2 // FIFO Circular
     // Si el camino ya está en la caché, no es necesario actualizar
     if (buscar_en_cache(nueva_entrada->camino) != -1)
     {
@@ -963,31 +961,157 @@ void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
     pos_UltimaEntradaIO = (pos_UltimaEntradaIO + 1) % CACHE_SIZE;
 
 #endif
-#if USARCACHE == 3 //LRU
-if (buscar_en_cache(nueva_entrada->camino) != -1)
+#if USARCACHE == 3 // LRU
+    if (buscar_en_cache(nueva_entrada->camino) != -1)
     {
         return;
     }
     int i = 0;
     struct timeval antiguo = UltimaEntradaIO[i].ultimaConsulta;
-    for(int j=0;j<CACHE_SIZE;j++){
+    for (int j = 0; j < CACHE_SIZE; j++)
+    {
         struct timeval check = UltimaEntradaIO[j].ultimaConsulta;
-        if((check.tv_sec+check.tv_usec) <(antiguo.tv_sec+antiguo.tv_usec)){
-            i=j;
+        if ((check.tv_sec + check.tv_usec) < (antiguo.tv_sec + antiguo.tv_usec))
+        {
+            i = j;
             antiguo = UltimaEntradaIO[j].ultimaConsulta;
         }
     }
     memcpy(&UltimaEntradaIO[i], nueva_entrada, sizeof(struct UltimaEntrada));
     gettimeofday(&UltimaEntradaIO[i].ultimaConsulta, NULL);
-    #if DEBUG9
-    #if USARCACHE == 2
+#if DEBUG9
+#if USARCACHE == 2
     fprintf(stderr, ORANGE "mi_write() -> actulizar cache[%d] con %s\n" RESET, pos_UltimaEntradaIO, nueva_entrada->camino);
-    #endif
-    #if USARCACHE == 3
+#endif
+#if USARCACHE == 3
     fprintf(stderr, ORANGE "mi_write() -> actulizar cache[%d] con %s\n" RESET, i, nueva_entrada->camino);
-    #endif
-    #endif
+#endif
+#endif
 
 #endif
     return;
+}
+
+//********************************* Extra **********************
+
+/**
+ * mi_cp_f()
+ * return: EXITO o FALLO
+ */
+int mi_cp(const char *origen, const char *destino, char tipoO, char tipoD)
+{
+    mi_waitSem();
+    struct superbloque sb;
+    if (bread(posSB, &sb) == FALLO)
+    {
+        // error sb
+        mi_signalSem();
+        return FALLO;
+    }
+
+    unsigned int p_inodo_origen = 0, p_entrada_origen = 0,
+                 p_inodo_destino = 0, p_entrada_destino = 0;
+    int r_buscar_e_origen, r_buscar_e_destino;
+
+    r_buscar_e_origen = buscar_en_cache(origen);
+    if (r_buscar_e_origen < 0)
+    {                                                                                                           // actualizar cache
+        r_buscar_e_origen = buscar_entrada(origen, &sb.posInodoRaiz, &p_inodo_origen, &p_entrada_origen, 0, 4); // permisos lectura
+        struct UltimaEntrada entrada;
+        strncpy(entrada.camino, origen, sizeof(entrada.camino) - 1);
+        entrada.camino[sizeof(entrada.camino) - 1] = '\0';
+        entrada.p_inodo = p_inodo_origen;
+#if DEBUG9
+        fprintf(stderr, ORANGE "[mi_read() -> Actualizamos la caché de lectura]\n" RESET);
+#endif
+        actualizar_cache(&entrada);
+    }
+    if (r_buscar_e_origen != EXITO)
+    {
+        mostrar_error_buscar_entrada(r_buscar_e_origen);
+        fprintf(stderr, RED "ERROR: mi_cp() -> no se ha podido buscar entrada origen\n" RESET);
+        mi_signalSem();
+        return FALLO;
+    }
+
+    // tenemos origen, si es fichero, destino puede ser fichero, crear en esa ruta, o directorio, crear dentro de ese directorio
+    char aux[BLOCKSIZE];
+    char cmp[BLOCKSIZE];
+    memset(aux, '\0', sizeof(aux));
+    memset(cmp, '\0', sizeof(aux));
+    struct inodo inodoOrigen, inodoDestino;
+    if (leer_inodo(p_inodo_origen, &inodoOrigen) == FALLO)
+    {
+        mi_signalSem();
+        return FALLO;
+    }
+
+    if (tipoO == 'f')
+    {
+        if (tipoD == 'f')
+        {
+#if DEBUGEXTRA
+            fprintf(stderr, GRAY "[mi_cp(): f-> f]\n" RESET);
+#endif
+            if (bread(posSB, &sb) == FALLO)
+            {
+                // error sb
+                mi_signalSem();
+                return FALLO;
+            }
+            r_buscar_e_destino = buscar_entrada(destino, &sb.posInodoRaiz, &p_inodo_destino, &p_entrada_destino, 1, 6); // reservamos
+            if (r_buscar_e_destino < EXITO)
+            {
+                mostrar_error_buscar_entrada(r_buscar_e_destino);
+                fprintf(stderr, RED "ERROR: mi_cp() -> no se ha podido buscar entrada destino\n" RESET);
+
+                mi_signalSem();
+                return FALLO;
+            }
+
+            if (leer_inodo(p_inodo_destino, &inodoDestino) == FALLO)
+            {
+                mi_signalSem();
+                return FALLO;
+            }
+
+            int bloquesNoVacios = 0;
+            for (int offset = 0; offset < inodoOrigen.tamEnBytesLog && bloquesNoVacios<inodoOrigen.numBloquesOcupados; offset += BLOCKSIZE)
+            {
+                int bytes_leidos = mi_read_f(p_inodo_origen, aux, offset, BLOCKSIZE);
+                if (bytes_leidos == FALLO)
+                {
+                    mi_signalSem();
+                    return FALLO;
+                }
+                
+                if(memcmp(aux, cmp, sizeof(aux))==0){
+                    continue;
+                }
+                bloquesNoVacios++;
+                if (mi_write_f(p_inodo_destino, aux, offset, bytes_leidos) == FALLO)
+                {
+                    mi_signalSem();
+                    return FALLO;
+                }
+                memset(aux, '\0', sizeof(aux));
+            }
+
+            mi_chmod_f(p_inodo_destino, inodoOrigen.permisos);
+        }
+        else
+        {
+            fprintf(stderr, YELLOW "mi_cp() -> NO IMPLEMENTADO f -> d\n" RESET);
+            mi_signalSem();
+            return FALLO;
+        }
+    }
+    else
+    {
+        fprintf(stderr, YELLOW "mi_cp() -> NO IMPLEMENTADO d -> x\n" RESET);
+        mi_signalSem();
+        return FALLO;
+    }
+    mi_signalSem();
+    return EXITO;
 }

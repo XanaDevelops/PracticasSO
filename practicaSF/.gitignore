@@ -17,6 +17,7 @@ mi_touch
 mi_link
 mi_rm
 mi_rmdir
+mi_cp
 *.dsk*
 *.txt
 testd.sh
@@ -25,6 +26,8 @@ testd.sh
 !scripte1.sh
 !scripte2.sh
 !scripte3.sh
+!estructura.sh
+!copiar.sh
 !test12.sh
 !texto2.txt
 .sh

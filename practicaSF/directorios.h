@@ -21,7 +21,7 @@ Perelló Perelló, Biel*/
 // 1 -> No implenentado
 // 2 -> FIFO
 // 3 -> LRU
-#define USARCACHE 2
+#define USARCACHE 3
 
 struct entrada
 {
@@ -57,6 +57,9 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
 /* NIVEL 10 */
 int mi_link(const char *camino1, const char *camino2);
 int mi_unlink(const char *camino);
+
+//EXTRA
+int mi_cp(const char *origen, const char *destino, char tipoO, char tipoD);
 
 // auxiliar
 int buscar_en_cache(const char *camino);
