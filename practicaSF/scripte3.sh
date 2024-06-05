@@ -1,3 +1,5 @@
+clear
+
 make clean
 make
 
