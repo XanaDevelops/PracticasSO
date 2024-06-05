@@ -92,7 +92,7 @@ int main(int argc, char **argv)
             }
 
             srand(time(NULL) + getpid());
-
+            int escrituras = 0;
             for (int j = 1; j <= NUMESCRITURAS; j++)
             {
                 memset(&escribir, '\0', sizeof(struct REGISTRO));
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
                 escribir.fecha = time(NULL);
 
                 #if DEBUG12
-                fprintf(stderr, GRAY "[hijo:%d -> escribiendo %d]\n" RESET, escribir.pid, escribir.nEscritura);
+                //fprintf(stderr, GRAY "[hijo:%d -> escribiendo %d]\n" RESET, escribir.pid, escribir.nEscritura);
                 #endif
 
                 if(mi_write(rutaHijo, &escribir, escribir.nRegistro * sizeof(struct REGISTRO), sizeof(struct REGISTRO)) == FALLO){
@@ -111,10 +111,14 @@ int main(int argc, char **argv)
                     bumount();
                     exit(FALLO);
                 }
+                escrituras++;
                 usleep(50);
 
             }
+            fprintf(stderr, GRAY "[Proceso %d: Completadas %d escrituras en %s]\n" RESET, getpid(), escrituras, rutaHijo);
+
             exit(bumount());
+
         }else{
             #if DEBUG12
             fprintf(stderr, GRAY "[main() -> creado hijo %d]\n" RESET, pid);

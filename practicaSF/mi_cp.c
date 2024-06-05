@@ -1,6 +1,4 @@
-/*Ferriol Font, Josep
-García Vázquez, Daniel
-Perelló Perelló, Biel*/
+/*García Vázquez, Daniel*/
 
 #include <string.h>
 #include <stdio.h>

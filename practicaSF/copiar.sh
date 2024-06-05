@@ -22,7 +22,7 @@ echo -e "\x1B[38;2;17;245;120m$ #Copia de un fichero en un directorio\x1b[0m"
 #echo -e "\x1B[38;2;17;245;120m$./mi_cp_f disco    /dir1/dir12/fic121     /dir3/\x1b[0m"
 #./mi_cp_f disco    /dir1/dir12/fic121     /dir3/
 echo -e "\x1B[38;2;17;245;120m$./mi_cp disco    /dir1/dir12/fic121     /dir3/\x1b[0m"
-gdb --args ./mi_cp disco    /dir1/dir12/fic121     /dir3/
+./mi_cp disco    /dir1/dir12/fic121     /dir3/
 echo -e "\x1B[38;2;17;245;120m$ ./leer_sf disco\x1b[0m"
 ./leer_sf disco
 
@@ -36,8 +36,7 @@ echo -e "\x1B[38;2;17;245;120m$ ./mi_cat disco /dir1/dir12/fic121\x1b[0m"
 echo -e "\x1B[38;2;17;245;120m$ ./mi_cat disco /dir3/fic121\x1b[0m"
 ./mi_cat disco /dir3/fic121
 
-exit 0
-
+sleep 0.1
 echo -e "\x1B[38;2;17;245;120m######################################################################\x1b[0m"
 echo -e "\x1B[38;2;17;245;120m$ #Copia de un directorio en otro\x1b[0m"
 echo -e "\x1B[38;2;17;245;120m$ ./mi_cp disco /dir2/ /dir3/dir32/\x1b[0m"

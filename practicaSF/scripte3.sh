@@ -11,14 +11,14 @@ echo
 echo -e "\x1B[38;2;17;245;120m######################################################################\x1b[0m"
 echo -e "\x1B[38;2;17;245;120m$ time ./simulacion disco\x1b[0m"
 time ./simulacion disco 
-
+sleep 0.1
 #Modificamos el string del directorio para la verificación
 sim_dir="simul_"$current_date #simul_aaaammddhhmmss
 
 #Lanzamos verificación
 echo -e "\x1B[38;2;17;245;120m######################################################################\x1b[0m"
 echo -e "\x1B[38;2;17;245;120m$ time ./verificacion disco /$sim_dir/\x1b[0m"
-time ./verificacion disco /$sim_dir/
+./verificacion disco /$sim_dir/
 
 #Redireccionamos el informe a res.txt
 echo -e "\x1B[38;2;17;245;120m######################################################################\x1b[0m"
@@ -40,4 +40,4 @@ echo -e "\x1B[38;2;17;245;120m##################################################
 echo -e "\x1B[38;2;17;245;120m$ ./leer_sf disco\x1b[0m"
 ./leer_sf disco
 
-make clean
+#make clean
