@@ -112,10 +112,10 @@ int main(int argc, char **argv)
                     exit(FALLO);
                 }
                 escrituras++;
-                usleep(50);
+                usleep(50000);
 
             }
-            fprintf(stderr, GRAY "[Proceso %d: Completadas %d escrituras en %s]\n" RESET, getpid(), escrituras, rutaHijo);
+            fprintf(stderr, GRAY "[Proceso %d: Completadas %d escrituras en %s]\n" RESET, i, escrituras, rutaHijo);
 
             exit(bumount());
 
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
             #if DEBUG12
             fprintf(stderr, GRAY "[main() -> creado hijo %d]\n" RESET, pid);
             #endif
-            usleep(150);
+            usleep(150000);
         }
         
 
