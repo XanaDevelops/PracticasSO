@@ -1048,63 +1048,82 @@ int mi_cp(const char *origen, const char *destino, char tipoO, char tipoD)
 
     if (tipoO == 'f')
     {
-        if (tipoD == 'f')
+        char nuevoDestino[strlen(origen)+strlen(destino)];
+        if (tipoD == 'd')
         {
 #if DEBUGEXTRA
-            fprintf(stderr, GRAY "[mi_cp(): f-> f]\n" RESET);
+            fprintf(stderr, GRAY "[mi_cp(): f-> d]\n" RESET);
 #endif
-            if (bread(posSB, &sb) == FALLO)
+            // copiar nombre a la carpeta, luego f->f
+            char copia[strlen(origen)];
+            
+            memset(nuevoDestino, '\0', sizeof(nuevoDestino));
+            memset(copia, '\0', sizeof(copia));
+            strcpy(copia, origen);
+            strcpy(nuevoDestino, destino);
+            char *last = NULL;
+            char *tok = strtok(copia, "/");
+            while (tok != NULL)
             {
-                // error sb
-                mi_signalSem();
-                return FALLO;
-            }
-            r_buscar_e_destino = buscar_entrada(destino, &sb.posInodoRaiz, &p_inodo_destino, &p_entrada_destino, 1, 6); // reservamos
-            if (r_buscar_e_destino < EXITO)
-            {
-                mostrar_error_buscar_entrada(r_buscar_e_destino);
-                fprintf(stderr, RED "ERROR: mi_cp() -> no se ha podido buscar entrada destino\n" RESET);
-
-                mi_signalSem();
-                return FALLO;
-            }
-
-            if (leer_inodo(p_inodo_destino, &inodoDestino) == FALLO)
-            {
-                mi_signalSem();
-                return FALLO;
+                last = tok;
+                tok = strtok(NULL, "/");
             }
 
-            int bloquesNoVacios = 0;
-            for (int offset = 0; offset < inodoOrigen.tamEnBytesLog && bloquesNoVacios<inodoOrigen.numBloquesOcupados; offset += BLOCKSIZE)
-            {
-                int bytes_leidos = mi_read_f(p_inodo_origen, aux, offset, BLOCKSIZE);
-                if (bytes_leidos == FALLO)
-                {
-                    mi_signalSem();
-                    return FALLO;
-                }
-                
-                if(memcmp(aux, cmp, sizeof(aux))==0){
-                    continue;
-                }
-                bloquesNoVacios++;
-                if (mi_write_f(p_inodo_destino, aux, offset, bytes_leidos) == FALLO)
-                {
-                    mi_signalSem();
-                    return FALLO;
-                }
-                memset(aux, '\0', sizeof(aux));
-            }
-
-            mi_chmod_f(p_inodo_destino, inodoOrigen.permisos);
+            strcat(nuevoDestino, last);
+            destino = nuevoDestino;
+#if DEBUGEXTRA
+            fprintf(stderr, GRAY "[mi_cp(): nueva ruta destino %s]\n" RESET, destino);
+#endif
         }
-        else
+#if DEBUGEXTRA
+        fprintf(stderr, GRAY "[mi_cp(): f-> f]\n" RESET);
+#endif
+        if (bread(posSB, &sb) == FALLO)
         {
-            fprintf(stderr, YELLOW "mi_cp() -> NO IMPLEMENTADO f -> d\n" RESET);
+            // error sb
             mi_signalSem();
             return FALLO;
         }
+        r_buscar_e_destino = buscar_entrada(destino, &sb.posInodoRaiz, &p_inodo_destino, &p_entrada_destino, 1, 6); // reservamos
+        if (r_buscar_e_destino < EXITO)
+        {
+            mostrar_error_buscar_entrada(r_buscar_e_destino);
+            fprintf(stderr, RED "ERROR: mi_cp() -> no se ha podido buscar entrada destino\n" RESET);
+
+            mi_signalSem();
+            return FALLO;
+        }
+
+        if (leer_inodo(p_inodo_destino, &inodoDestino) == FALLO)
+        {
+            mi_signalSem();
+            return FALLO;
+        }
+
+        int bloquesNoVacios = 0;
+        for (int offset = 0; offset < inodoOrigen.tamEnBytesLog && bloquesNoVacios < inodoOrigen.numBloquesOcupados; offset += BLOCKSIZE)
+        {
+            int bytes_leidos = mi_read_f(p_inodo_origen, aux, offset, BLOCKSIZE);
+            if (bytes_leidos == FALLO)
+            {
+                mi_signalSem();
+                return FALLO;
+            }
+
+            if (memcmp(aux, cmp, sizeof(aux)) == 0)
+            {
+                continue;
+            }
+            bloquesNoVacios++;
+            if (mi_write_f(p_inodo_destino, aux, offset, bytes_leidos) == FALLO)
+            {
+                mi_signalSem();
+                return FALLO;
+            }
+            memset(aux, '\0', sizeof(aux));
+        }
+
+        mi_chmod_f(p_inodo_destino, inodoOrigen.permisos);
     }
     else
     {
