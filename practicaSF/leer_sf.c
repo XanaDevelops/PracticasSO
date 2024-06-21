@@ -10,6 +10,7 @@ Perelló Perelló, Biel*/
 #define DEBUG2LEER 0
 #define DEBUG3LEER 0
 #define DEBUG4LEER 0
+#define DEBUG7LEER 0
 
 
 struct tm *ts;

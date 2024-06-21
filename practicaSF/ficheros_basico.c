@@ -243,7 +243,7 @@ int escribir_bit(unsigned int nbloque, unsigned int bit)
     int nbloqueabs = SB.posPrimerBloqueMB + nbloqueMB;
 
     // Declarar un buffer para almacenar el bloque que contiene el bit a escribir
-    char bufferMB[BLOCKSIZE];
+    unsigned char bufferMB[BLOCKSIZE];
 
     // Leer el bloque físico que contiene el bit y cargar su contenido en bufferMB
     if (bread(nbloqueabs, bufferMB) == -1)
@@ -302,7 +302,7 @@ char leer_bit(unsigned int nbloque)
     int nbloqueabs = SB.posPrimerBloqueMB + nbloqueMB;
 
     // Declarar un buffer para almacenar el bloque que contiene el bit a leer
-    char bufferMB[BLOCKSIZE];
+    unsigned char bufferMB[BLOCKSIZE];
 
     // Leer el bloque físico que contiene el bit y cargar su contenido en bufferMB
     if (bread(nbloqueabs, bufferMB) == -1)
@@ -621,6 +621,9 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos)
     {
         inodoReservado.punterosIndirectos[i] = 0;
     }
+
+    //limpiar padding
+    memset(&inodoReservado.padding, '\0', sizeof(inodoReservado.padding));
 
     if (escribir_inodo(posInodoReservado, &inodoReservado) == FALLO)
     {

@@ -99,3 +99,5 @@ int liberar_bloques_inodo(unsigned int primerBL, struct inodo *inodo);
 
 // auxiliar
 int imprimir_inodo(struct inodo inodo);
+
+#define CREAR_LEER_SB(f) struct superbloque sb; if(bread(posSB, &sb) == -1) {printf(stderr, RED "ERROR: ", #f, ": No se ha podido leer SB\n" RESET); return FALLO;} 
