@@ -652,6 +652,9 @@ int liberar_inodo(unsigned int ninodo)
     bloquesLiberados = liberar_bloques_inodo(0, &inodo);
 
     inodo.numBloquesOcupados -= bloquesLiberados;
+    if(inodo.numBloquesOcupados!=0){
+        fprintf(stderr, YELLOW "WARNING: liberar_inodo(): -> inodo.numBloquesOcupados=%d!=0!!\n" RESET, inodo.numBloquesOcupados);
+    }
     inodo.tipo = 'l';
     inodo.tamEnBytesLog = 0;
 

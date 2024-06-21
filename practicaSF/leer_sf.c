@@ -70,8 +70,10 @@ int main(int argc, char **argv)
     printf("totBloques is: %d\n", SB.totBloques);
     printf("totInodos is: %d\n", SB.totInodos);
 
+/*
     printf("sizeof struct inodo is: %lu\n", sizeof(struct superbloque));
     printf("sizeof struct inodo is: %lu\n", sizeof(struct inodo));
+    */
 #endif
 #if DEBUG2LEER
     int contInodos = SB.posPrimerBloqueAI;
