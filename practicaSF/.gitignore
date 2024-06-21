@@ -23,13 +23,7 @@ mi_cp
 testd.sh
 *.sh
 !README.txt
-!scripte1.sh
-!scripte2.sh
-!scripte3.sh
-!estructura.sh
-!copiar.sh
-!test12.sh
-!texto2.txt
+!scripts/*
 .sh
 fic1
 fic2
