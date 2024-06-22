@@ -96,12 +96,14 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
 
             for (int i = 0; (i < (BLOCKSIZE / sizeof(struct entrada))) && !trobat && (num_entrada_inodo < cant_entradas_inodo); i++)
             {
-                num_entrada_inodo++;
+                //num_entrada_inodo++;
                 if (strcmp(inicial, buff_entradas[i].nombre) == 0)
                 {
                     trobat = 1;
                     memcpy(&entrada, &buff_entradas[i], sizeof(struct entrada));
-                    num_entrada_inodo--;
+                    //num_entrada_inodo--;
+                }else{
+                    num_entrada_inodo++;
                 }
             }
         }
