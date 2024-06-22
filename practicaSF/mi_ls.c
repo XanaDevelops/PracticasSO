@@ -7,7 +7,6 @@ Perelló Perelló, Biel*/
 
 #include "directorios.h"
 
-
 #define TAMFILA 120
 #define NFILAS 1000
 #define TAMBUFFER (TAMFILA * NFILAS) // suponemos un máx de 1000 entradas, aunque debería ser SB.totInodos
@@ -70,7 +69,8 @@ int main(int argc, char **argv)
     }
 
     nEntradas = mi_dir(camino, bufdir, tipo, extendido); // placehoder 'd' y 1
-    if(nEntradas == FALLO){
+    if (nEntradas == FALLO)
+    {
         bumount();
         return FALLO;
     }
@@ -81,8 +81,12 @@ int main(int argc, char **argv)
         {
             fprintf(stdout, "Total: %d\n", nEntradas);
         }
-        fprintf(stdout, "Tipo	Modo	mTime			Tamaño		Nombre\n");
-        fprintf(stdout, "----------------------------------------------------------------------\n");
+        // cabecera solo nEntradas > 0 o fichero
+        if (nEntradas > 0 || tipo == 'f') 
+        {
+            fprintf(stdout, "Tipo	Modo	mTime			Tamaño		Nombre\n");
+            fprintf(stdout, "----------------------------------------------------------------------\n");
+        }
     }
     fprintf(stdout, "%s\n", bufdir);
 

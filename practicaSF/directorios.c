@@ -2,9 +2,9 @@
 #include <string.h>
 
 // Implementada mejora nivel 9
-#if USARCACHE == 2 || USARCACHE == 3
+#if USARCACHE > 0
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
-#if USARCACHE == 2
+#if USARCACHE == 1 || USARCACHE == 2
 static int pos_UltimaEntradaIO = 0;
 #endif
 #endif
@@ -921,7 +921,7 @@ int buscar_en_cache(const char *camino)
 #if USARCACHE == 0
     return FALLO;
 #endif
-#if USARCACHE > 0
+
     for (int i = 0; i < CACHE_SIZE; i++)
     {
         if (strcmp(UltimaEntradaIO[i].camino, camino) == 0)
@@ -929,7 +929,7 @@ int buscar_en_cache(const char *camino)
 #if USARCACHE == 3
             gettimeofday(&UltimaEntradaIO[i].ultimaConsulta, NULL);
 #endif
-#if DEBUG9
+#if DEBUG9 && USARCACHE > 1
             fprintf(stderr, BLUE "mi_write() -> usar cache[%d] con %s\n" RESET, i, camino);
 #endif
             return i;
@@ -937,7 +937,7 @@ int buscar_en_cache(const char *camino)
     }
     // Indica que el camino no se encontró en la caché
     return -1;
-#endif
+
 }
 
 /**
@@ -945,7 +945,7 @@ int buscar_en_cache(const char *camino)
  */
 void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 {
-#if USARCACHE == 2 // FIFO Circular
+#if USARCACHE == 1 || USARCACHE == 2 // FIFO Circular
     // Si el camino ya está en la caché, no es necesario actualizar
     if (buscar_en_cache(nueva_entrada->camino) != -1)
     {
@@ -956,7 +956,7 @@ void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 
     strcpy(UltimaEntradaIO[pos_UltimaEntradaIO].camino, nueva_entrada->camino);
     UltimaEntradaIO[pos_UltimaEntradaIO].p_inodo = nueva_entrada->p_inodo;
-#if DEBUG9
+#if DEBUG9 && USARCACHE > 1
     fprintf(stderr, ORANGE "mi_write() -> actulizar cache[%d] con %s\n" RESET, pos_UltimaEntradaIO, nueva_entrada->camino);
 #endif
     // Avanzar el puntero de cola circular

@@ -15,13 +15,18 @@ Perelló Perelló, Biel*/
 #define ERROR_NO_SE_PUEDE_CREAR_ENTRADA_EN_UN_FICHERO -8
 #define TAMNOMBRE 60 //tamaño del nombre de directorio o fichero
 #define PROFUNDIDAD 32 //profundidad máxima del árbol de directorios
-#define CACHE_SIZE 3 // Tamaño máximo de la caché
+
 
 // 0 -> NO CACHE
 // 1 -> No implenentado
 // 2 -> FIFO
 // 3 -> LRU
-#define USARCACHE 3
+#define USARCACHE 1
+#if USARCACHE == 1
+#define CACHE_SIZE 1
+#else
+#define CACHE_SIZE 3 // Tamaño máximo de la caché
+#endif
 
 struct entrada
 {
