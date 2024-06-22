@@ -70,8 +70,12 @@ echo -e "\x1B[38;2;17;245;120m##################################################
 echo -e "\x1B[38;2;17;245;120m$ ./mi_rmdir disco /dir2/dir21/ #o mi_rm\x1b[0m"
 ./mi_rmdir disco /dir2/dir21/ 
 echo
+./mi_ls -l disco /dir2/dir21/
+echo
 echo -e "\x1B[38;2;17;245;120m$ ./mi_rm disco /dir2/dir21/fic2\x1b[0m"
 ./mi_rm disco /dir2/dir21/fic2
+echo
+./mi_ls -l disco /dir2/dir21/
 echo
 echo -e "\x1B[38;2;17;245;120m$ ./mi_stat disco /dir1/dir11/fic1 #Hemos borrado 1 enlace\x1b[0m"
 ./mi_stat disco /dir1/dir11/fic1 #

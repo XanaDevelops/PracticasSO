@@ -893,6 +893,9 @@ int mi_unlink(const char *camino)
     if (inodo_eliminar.nlinks == 0)
     {
         liberar_inodo(num_eliminar);
+        #if DEBUG10 == 1
+        fprintf(stderr, GRAY "[mi_unlink() -> usado liberar_inodo sobre %d]\n" RESET, num_eliminar);
+        #endif
     }
     else
     {
@@ -905,6 +908,9 @@ int mi_unlink(const char *camino)
             //mi_signalSem();
             return FALLO;
         }
+        #if DEBUG10 == 1
+        fprintf(stderr, GRAY "[mi_unlink() -> se ha actualizado el inodo]\n" RESET);
+        #endif
     }
 
     //mi_signalSem();
