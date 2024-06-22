@@ -30,9 +30,13 @@ echo
 echo -e "\x1B[38;2;17;245;120m$ ./mi_mkdir disco 6 /dir2/dir21/\x1b[0m"
 ./mi_mkdir disco 6 /dir2/dir21/
 echo
+./mi_ls -l disco /dir2/dir21/
+echo
 echo -e "\x1B[38;2;17;245;120m##############################################################\x1b[0m"
 echo -e "\x1B[38;2;17;245;120m$ ./mi_link disco /dir1/dir11/fic1 /dir2/dir21/fic2\x1b[0m"
 ./mi_link disco /dir1/dir11/fic1 /dir2/dir21/fic2
+echo
+./mi_ls -l disco /dir2/dir21/
 echo
 echo -e "\x1B[38;2;17;245;120m##############################################################\x1b[0m"
 echo -e "\x1B[38;2;17;245;120m$ ./mi_cat disco /dir2/dir21/fic2 #ha de mostrar mismo contenido que /dir1/dir11/fic1\x1b[0m"
@@ -48,14 +52,20 @@ echo -e "\x1B[38;2;17;245;120m##################################################
 echo -e "\x1B[38;2;17;245;120m$ ./mi_link disco /dir1/dir11/fic3 /di2/dir21/fic4  #camino1 ha de existir\x1b[0m"
 ./mi_link disco /dir1/dir11/fic3 /di2/dir21/fic4
 echo
+./mi_ls -l disco /dir2/dir21/
+echo
 echo -e "\x1B[38;2;17;245;120m$ ./mi_touch disco 6 /dir1/dir11/fic3\x1b[0m"
 ./mi_touch disco 6 /dir1/dir11/fic3 
 echo
 echo -e "\x1B[38;2;17;245;120m$ ./mi_link disco /dir1/dir11/fic3 /dir2/dir21/fic4\x1b[0m"
 ./mi_link disco /dir1/dir11/fic3 /dir2/dir21/fic4
 echo
+./mi_ls -l disco /dir2/dir21/
+echo
 echo -e "\x1B[38;2;17;245;120m$ ./mi_link disco /dir1/dir11/fic3 /dir2/dir21/fic5\x1b[0m"
 ./mi_link disco /dir1/dir11/fic3 /dir2/dir21/fic5
+echo
+./mi_ls -l disco /dir2/dir21/
 echo
 echo -e "\x1B[38;2;17;245;120m$ ./mi_stat disco /dir1/dir11/fic3\x1b[0m"
 ./mi_stat disco /dir1/dir11/fic3

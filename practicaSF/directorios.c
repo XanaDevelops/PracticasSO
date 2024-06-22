@@ -2,9 +2,9 @@
 #include <string.h>
 
 // Implementada mejora nivel 9
-#if USARCACHE > 0
+#if USARCACHE == 2 || USARCACHE == 3
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
-#if USARCACHE == 1 || USARCACHE == 2
+#if USARCACHE == 2
 static int pos_UltimaEntradaIO = 0;
 #endif
 #endif
@@ -96,14 +96,12 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
 
             for (int i = 0; (i < (BLOCKSIZE / sizeof(struct entrada))) && !trobat && (num_entrada_inodo < cant_entradas_inodo); i++)
             {
-                //num_entrada_inodo++;
+                num_entrada_inodo++;
                 if (strcmp(inicial, buff_entradas[i].nombre) == 0)
                 {
                     trobat = 1;
                     memcpy(&entrada, &buff_entradas[i], sizeof(struct entrada));
-                    //num_entrada_inodo--;
-                }else{
-                    num_entrada_inodo++;
+                    num_entrada_inodo--;
                 }
             }
         }
@@ -313,13 +311,13 @@ void mostrar_error_buscar_entrada(int error)
  */
 int mi_creat(const char *camino, unsigned char permisos)
 {
-    //mi_waitSem();
+    mi_waitSem();
     // LECTURA SUPERBLOQUE
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_creat(): No se ha podido leer SB\n" RESET);
-        //mi_signalSem();
+        mi_signalSem();
         return FALLO;
     }
 
@@ -333,11 +331,11 @@ int mi_creat(const char *camino, unsigned char permisos)
         // Notificar error devuelto por buscar_entrada()
         mostrar_error_buscar_entrada(return_buscar_entrada);
         // Devolver FALLO
-        //mi_signalSem();
+        mi_signalSem();
         return FALLO;
     }
 
-    //mi_signalSem();
+    mi_signalSem();
     return EXITO;
 }
 
@@ -710,7 +708,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
  */
 int mi_link(const char *camino1, const char *camino2)
 {
-    //mi_waitSem();
+    mi_waitSem();
     int longitud_ruta1 = strlen(camino1);
     int longitud_ruta2 = strlen(camino2);
 
@@ -718,7 +716,7 @@ int mi_link(const char *camino1, const char *camino2)
     if ((*(camino1 + longitud_ruta1 - 1) == '/') || (*(camino2 + longitud_ruta2 - 1) == '/'))
     {
         fprintf(stderr, RED "ERROR: mi_link(): Las rutas especificadas no se corresponden a un fichero\n" RESET);
-        //mi_signalSem();
+        mi_signalSem();
         return FALLO;
     }
 
@@ -727,7 +725,7 @@ int mi_link(const char *camino1, const char *camino2)
     if (bread(posSB, &sb) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_link(): No se ha podido leer SB\n" RESET);
-        //mi_signalSem();
+        mi_signalSem();
         return FALLO;
     }
 
@@ -741,7 +739,7 @@ int mi_link(const char *camino1, const char *camino2)
     {
         // Notificar error devuelto por buscar_entrada()
         mostrar_error_buscar_entrada(return_buscar_entrada1);
-        //mi_signalSem();
+        mi_signalSem();
         // Devolver FALLO
         return FALLO;
     }
@@ -756,7 +754,7 @@ int mi_link(const char *camino1, const char *camino2)
     {
         // Notificar error devuelto por buscar_entrada()
         mostrar_error_buscar_entrada(return_buscar_entrada2);
-        //mi_signalSem();
+        mi_signalSem();
         // Devolver FALLO
         return FALLO;
     }
@@ -785,7 +783,7 @@ int mi_link(const char *camino1, const char *camino2)
     // Escribir la entrada modificada en p_inodo_dir_2
     memcpy(&buff_entradas[entrada_buffer], &entrada, sizeof(struct entrada));
 
-    mi_write_f(p_inodo_dir2, buff_entradas, offset, tam_entrada);
+    mi_write_f(p_inodo_dir2, &entrada, offset, tam_entrada);
 
     // Liberar el inodo que se ha asociado a la entrada creada, p_inodo2
     liberar_inodo(p_inodo2);
@@ -795,7 +793,7 @@ int mi_link(const char *camino1, const char *camino2)
     if (leer_inodo(p_inodo1, &inodo_enlace) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_link(): No se pudo leer el inodo\n" RESET);
-        //mi_signalSem();
+        mi_signalSem();
         return FALLO;
     }
 
@@ -808,11 +806,11 @@ int mi_link(const char *camino1, const char *camino2)
     if (escribir_inodo(p_inodo1, &inodo_enlace) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_link(): No se pudo escribir el inodo\n" RESET);
-        //mi_signalSem();
+        mi_signalSem();
         return FALLO;
     }
 
-    //mi_signalSem();
+    mi_signalSem();
     // Devolver ÉXITO
     return EXITO;
 }
@@ -823,13 +821,13 @@ int mi_link(const char *camino1, const char *camino2)
  * */
 int mi_unlink(const char *camino)
 {
-    //mi_waitSem();
+    mi_waitSem();
     // LECTURA SUPERBLOQUE
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_unlink(): No se ha podido leer SB\n" RESET);
-        //mi_signalSem();
+        mi_signalSem();
         return FALLO;
     }
     unsigned int p_inodo_dir = sb.posInodoRaiz;
@@ -841,7 +839,7 @@ int mi_unlink(const char *camino)
     {
         // Notificar error devuelto por buscar_entrada()
         mostrar_error_buscar_entrada(rt_be);
-        //mi_signalSem();
+        mi_signalSem();
         // Devolver FALLO
         return FALLO;
     }
@@ -858,7 +856,7 @@ int mi_unlink(const char *camino)
     if (inodo_eliminar.tipo == 'd' && inodo_eliminar.tamEnBytesLog > 0)
     {
         fprintf(stderr, RED "ERROR: mi_unlink(): El directorio %s no está vacio\n" RESET, camino);
-        //mi_signalSem();
+        mi_signalSem();
         return FALLO;
     }
 
@@ -893,9 +891,6 @@ int mi_unlink(const char *camino)
     if (inodo_eliminar.nlinks == 0)
     {
         liberar_inodo(num_eliminar);
-        #if DEBUG10 == 1
-        fprintf(stderr, GRAY "[mi_unlink() -> usado liberar_inodo sobre %d]\n" RESET, num_eliminar);
-        #endif
     }
     else
     {
@@ -905,15 +900,12 @@ int mi_unlink(const char *camino)
         if (escribir_inodo(num_eliminar, &inodo_eliminar) == FALLO)
         {
             fprintf(stderr, RED "ERROR: mi_unlink(): No se ha podido escribir el inodo %d \n" RESET, num_eliminar);
-            //mi_signalSem();
+            mi_signalSem();
             return FALLO;
         }
-        #if DEBUG10 == 1
-        fprintf(stderr, GRAY "[mi_unlink() -> se ha actualizado el inodo]\n" RESET);
-        #endif
     }
 
-    //mi_signalSem();
+    mi_signalSem();
     return EXITO;
 }
 //************************************* MILLORA NIVELL 9***********************************************
@@ -927,7 +919,7 @@ int buscar_en_cache(const char *camino)
 #if USARCACHE == 0
     return FALLO;
 #endif
-
+#if USARCACHE > 0
     for (int i = 0; i < CACHE_SIZE; i++)
     {
         if (strcmp(UltimaEntradaIO[i].camino, camino) == 0)
@@ -935,7 +927,7 @@ int buscar_en_cache(const char *camino)
 #if USARCACHE == 3
             gettimeofday(&UltimaEntradaIO[i].ultimaConsulta, NULL);
 #endif
-#if DEBUG9 && USARCACHE > 1
+#if DEBUG9
             fprintf(stderr, BLUE "mi_write() -> usar cache[%d] con %s\n" RESET, i, camino);
 #endif
             return i;
@@ -943,7 +935,7 @@ int buscar_en_cache(const char *camino)
     }
     // Indica que el camino no se encontró en la caché
     return -1;
-
+#endif
 }
 
 /**
@@ -951,7 +943,7 @@ int buscar_en_cache(const char *camino)
  */
 void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 {
-#if USARCACHE == 1 || USARCACHE == 2 // FIFO Circular
+#if USARCACHE == 2 // FIFO Circular
     // Si el camino ya está en la caché, no es necesario actualizar
     if (buscar_en_cache(nueva_entrada->camino) != -1)
     {
@@ -962,7 +954,7 @@ void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 
     strcpy(UltimaEntradaIO[pos_UltimaEntradaIO].camino, nueva_entrada->camino);
     UltimaEntradaIO[pos_UltimaEntradaIO].p_inodo = nueva_entrada->p_inodo;
-#if DEBUG9 && USARCACHE > 1
+#if DEBUG9
     fprintf(stderr, ORANGE "mi_write() -> actulizar cache[%d] con %s\n" RESET, pos_UltimaEntradaIO, nueva_entrada->camino);
 #endif
     // Avanzar el puntero de cola circular
@@ -1008,12 +1000,12 @@ void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
  */
 int mi_cp(const char *origen, const char *destino, char tipoO, char tipoD)
 {
-    //mi_waitSem();
+    mi_waitSem();
     struct superbloque sb;
     if (bread(posSB, &sb) == FALLO)
     {
         // error sb
-        //mi_signalSem();
+        mi_signalSem();
         return FALLO;
     }
 
@@ -1038,7 +1030,7 @@ int mi_cp(const char *origen, const char *destino, char tipoO, char tipoD)
     {
         mostrar_error_buscar_entrada(r_buscar_e_origen);
         fprintf(stderr, RED "ERROR: mi_cp() -> no se ha podido buscar entrada origen\n" RESET);
-        //mi_signalSem();
+        mi_signalSem();
         return FALLO;
     }
 
@@ -1047,7 +1039,7 @@ int mi_cp(const char *origen, const char *destino, char tipoO, char tipoD)
     struct inodo inodoOrigen, inodoDestino;
     if (leer_inodo(p_inodo_origen, &inodoOrigen) == FALLO)
     {
-        //mi_signalSem();
+        mi_signalSem();
         return FALLO;
     }
 
@@ -1086,7 +1078,7 @@ int mi_cp(const char *origen, const char *destino, char tipoO, char tipoD)
         if (bread(posSB, &sb) == FALLO)
         {
             // error sb
-            //mi_signalSem();
+            mi_signalSem();
             return FALLO;
         }
         r_buscar_e_destino = buscar_entrada(destino, &sb.posInodoRaiz, &p_inodo_destino, &p_entrada_destino, 1, 6); // reservamos
@@ -1095,13 +1087,13 @@ int mi_cp(const char *origen, const char *destino, char tipoO, char tipoD)
             mostrar_error_buscar_entrada(r_buscar_e_destino);
             fprintf(stderr, RED "ERROR: mi_cp() -> no se ha podido buscar entrada destino\n" RESET);
 
-            //mi_signalSem();
+            mi_signalSem();
             return FALLO;
         }
 
         if (leer_inodo(p_inodo_destino, &inodoDestino) == FALLO)
         {
-            //mi_signalSem();
+            mi_signalSem();
             return FALLO;
         }
 
@@ -1111,7 +1103,7 @@ int mi_cp(const char *origen, const char *destino, char tipoO, char tipoD)
     {
         mi_cp_dir(inodoOrigen, p_inodo_origen, destino, sb.posInodoRaiz);
     }
-    //mi_signalSem();
+    mi_signalSem();
     return EXITO;
 }
 
@@ -1212,7 +1204,7 @@ int mi_cp_aux(const struct inodo iOrigen, const int p_iOrigen, const int p_iDest
         int bytes_leidos = mi_read_f(p_iOrigen, aux, offset, BLOCKSIZE);
         if (bytes_leidos == FALLO)
         {
-            //mi_signalSem();
+            mi_signalSem();
             return FALLO;
         }
 
@@ -1223,7 +1215,7 @@ int mi_cp_aux(const struct inodo iOrigen, const int p_iOrigen, const int p_iDest
         bloquesNoVacios++;
         if (mi_write_f(p_iDestino, aux, offset, bytes_leidos) == FALLO)
         {
-            //mi_signalSem();
+            mi_signalSem();
             return FALLO;
         }
         memset(aux, '\0', sizeof(aux));
