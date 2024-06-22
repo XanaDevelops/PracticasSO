@@ -18,10 +18,10 @@ Perelló Perelló, Biel*/
 
 
 // 0 -> NO CACHE
-// 1 -> No implenentado
+// 1 -> L/E
 // 2 -> FIFO
 // 3 -> LRU
-#define USARCACHE 1
+#define USARCACHE 3
 #if USARCACHE == 1
 #define CACHE_SIZE 1
 #else
