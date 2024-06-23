@@ -175,7 +175,8 @@ int main(int argc, char **argv)
     int bloques_reserva[] = {8, 204, 30004, 400004, 468750};
     fprintf(stdout, "\nINODO %d: TRADUCCION DE LOS BLOQUES LOGICOS 8, 204, 30004, 400004, 468750\n", inodoReservado);
     for(int i=0;i<sizeof(bloques_reserva)/sizeof(int);i++){
-        if(traducir_bloque_inodo(&inodoR, bloques_reserva[i], 1)==FALLO){
+        
+        if(traducir_bloque_inodo(inodoReservado, bloques_reserva[i], 1)==FALLO){
             fprintf(stderr, RED "ERROR: leer_sf(): no se ha podido traducir %d bloque\n" RESET, bloques_reserva[i]);
             return FALLO;
         }

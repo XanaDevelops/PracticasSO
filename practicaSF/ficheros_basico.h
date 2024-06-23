@@ -84,8 +84,8 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos);
 // Nivel 4
 int obtener_nRangoBL(struct inodo *inodo, unsigned int nblogico, unsigned int *ptr);
 int obtener_indice(unsigned int nblogico, int nivel_punteros);
-int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned char reservar);
-
+//int traducir_bloque_inodo(struct inodo *inodo, unsigned int nblogico, unsigned char reservar);
+int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, unsigned char reservar);
 // Nivel 6
 int aux1(unsigned int nblog, unsigned int ultimoBL, unsigned int (*bloques_punteros)[NPUNTEROS], int *bloque_modificado, unsigned int nivel_punteros,
          int npr, int i, int *eof, int *liberados, int *BLliberado);
