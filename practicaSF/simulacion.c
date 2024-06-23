@@ -99,10 +99,10 @@ int main(int argc, char **argv)
                 escribir.pid = getpid();
                 escribir.nRegistro = rand() % REGMAX;
                 escribir.nEscritura = j;
-                escribir.fecha = time(NULL);
-
+                //escribir.fecha = time(NULL);
+                gettimeofday(&escribir.fecha, NULL);
                 #if DEBUG12
-                //fprintf(stderr, GRAY "[hijo:%d -> escribiendo %d]\n" RESET, escribir.pid, escribir.nEscritura);
+                fprintf(stderr, GRAY "[hijo:%d -> escribiendo %d]\n" RESET, escribir.pid, escribir.nEscritura);
                 #endif
 
                 if(mi_write(rutaHijo, &escribir, escribir.nRegistro * sizeof(struct REGISTRO), sizeof(struct REGISTRO)) == FALLO){
@@ -133,6 +133,7 @@ int main(int argc, char **argv)
     {
         return FALLO;
     }
+    
 }
 
 void reaper()

@@ -2,24 +2,21 @@
 García Vázquez, Daniel
 Perelló Perelló, Biel*/
 
+#include <stddef.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <string.h>
+#include <stdio.h>
+#include <time.h>
+
 #include "verificacion.h"
 #define NREGISTROS 256
 // Mejora 2,
 
-int exitError()
-{
-    // Desmontar el disco antes de salir
-    if (bumount() == FALLO)
-    {
-        return FALLO;
-    }
-
-    return FALLO;
-}
+int exitError();
 
 int main(int argc, char **argv)
 {
-
     // comprobamos argumentos de consola
     if (argc < 3)
     {
@@ -161,43 +158,44 @@ int main(int argc, char **argv)
         memset(buffer, '\0', sizeof(buffer));
         memset(fecha_formateada, '\0', sizeof(fecha_formateada));
 
+        //todo tabulado \t
         // Concatenamos PID
-        strcat(info_escribir, "Pid: ");
+        strcat(info_escribir, "\tPid: ");
         sprintf(buffer, "%d\n", buff_info.pid);
         strcat(info_escribir, buffer);
 
         // Concatenamos Nº Escrituras
-        strcat(info_escribir, "Nº Escrituras: ");
+        strcat(info_escribir, "\tNº Escrituras: ");
         sprintf(buffer, "%u\n", buff_info.nEscrituras);
         strcat(info_escribir, buffer);
 
         // Concatenamos Primera Escritura
-        time_t tiempo = buff_info.PrimeraEscritura.fecha;
-        tiempo_descompuesto = localtime(&tiempo);
-        strcat(info_escribir, "PrimeraEscritura: ");
+        struct timeval tiempo = buff_info.PrimeraEscritura.fecha;
+        tiempo_descompuesto = localtime(&tiempo.tv_sec);
+        strcat(info_escribir, "\tPrimeraEscritura: ");
         strftime(fecha_formateada, sizeof(fecha_formateada), "%a %d-%m-%Y %H:%M:%S", tiempo_descompuesto);
-        sprintf(buffer, "%d - %d - %s\n", buff_info.PrimeraEscritura.nEscritura, buff_info.PrimeraEscritura.nRegistro, fecha_formateada);
+        sprintf(buffer, "%d - %d - %s.%06ld\n", buff_info.PrimeraEscritura.nEscritura, buff_info.PrimeraEscritura.nRegistro, fecha_formateada, buff_info.PrimeraEscritura.fecha.tv_usec);
         strcat(info_escribir, buffer);
 
         // Concatenamos Última Escritura
         tiempo = buff_info.UltimaEscritura.fecha;
-        tiempo_descompuesto = localtime(&tiempo);
-        strcat(info_escribir, "UltimaEscritura: ");
-        sprintf(buffer, "%d - %d - %s\n", buff_info.UltimaEscritura.nEscritura, buff_info.UltimaEscritura.nRegistro, fecha_formateada);
+        tiempo_descompuesto = localtime(&tiempo.tv_sec);
+        strcat(info_escribir, "\tUltimaEscritura: ");
+        sprintf(buffer, "%d - %d - %s.%06ld\n", buff_info.UltimaEscritura.nEscritura, buff_info.UltimaEscritura.nRegistro, fecha_formateada, buff_info.UltimaEscritura.fecha.tv_usec);
         strcat(info_escribir, buffer);
 
         // Concatenamos Menor Posición
         tiempo = buff_info.MenorPosicion.fecha;
-        tiempo_descompuesto = localtime(&tiempo);
-        strcat(info_escribir, "MenorPosicion:: ");
-        sprintf(buffer, "%d - %d - %s\n", buff_info.MenorPosicion.nEscritura, buff_info.MenorPosicion.nRegistro, fecha_formateada);
+        tiempo_descompuesto = localtime(&tiempo.tv_sec);
+        strcat(info_escribir, "\tMenorPosicion: ");
+        sprintf(buffer, "%d - %d - %s.%06ld\n", buff_info.MenorPosicion.nEscritura, buff_info.MenorPosicion.nRegistro, fecha_formateada, buff_info.MenorPosicion.fecha.tv_usec);
         strcat(info_escribir, buffer);
 
         // Concatenamos Mayor Posición
         tiempo = buff_info.MayorPosicion.fecha;
-        tiempo_descompuesto = localtime(&tiempo);
-        strcat(info_escribir, "MayorPosicion:: ");
-        sprintf(buffer, "%d - %d - %s\n\n", buff_info.MayorPosicion.nEscritura, buff_info.MayorPosicion.nRegistro, fecha_formateada);
+        tiempo_descompuesto = localtime(&tiempo.tv_sec);
+        strcat(info_escribir, "\tMayorPosicion: ");
+        sprintf(buffer, "%d - %d - %s.%06ld\n\n", buff_info.MayorPosicion.nEscritura, buff_info.MayorPosicion.nRegistro, fecha_formateada, buff_info.MayorPosicion.fecha.tv_usec);
         strcat(info_escribir, buffer);
 
         offset_info += mi_write(informe, &info_escribir, offset_info, (strlen(info_escribir)*sizeof(info_escribir[0])));
@@ -208,4 +206,16 @@ int main(int argc, char **argv)
     {
         return FALLO;
     }
+}
+
+
+int exitError()
+{
+    // Desmontar el disco antes de salir
+    if (bumount() == FALLO)
+    {
+        return FALLO;
+    }
+
+    return FALLO;
 }

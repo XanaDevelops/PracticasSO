@@ -20,6 +20,10 @@ static unsigned int inside_sc = 0;
 int bmount(const char *camino)
 {
     // Abrir el fichero como lectura y escritura, creándolo si no existe
+    //cambios por sim.c
+    if (descriptor > 0){
+        close(descriptor);
+    }
     descriptor = open(camino, O_RDWR | O_CREAT, 0666);
 
     // Comprobar si ha habido un error al abrir el fichero
@@ -50,7 +54,8 @@ int bmount(const char *camino)
 */
 int bumount()
 {
-    if (close(descriptor) == 0)
+    descriptor = close(descriptor);
+    if (descriptor == 0)
     {
         deleteSem(); 
         return EXITO;
