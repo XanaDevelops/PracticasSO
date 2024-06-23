@@ -4,7 +4,6 @@ Perelló Perelló, Biel*/
 
 #include "simulacion.h"
 
-
 struct INFORMACION {
   int pid;
   unsigned int nEscrituras; //validadas 

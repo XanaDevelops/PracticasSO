@@ -3,11 +3,9 @@ García Vázquez, Daniel
 Perelló Perelló, Biel*/
 
 #include "verificacion.h"
-#include <string.h>
-#include <stdio.h>
-#include <time.h>
 
 #define NREGISTROS 256
+#define TAMBUFREG sizeof(struct REGISTRO)*REGMAX
 // Mejora 2,
 
 int exitError()
@@ -24,24 +22,25 @@ int exitError()
 int main(int argc, char **argv)
 {
     // comprobamos argumentos de consola
-    if (argc < 3)
+    if (argc != 3)
     {
-        fprintf(stderr, RED "ARGUMENTOS INSUFICIENTES--> Sintaxis:  verificacion <nombre_dispositivo> <directorio_simulación>\n" RESET);
+        fprintf(stderr, RED "ARGUMENTOS invalidos--> Sintaxis:  verificacion <nombre_dispositivo> <directorio_simulación>\n" RESET);
         return FALLO;
     }
-
+    
     // montamos disco
     if (bmount(argv[1]) == FALLO)
     {
         return FALLO;
     }
-
+    
     // Calcular el nº de entradas del directorio de simulación a partir del stat de su inodo.
     struct STAT s_stat;
     if (mi_stat(argv[2], &s_stat) == FALLO)
     {
         return exitError();
     }
+    
 #if DEBUG13
     fprintf(stderr, "[dir_sim: %s]\n" RESET, argv[2]);
 #endif
@@ -56,7 +55,7 @@ int main(int argc, char **argv)
 #if DEBUG13
     fprintf(stderr, "[numentradas: %d NUMPROCESOS: %d]\n" RESET, numentradas, NUMPROCESOS);
 #endif
-
+    
     // Crear el fichero "informe.txt" dentro del directorio de simulación.
     char informe[100];
     strcpy(informe, argv[2]);
@@ -65,17 +64,21 @@ int main(int argc, char **argv)
     {
         return exitError();
     }
-
+    
     // Leer los directorios correspondientes a los procesos.
     struct entrada buff_entradas[numentradas];
     if (mi_read(argv[2], buff_entradas, 0, sizeof(buff_entradas)) == FALLO)
     {
         return exitError();
     }
-
+    
     int offset_info = 0;
-    struct REGISTRO buff_reg[REGMAX];
-    memset(buff_reg, '\0', sizeof(buff_reg));
+    struct REGISTRO *buff_reg = calloc(REGMAX, sizeof(struct REGISTRO));
+    //memset(buff_reg, '\0', TAMBUFREG); //calloc = malloc + memset a 0
+    if(buff_reg==NULL){
+        fprintf(stderr, RED "ERROR: verificacion.c -> no se ha podido reservar ram para buff_reg\n" RESET);
+        return exitError();
+    }
 
     for (int i = 0; i < numentradas; i++)
     {
@@ -91,6 +94,7 @@ int main(int argc, char **argv)
         {
             // Manejar el caso en que no se encuentre el caracter '_'
             buff_info.pid = FALLO;
+            free(buff_reg);
             return exitError();
         }
 
@@ -104,7 +108,7 @@ int main(int argc, char **argv)
         struct REGISTRO ultimo;
         int escriturasLeidas = 0;
         int leidosT = 0;
-        int leidos = mi_read(prueba, buff_reg, leidosT, sizeof(buff_reg));
+        int leidos = mi_read(prueba, buff_reg, leidosT, TAMBUFREG);
         leidosT += leidos;
 
         while (leidos > 0)
@@ -143,8 +147,8 @@ int main(int argc, char **argv)
                 }
             }
 
-            memset(buff_reg, '\0', sizeof(buff_reg));
-            leidos = mi_read(informe, buff_reg, leidosT, sizeof(buff_reg));
+            memset(buff_reg, '\0', TAMBUFREG);
+            leidos = mi_read(informe, buff_reg, leidosT, TAMBUFREG);
             leidosT += leidos;
         }
 #if DEBUG13
@@ -207,11 +211,17 @@ int main(int argc, char **argv)
         offset_info += mi_write(informe, &info_escribir, offset_info, (strlen(info_escribir)*sizeof(info_escribir[0])));
     }
 
+    free(buff_reg);
+
     // Desmontar disco
     if (bumount() == FALLO)
     {
         return FALLO;
     }
+
+    
+
+   return EXITO;
 }
 
 
