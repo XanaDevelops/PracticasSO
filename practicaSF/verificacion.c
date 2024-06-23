@@ -2,18 +2,24 @@
 García Vázquez, Daniel
 Perelló Perelló, Biel*/
 
-#include <stddef.h>
-#include <sys/wait.h>
-#include <signal.h>
+#include "verificacion.h"
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
 
-#include "verificacion.h"
 #define NREGISTROS 256
 // Mejora 2,
 
-int exitError();
+int exitError()
+{
+    // Desmontar el disco antes de salir
+    if (bumount() == FALLO)
+    {
+        return FALLO;
+    }
+
+    return FALLO;
+}
 
 int main(int argc, char **argv)
 {
@@ -209,13 +215,3 @@ int main(int argc, char **argv)
 }
 
 
-int exitError()
-{
-    // Desmontar el disco antes de salir
-    if (bumount() == FALLO)
-    {
-        return FALLO;
-    }
-
-    return FALLO;
-}

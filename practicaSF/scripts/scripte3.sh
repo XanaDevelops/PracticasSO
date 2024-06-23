@@ -20,7 +20,7 @@ sim_dir="simul_"$current_date #simul_aaaammddhhmmss
 #Lanzamos verificación
 echo -e "\x1B[38;2;17;245;120m######################################################################\x1b[0m"
 echo -e "\x1B[38;2;17;245;120m$ time ./verificacion disco /$sim_dir/\x1b[0m"
-./verificacion disco /$sim_dir/
+gdb --args ./verificacion disco /$sim_dir/
 
 #Redireccionamos el informe a res.txt
 echo -e "\x1B[38;2;17;245;120m######################################################################\x1b[0m"

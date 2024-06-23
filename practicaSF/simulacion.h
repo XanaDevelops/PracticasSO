@@ -5,8 +5,8 @@ Perelló Perelló, Biel*/
 #include "directorios.h"
 
 #define REGMAX 500000
-#define NUMPROCESOS 3 //100
-#define NUMESCRITURAS 10 //50
+#define NUMPROCESOS 100 //100
+#define NUMESCRITURAS 50 //50
 
 struct REGISTRO { //sizeof(struct REGISTRO): 24 bytes
    struct timeval fecha; //Precisión segundos [opcionalmente microsegundos con struct timeval]
