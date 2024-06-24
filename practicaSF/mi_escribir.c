@@ -46,8 +46,8 @@ int main(int argc, char **argv)
     int n_espacios = n_palabras - 1;
     longitud_texto += n_espacios;
 
-    char buffer_original[longitud_texto];
-    strcpy(buffer_original, argv[3]);
+    char buffer_original[longitud_texto+1];
+    strcpy(buffer_original, argv[3]); 
     for (int i = 1; i < n_palabras; i++)
     {
         strcat(buffer_original, " ");

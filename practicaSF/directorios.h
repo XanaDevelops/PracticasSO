@@ -68,6 +68,8 @@ int mi_cp(const char *origen, const char *destino, char tipoO, char tipoD);
 int mi_cp_aux(const struct inodo iOrigen, const int p_iOrigen, const int p_iDestino);
 int mi_cp_dir(const struct inodo inodoOrigen, const int p_inodo_origen, const char *ruta_destino, unsigned int posInicialAI);
 
+int mi_rn(const char *ruta_antigua, const char *nuevo_nombre, const char tipo);
+
 // auxiliar
 int buscar_en_cache(const char *camino);
 void actualizar_cache(const struct UltimaEntrada *nueva_entrada);
