@@ -14,7 +14,19 @@ Perelló Perelló, Biel*/
 #define FALLO -1
 #define EXITO 0
 
+#define USAR_MYSLEEP 0
+
+#if USAR_MYSLEEP == 1
+#define MULT 1
+#else
+#define MULT 1000
+#endif
+// con usleep
+#define ESPERA_PADRE 150 * MULT
+#define ESPERA_HIJO 50 * MULT
+
 void reaper();
+void my_sleep();
 
 int acabados;
 
@@ -44,13 +56,14 @@ int main(int argc, char **argv)
     time_t timeAct = time(NULL);
     tm = localtime(&timeAct);
 
-    char nombreCarpeta[128]; //tamaño '/simul_aaaammddhhmmss/'
+    char nombreCarpeta[128]; // tamaño '/simul_aaaammddhhmmss/'
     memset(nombreCarpeta, '\0', sizeof(nombreCarpeta));
 
     sprintf(nombreCarpeta, "/simul_%d%02d%02d%02d%02d%02d/",
             tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
-    
-    if(mi_creat(nombreCarpeta, 0b110)==FALLO){
+
+    if (mi_creat(nombreCarpeta, 0b110) == FALLO)
+    {
         return FALLO;
     }
 
@@ -68,24 +81,26 @@ int main(int argc, char **argv)
                 fprintf(stderr, RED "simulacion() -> ERROR montar hijo\n" RESET);
                 exit(FALLO);
             }
-            //crear directorio hijo
+            // crear directorio hijo
             char rutaHijo[256];
             memset(rutaHijo, '\0', sizeof(rutaHijo));
 
             sprintf(rutaHijo, "%sproceso_PID%d/", nombreCarpeta, getpid());
-            
-            if(mi_creat(rutaHijo, 0b110)==FALLO){
+
+            if (mi_creat(rutaHijo, 0b110) == FALLO)
+            {
                 fprintf(stderr, RED "ERROR: hijo:%d no ha podido crear carpeta %s\n" RESET, getpid(), rutaHijo);
                 bumount();
                 exit(FALLO);
             }
 
-            #if DEBUG12
-                fprintf(stderr, GRAY "[hijo:%d -> carpeta creada %s]\n" RESET, getpid(), rutaHijo);
-            #endif
+#if DEBUG12
+            fprintf(stderr, GRAY "[hijo:%d -> carpeta creada %s]\n" RESET, getpid(), rutaHijo);
+#endif
 
             strcat(rutaHijo, "prueba.dat");
-            if(mi_creat(rutaHijo, 0b110)==FALLO){
+            if (mi_creat(rutaHijo, 0b110) == FALLO)
+            {
                 fprintf(stderr, RED "ERROR: hijo:%d no ha podido crear archivo %s\n" RESET, getpid(), rutaHijo);
                 bumount();
                 exit(FALLO);
@@ -99,41 +114,63 @@ int main(int argc, char **argv)
                 escribir.pid = getpid();
                 escribir.nRegistro = rand() % REGMAX;
                 escribir.nEscritura = j;
-                //escribir.fecha = time(NULL);
+                // escribir.fecha = time(NULL);
                 gettimeofday(&escribir.fecha, NULL);
-                #if DEBUG12
+#if DEBUG12
                 fprintf(stderr, GRAY "[hijo:%d -> escribiendo %d]\n" RESET, escribir.pid, escribir.nEscritura);
-                #endif
+#endif
 
-                if(mi_write(rutaHijo, &escribir, escribir.nRegistro * sizeof(struct REGISTRO), sizeof(struct REGISTRO)) == FALLO){
+                if (mi_write(rutaHijo, &escribir, escribir.nRegistro * sizeof(struct REGISTRO), sizeof(struct REGISTRO)) == FALLO)
+                {
                     fprintf(stderr, RED "ERROR hijo:%d -> no se ha podido escribir registro:%d con nEscr: %d\n" RESET,
-                    getpid(), escribir.nRegistro, escribir.nEscritura);
+                            getpid(), escribir.nRegistro, escribir.nEscritura);
                     bumount();
                     exit(FALLO);
                 }
                 escrituras++;
-                usleep(50000);
+#if USAR_MYSLEEP == 0
+                usleep(ESPERA_HIJO);
+#else
+                my_sleep(ESPERA_HIJO);
+#endif
 
+                #if DEBUG13
+                if(j==NUMESCRITURAS){
+                    char aux[128];
+                    strftime(aux, sizeof(aux), "%H:%M:%S", localtime(&escribir.fecha.tv_sec));
+                    fprintf(stderr, GRAY "ultima escritura en :%s.%06ld\n" RESET, aux, escribir.fecha.tv_usec);
+                }
+                #endif
             }
-            fprintf(stderr, GRAY "[Proceso %d: Completadas %d escrituras en %s]\n" RESET, i, escrituras, rutaHijo);
+            fprintf(stdout, GRAY "[Proceso %d: Completadas %d escrituras en %s]\n" RESET, i, escrituras, rutaHijo);
 
             exit(bumount());
-
-        }else{
-            #if DEBUG12
-            fprintf(stderr, GRAY "[main() -> creado hijo %d]\n" RESET, pid);
-            #endif
-            usleep(150000);
         }
-        
-
+        else
+        {
+#if DEBUG12
+            fprintf(stderr, GRAY "[main() -> creado hijo %d]\n" RESET, pid);
+#endif
+#if USAR_MYSLEEP == 0
+            usleep(ESPERA_PADRE);
+#else
+            my_sleep(ESPERA_PADRE);
+#endif
+        }
     }
+
+    while (acabados < NUMPROCESOS)
+    {
+        pause();
+    }
+
     // Desmontar disco
     if (bumount() == FALLO)
     {
         return FALLO;
     }
-    
+
+    return EXITO;
 }
 
 void reaper()
@@ -143,5 +180,27 @@ void reaper()
     while ((ended = waitpid(-1, NULL, WNOHANG)) > 0)
     {
         acabados++;
+    }
+}
+
+void my_sleep(unsigned msec)
+{ // recibe tiempo en milisegundos
+    struct timespec req, rem;
+    int err;
+    req.tv_sec = msec / 1000;              // conversión a segundos
+    req.tv_nsec = (msec % 1000) * 1000000; // conversión a nanosegundos
+    while ((req.tv_sec != 0) || (req.tv_nsec != 0))
+    {
+        if (nanosleep(&req, &rem) == 0)
+            // rem almacena el tiempo restante si una llamada al sistema
+            // ha sido interrumpida por una señal
+            break;
+        err = errno;
+        // Interrupted; continue
+        if (err == EINTR)
+        {
+            req.tv_sec = rem.tv_sec;
+            req.tv_nsec = rem.tv_nsec;
+        }
     }
 }

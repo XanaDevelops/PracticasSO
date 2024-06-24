@@ -585,7 +585,7 @@ int mi_stat(const char *camino, struct STAT *p_stat)
     // Llamada a mi_stat_f de la capa de ficheros, pasandole el p_inodo
     mi_stat_f(p_inodo, p_stat);
 
-#ifdef DEBUG8
+#if DEBUG8
     // Mostrar el número de inodo
     fprintf(stdout, BLUE "Nº de inodo: %d \n" RESET, p_inodo);
 #endif

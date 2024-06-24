@@ -5,7 +5,7 @@ Perelló Perelló, Biel*/
 #include "verificacion.h"
 
 #define NREGISTROS 256
-#define TAMBUFREG sizeof(struct REGISTRO)*REGMAX
+#define TAMBUFREG sizeof(struct REGISTRO) * REGMAX
 // Mejora 2,
 
 int exitError()
@@ -27,20 +27,20 @@ int main(int argc, char **argv)
         fprintf(stderr, RED "ARGUMENTOS invalidos--> Sintaxis:  verificacion <nombre_dispositivo> <directorio_simulación>\n" RESET);
         return FALLO;
     }
-    
+
     // montamos disco
     if (bmount(argv[1]) == FALLO)
     {
         return FALLO;
     }
-    
+
     // Calcular el nº de entradas del directorio de simulación a partir del stat de su inodo.
     struct STAT s_stat;
     if (mi_stat(argv[2], &s_stat) == FALLO)
     {
         return exitError();
     }
-    
+
 #if DEBUG13
     fprintf(stderr, "[dir_sim: %s]\n" RESET, argv[2]);
 #endif
@@ -49,13 +49,14 @@ int main(int argc, char **argv)
 
     if (numentradas != NUMPROCESOS)
     {
+        fprintf(stderr, RED "ERROR: verificacion.c -> numentradas != NUMPROCESOS, %d != %d\n" RESET, numentradas, NUMPROCESOS);
         return exitError();
     }
 
 #if DEBUG13
     fprintf(stderr, "[numentradas: %d NUMPROCESOS: %d]\n" RESET, numentradas, NUMPROCESOS);
 #endif
-    
+
     // Crear el fichero "informe.txt" dentro del directorio de simulación.
     char informe[100];
     strcpy(informe, argv[2]);
@@ -64,36 +65,37 @@ int main(int argc, char **argv)
     {
         return exitError();
     }
-    
+
     // Leer los directorios correspondientes a los procesos.
     struct entrada buff_entradas[numentradas];
     if (mi_read(argv[2], buff_entradas, 0, sizeof(buff_entradas)) == FALLO)
     {
         return exitError();
     }
-    
+
     int offset_info = 0;
     struct REGISTRO *buff_reg = calloc(REGMAX, sizeof(struct REGISTRO));
-    //memset(buff_reg, '\0', TAMBUFREG); //calloc = malloc + memset a 0
-    if(buff_reg==NULL){
+    // memset(buff_reg, '\0', TAMBUFREG); //calloc = malloc + memset a 0
+    if (buff_reg == NULL)
+    {
         fprintf(stderr, RED "ERROR: verificacion.c -> no se ha podido reservar ram para buff_reg\n" RESET);
         return exitError();
     }
 
     for (int i = 0; i < numentradas; i++)
     {
-        struct INFORMACION buff_info;
+        struct INFORMACION info;
 
         char *inici = strchr(buff_entradas[i].nombre, 'D');
 
         if (inici)
         {
-            buff_info.pid = atoi(inici + 1);
+            info.pid = atoi(inici + 1);
         }
         else
         {
             // Manejar el caso en que no se encuentre el caracter '_'
-            buff_info.pid = FALLO;
+            info.pid = FALLO;
             free(buff_reg);
             return exitError();
         }
@@ -118,27 +120,27 @@ int main(int argc, char **argv)
             for (int j = 0; j < ultimoreg; j++)
             {
 #if DEBUG13
-// fprintf(stderr, GRAY "[verificacion() -> comprobando %d respecto %d]\n" RESET, buff_reg[j].pid, buff_info.pid);
+// fprintf(stderr, GRAY "[verificacion() -> comprobando %d respecto %d]\n" RESET, buff_reg[j].pid, info.pid);
 #endif
-                if (buff_reg[j].pid == buff_info.pid)
+                if (buff_reg[j].pid == info.pid)
                 {
                     if (escriturasLeidas == 0)
                     {
                         // Inicializar los registros significativos con los datos de esa escritura.
-                        buff_info.MenorPosicion = buff_reg[j];
-                        buff_info.PrimeraEscritura = buff_reg[j];
-                        buff_info.UltimaEscritura = buff_reg[j];
+                        info.MenorPosicion = buff_reg[j];
+                        info.PrimeraEscritura = buff_reg[j];
+                        info.UltimaEscritura = buff_reg[j];
                     }
                     else
                     {
                         // Comparar nº de escritura (para obtener primera y última) y actualizarlas si es preciso
-                        if (buff_reg[j].nEscritura < buff_info.PrimeraEscritura.nEscritura)
+                        if (buff_reg[j].nEscritura < info.PrimeraEscritura.nEscritura)
                         {
-                            buff_info.PrimeraEscritura = buff_reg[j];
+                            info.PrimeraEscritura = buff_reg[j];
                         }
-                        if (buff_reg[j].nEscritura > buff_info.UltimaEscritura.nEscritura)
+                        if (buff_reg[j].nEscritura > info.UltimaEscritura.nEscritura)
                         {
-                            buff_info.UltimaEscritura = buff_reg[j];
+                            info.UltimaEscritura = buff_reg[j];
                         }
                     }
                     // Incrementar contador escrituras validadas.
@@ -151,12 +153,12 @@ int main(int argc, char **argv)
             leidos = mi_read(informe, buff_reg, leidosT, TAMBUFREG);
             leidosT += leidos;
         }
-#if DEBUG13
-        fprintf(stderr, GRAY "[%d) %d escrituras validadas en %s]\n" RESET, i, escriturasLeidas, prueba);
-#endif
+
+        fprintf(stdout, GRAY "[%d) %d escrituras validadas en %s]\n" RESET, i, escriturasLeidas, prueba);
+
         // Obtener la escritura de la última posición.
-        buff_info.MayorPosicion = ultimo;
-        buff_info.nEscrituras = escriturasLeidas;
+        info.MayorPosicion = ultimo;
+        info.nEscrituras = escriturasLeidas;
 
         char info_escribir[500]; // Incrementamos el tamaño del buffer para evitar desbordamiento
         char buffer[100];        // Buffer temporal para conversiones
@@ -168,47 +170,54 @@ int main(int argc, char **argv)
         memset(buffer, '\0', sizeof(buffer));
         memset(fecha_formateada, '\0', sizeof(fecha_formateada));
 
-        //todo tabulado \t
-        // Concatenamos PID
+        // todo tabulado \t
+        //  Concatenamos PID
         strcat(info_escribir, "\tPid: ");
-        sprintf(buffer, "%d\n", buff_info.pid);
+        sprintf(buffer, "%d\n", info.pid);
         strcat(info_escribir, buffer);
 
         // Concatenamos Nº Escrituras
         strcat(info_escribir, "\tNº Escrituras: ");
-        sprintf(buffer, "%u\n", buff_info.nEscrituras);
+        sprintf(buffer, "%u\n", info.nEscrituras);
         strcat(info_escribir, buffer);
 
         // Concatenamos Primera Escritura
-        struct timeval tiempo = buff_info.PrimeraEscritura.fecha;
+        struct timeval tiempo = info.PrimeraEscritura.fecha;
         tiempo_descompuesto = localtime(&tiempo.tv_sec);
         strcat(info_escribir, "\tPrimeraEscritura: ");
         strftime(fecha_formateada, sizeof(fecha_formateada), "%a %d-%m-%Y %H:%M:%S", tiempo_descompuesto);
-        sprintf(buffer, "%d - %d - %s.%06ld\n", buff_info.PrimeraEscritura.nEscritura, buff_info.PrimeraEscritura.nRegistro, fecha_formateada, buff_info.PrimeraEscritura.fecha.tv_usec);
+        sprintf(buffer, "%d - %d - %s.%06ld\n", info.PrimeraEscritura.nEscritura, info.PrimeraEscritura.nRegistro, fecha_formateada, info.PrimeraEscritura.fecha.tv_usec);
         strcat(info_escribir, buffer);
 
         // Concatenamos Última Escritura
-        tiempo = buff_info.UltimaEscritura.fecha;
+        tiempo = info.UltimaEscritura.fecha;
         tiempo_descompuesto = localtime(&tiempo.tv_sec);
         strcat(info_escribir, "\tUltimaEscritura: ");
-        sprintf(buffer, "%d - %d - %s.%06ld\n", buff_info.UltimaEscritura.nEscritura, buff_info.UltimaEscritura.nRegistro, fecha_formateada, buff_info.UltimaEscritura.fecha.tv_usec);
+        //faltaba copiar esta mald... bendita linea :D
+        strftime(fecha_formateada, sizeof(fecha_formateada), "%a %d-%m-%Y %H:%M:%S", tiempo_descompuesto);
+        //no se si con los cambios en las secciones criticas realmente se ejecutaba rapido, pero mostraba siempre el tiempo inicial
+        sprintf(buffer, "%d - %d - %s.%06ld\n", info.UltimaEscritura.nEscritura, info.UltimaEscritura.nRegistro, fecha_formateada, info.UltimaEscritura.fecha.tv_usec);
         strcat(info_escribir, buffer);
 
         // Concatenamos Menor Posición
-        tiempo = buff_info.MenorPosicion.fecha;
+        tiempo = info.MenorPosicion.fecha;
         tiempo_descompuesto = localtime(&tiempo.tv_sec);
         strcat(info_escribir, "\tMenorPosicion: ");
-        sprintf(buffer, "%d - %d - %s.%06ld\n", buff_info.MenorPosicion.nEscritura, buff_info.MenorPosicion.nRegistro, fecha_formateada, buff_info.MenorPosicion.fecha.tv_usec);
+        strftime(fecha_formateada, sizeof(fecha_formateada), "%a %d-%m-%Y %H:%M:%S", tiempo_descompuesto);
+
+        sprintf(buffer, "%d - %d - %s.%06ld\n", info.MenorPosicion.nEscritura, info.MenorPosicion.nRegistro, fecha_formateada, info.MenorPosicion.fecha.tv_usec);
         strcat(info_escribir, buffer);
 
         // Concatenamos Mayor Posición
-        tiempo = buff_info.MayorPosicion.fecha;
+        tiempo = info.MayorPosicion.fecha;
         tiempo_descompuesto = localtime(&tiempo.tv_sec);
         strcat(info_escribir, "\tMayorPosicion: ");
-        sprintf(buffer, "%d - %d - %s.%06ld\n\n", buff_info.MayorPosicion.nEscritura, buff_info.MayorPosicion.nRegistro, fecha_formateada, buff_info.MayorPosicion.fecha.tv_usec);
+        strftime(fecha_formateada, sizeof(fecha_formateada), "%a %d-%m-%Y %H:%M:%S", tiempo_descompuesto);
+
+        sprintf(buffer, "%d - %d - %s.%06ld\n\n", info.MayorPosicion.nEscritura, info.MayorPosicion.nRegistro, fecha_formateada, info.MayorPosicion.fecha.tv_usec);
         strcat(info_escribir, buffer);
 
-        offset_info += mi_write(informe, &info_escribir, offset_info, (strlen(info_escribir)*sizeof(info_escribir[0])));
+        offset_info += mi_write(informe, &info_escribir, offset_info, (strlen(info_escribir) * sizeof(info_escribir[0])));
     }
 
     free(buff_reg);
@@ -219,9 +228,5 @@ int main(int argc, char **argv)
         return FALLO;
     }
 
-    
-
-   return EXITO;
+    return EXITO;
 }
-
-
