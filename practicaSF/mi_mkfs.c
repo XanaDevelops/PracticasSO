@@ -30,6 +30,14 @@ int main(int argc, char **argv)
         return FALLO;
     }
 
+    //preparar DV para mmap
+    unsigned int finDV = atoi(*(argv+2))*BLOCKSIZE-1;
+
+    FILE *fp = fopen(*(argv+1), "w");
+    fseek(fp, finDV, SEEK_SET);
+    fputc('\0', fp);
+    fclose(fp);
+
     // montamos disco
     if (bmount(*(argv + 1)) == FALLO)
     {

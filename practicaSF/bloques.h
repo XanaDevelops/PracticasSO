@@ -11,6 +11,7 @@ Perelló Perelló, Biel*/
 #include <unistd.h> // SEEK_SET, read(), write(), open(), close(), lseek()
 #include <errno.h>  //errno
 #include <string.h> // strerror()
+#include <sys/mman.h> //mmap
 
 #define BLOCKSIZE 1024 // bytes
 
@@ -50,9 +51,6 @@ Perelló Perelló, Biel*/
 #define DEBUG13 0
 #define DEBUGEXTRA 1
 
-//BORRAR
-void enablepd();
-void disablepd();
 
 int bmount(const char *camino);
 int bumount();
@@ -62,3 +60,6 @@ int bread(unsigned int nbloque, void *buf);
 // Nivel 11 Semáforos
 void mi_waitSem();
 void mi_signalSem();
+
+//mmap
+void *do_mmap(int fd);
