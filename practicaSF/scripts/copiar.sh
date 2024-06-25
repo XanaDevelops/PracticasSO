@@ -19,8 +19,6 @@ echo -e "\x1B[38;2;17;245;120m$ ./mi_cat disco /dir1/dir12/fic121\x1b[0m"
 echo -e "\x1B[38;2;17;245;120m$ ./mi_cat disco /dir3/fic121\x1b[0m"
 ./mi_cat disco /dir3/fic121
 
-exit 0
-sleep 0.1
 echo -e "\x1B[38;2;17;245;120m######################################################################\x1b[0m"
 echo -e "\x1B[38;2;17;245;120m$ #Copia de un directorio en otro\x1b[0m"
 echo -e "\x1B[38;2;17;245;120m$ ./mi_cp disco /dir2/ /dir3/dir32/\x1b[0m"

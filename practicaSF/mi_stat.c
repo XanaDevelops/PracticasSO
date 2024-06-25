@@ -27,10 +27,12 @@ int main(int argc, char **argv)
     struct STAT p_stat;
 
     // Llamada a mi_stat de la capa de directorios
-    if(mi_stat(*(argv + 2), &p_stat)==FALLO){
+    int p_inodo = mi_stat(*(argv + 2), &p_stat);
+    if(p_inodo==FALLO){
         bumount();
         return FALLO;
     }
+    fprintf(stdout, BLUE "Nº inodo: %d\n" RESET, p_inodo);
     imprimir_stat(&p_stat);
 
     // desmontamos disco

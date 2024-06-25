@@ -6,20 +6,20 @@ Perelló Perelló, Biel*/
 
 int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offset, unsigned int nbytes)
 {
-    //mi_waitSem();
-    // LECTURA INODO
+    // mi_waitSem();
+    //  LECTURA INODO
     struct inodo inodo;
     if (leer_inodo(ninodo, &inodo) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_write_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
-        //mi_signalSem();
+        // mi_signalSem();
         return FALLO;
     }
 
     if ((inodo.permisos & 2) != 2)
     {
         fprintf(stderr, RED "ERROR: mi_write_f(): No hay permisos de escritura\n" RESET);
-        //mi_signalSem();
+        // mi_signalSem();
         return FALLO;
     }
 
@@ -42,6 +42,9 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         memcpy(buf_bloque + desp1, buf_original, nbytes);
         bwrite(nbfisico, buf_bloque);
         bytesescritos = desp2 - desp1 + 1;
+#if DEBUGEXTRA
+        PRINT_DGB("mi_write_f() -> escritura en %d", ninodo);
+#endif
     }
     else
     {
@@ -54,6 +57,10 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         bwrite(nbfisico, buf_bloque);
         bytesescritos += BLOCKSIZE - desp1;
 
+#if DEBUGEXTRA
+        PRINT_DGB("mi_write_f() -> escritura en %d", ninodo);
+#endif
+
         // BLOQUES INTERMEDIOS
         while (bl < ultimoBL)
         {
@@ -61,6 +68,9 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
             int bytes = bwrite(nbfisico, buf_original + (BLOCKSIZE - desp1) + (bl - primerBL - 1) * BLOCKSIZE);
             bytesescritos += bytes;
             bl++;
+#if DEBUGEXTRA
+            PRINT_DGB("mi_write_f() -> escritura en %d", ninodo);
+#endif
         }
 
         // ÚLTIMO BLOQUE LÓGICO
@@ -69,12 +79,15 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         memcpy(buf_bloque, buf_original + (nbytes - (desp2 + 1)), desp2 + 1);
         bwrite(nbfisico, buf_bloque);
         bytesescritos += desp2 + 1;
+#if DEBUGEXTRA
+        PRINT_DGB("mi_write_f() -> escritura en %d", ninodo);
+#endif
     }
 
     // ACTUALIZAR METAINFORMACIÓN INODO SECCION CRITICA
     // Actualizar mtime
     mi_waitSem();
-    if (leer_inodo(ninodo, &inodo) == FALLO) //volver leer concurrencia
+    if (leer_inodo(ninodo, &inodo) == FALLO) // volver leer concurrencia
     {
         fprintf(stderr, RED "ERROR: mi_read_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
         mi_signalSem();
@@ -88,7 +101,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         // Actualizar ctime
         inodo.ctime = time(NULL);
     }
-    
+
     // Salvar inodo
     if (escribir_inodo(ninodo, &inodo) == FALLO)
     {
@@ -97,7 +110,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offse
         return FALLO;
     }
     mi_signalSem();
-    //FIN SECCION CRITICA
+    // FIN SECCION CRITICA
 
     return bytesescritos;
 }
@@ -110,14 +123,14 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
     if (leer_inodo(ninodo, &inodo) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_read_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
-        //mi_signalSem();
+        // mi_signalSem();
         return FALLO;
     }
 
     if ((inodo.permisos & 4) != 4)
     {
         fprintf(stderr, RED "No hay permisos de lectura\n" RESET);
-        //mi_signalSem();
+        // mi_signalSem();
         return FALLO;
     }
     // Actualizar atime
@@ -127,12 +140,12 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
     if (escribir_inodo(ninodo, &inodo) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_read_f(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
-        //mi_signalSem();
+        // mi_signalSem();
         return FALLO;
     }
 
     mi_signalSem();
-    //FIN SECCION CRITICA
+    // FIN SECCION CRITICA
 
     // DECLARAR VARIABLES
     int primerBL, ultimoBL, desp1, desp2, nbfisico;
@@ -210,9 +223,8 @@ int mi_read_f(unsigned int ninodo, void *buf_original, unsigned int offset, unsi
         }
         bytesleidos += desp2 + 1;
     }
-    
 
-    //mi_signalSem();
+    // mi_signalSem();
     return bytesleidos;
 }
 
@@ -248,7 +260,7 @@ int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
     if (leer_inodo(ninodo, &inodo) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_chmod_f(): No se ha podido leer el inodo %d \n" RESET, ninodo);
-        //mi_signalSem();
+        // mi_signalSem();
         return FALLO;
     }
 
@@ -260,7 +272,7 @@ int mi_chmod_f(unsigned int ninodo, unsigned char permisos)
     if (escribir_inodo(ninodo, &inodo) == FALLO)
     {
         fprintf(stderr, RED "ERROR: mi_chmod_f(): No se ha podido escribir el inodo %d \n" RESET, ninodo);
-        //mi_signalSem();
+        // mi_signalSem();
         return FALLO;
     }
 

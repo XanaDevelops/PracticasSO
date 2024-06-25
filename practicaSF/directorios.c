@@ -557,7 +557,7 @@ int mi_chmod(const char *camino, unsigned char permisos)
 /**
  * Muestra la información acerca del inodo de un fichero o directorio
  *
- * return: ÉXITO o FALLO
+ * return: p_inodo o FALLO
  */
 int mi_stat(const char *camino, struct STAT *p_stat)
 {
@@ -590,7 +590,7 @@ int mi_stat(const char *camino, struct STAT *p_stat)
     fprintf(stdout, BLUE "Nº de inodo: %d \n" RESET, p_inodo);
 #endif
 
-    return EXITO;
+    return p_inodo;
 }
 
 //************************* Escritura en un offset de un fichero***************************************
@@ -1000,199 +1000,149 @@ void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
  */
 int mi_cp(const char *origen, const char *destino, char tipoO, char tipoD)
 {
-    mi_waitSem();
-    struct superbloque sb;
-    if (bread(posSB, &sb) == FALLO)
-    {
-        // error sb
-        mi_signalSem();
-        return FALLO;
-    }
+
+    CREAR_LEER_SB("mi_cp()");
 
     unsigned int p_inodo_origen = 0, p_entrada_origen = 0,
                  p_inodo_destino = 0, p_entrada_destino = 0;
     int r_buscar_e_origen, r_buscar_e_destino;
 
-    r_buscar_e_origen = buscar_en_cache(origen);
-    if (r_buscar_e_origen < 0)
-    {                                                                                                           // actualizar cache
-        r_buscar_e_origen = buscar_entrada(origen, &sb.posInodoRaiz, &p_inodo_origen, &p_entrada_origen, 0, 4); // permisos lectura
-        struct UltimaEntrada entrada;
-        strncpy(entrada.camino, origen, sizeof(entrada.camino) - 1);
-        entrada.camino[sizeof(entrada.camino) - 1] = '\0';
-        entrada.p_inodo = p_inodo_origen;
-#if DEBUG9
-        fprintf(stderr, ORANGE "[mi_read() -> Actualizamos la caché de lectura]\n" RESET);
-#endif
-        actualizar_cache(&entrada);
-    }
+    unsigned int posInodoR = sb.posInodoRaiz;
+
+    // comprobamos existencia origen
+    r_buscar_e_origen = buscar_entrada(origen, &posInodoR, &p_inodo_origen, &p_entrada_origen, 0, 6);
     if (r_buscar_e_origen != EXITO)
     {
         mostrar_error_buscar_entrada(r_buscar_e_origen);
-        fprintf(stderr, RED "ERROR: mi_cp() -> no se ha podido buscar entrada origen\n" RESET);
-        mi_signalSem();
         return FALLO;
     }
 
-    // tenemos origen, si es fichero, destino puede ser fichero, crear en esa ruta, o directorio, crear dentro de ese directorio
-
-    struct inodo inodoOrigen, inodoDestino;
-    if (leer_inodo(p_inodo_origen, &inodoOrigen) == FALLO)
+    // comprobamos tipo inodo
+    struct inodo inodo_origen;
+    if (leer_inodo(p_inodo_origen, &inodo_origen) == FALLO)
     {
-        mi_signalSem();
         return FALLO;
     }
+    if (tipoO != inodo_origen.tipo)
+    {
+        PRINT_ERR("tipo inodo_origen diferente");
+        return FALLO;
+    }
+
+    // obtener nueva ruta
+    char nueva_ruta[strlen(origen) + strlen(destino) + 1];
+    memcpy(nueva_ruta, destino, strlen(destino) + 1);
+
+    char copia_origen[strlen(origen) + 1];
+    memcpy(copia_origen, origen, strlen(origen) + 1);
+    char *last = NULL;
+    char *tok = strtok(copia_origen, "/");
+    while (tok != NULL)
+    {
+        last = tok;
+        tok = strtok(NULL, "/");
+    }
+    strcat(nueva_ruta, last);
+    if (tipoO == 'd')
+    {
+        strcat(nueva_ruta, "/");
+    }
+
+#if DEBUGEXTRA
+    PRINT_DGB("nueva ruta: %s", nueva_ruta);
+#endif
 
     if (tipoO == 'f')
     {
-        char nuevoDestino[strlen(origen) + strlen(destino)];
-        if (tipoD == 'd')
-        {
-#if DEBUGEXTRA
-            fprintf(stderr, GRAY "[mi_cp(): f-> d]\n" RESET);
-#endif
-            // copiar nombre a la carpeta, luego f->f
-            char copia[strlen(origen)];
-
-            memset(nuevoDestino, '\0', sizeof(nuevoDestino));
-            memset(copia, '\0', sizeof(copia));
-            strcpy(copia, origen);
-            strcpy(nuevoDestino, destino);
-            char *last = NULL;
-            char *tok = strtok(copia, "/");
-            while (tok != NULL)
-            {
-                last = tok;
-                tok = strtok(NULL, "/");
-            }
-
-            strcat(nuevoDestino, last);
-            destino = nuevoDestino;
-#if DEBUGEXTRA
-            fprintf(stderr, GRAY "[mi_cp(): nueva ruta destino %s]\n" RESET, destino);
-#endif
-        }
-#if DEBUGEXTRA
-        fprintf(stderr, GRAY "[mi_cp(): f-> f]\n" RESET);
-#endif
-        if (bread(posSB, &sb) == FALLO)
-        {
-            // error sb
-            mi_signalSem();
-            return FALLO;
-        }
-        r_buscar_e_destino = buscar_entrada(destino, &sb.posInodoRaiz, &p_inodo_destino, &p_entrada_destino, 1, 6); // reservamos
-        if (r_buscar_e_destino < EXITO)
+        posInodoR = sb.posInodoRaiz;
+        r_buscar_e_destino = buscar_entrada(nueva_ruta, &posInodoR, &p_inodo_destino, &p_entrada_destino, 1, 6);
+        if (r_buscar_e_destino != EXITO)
         {
             mostrar_error_buscar_entrada(r_buscar_e_destino);
-            fprintf(stderr, RED "ERROR: mi_cp() -> no se ha podido buscar entrada destino\n" RESET);
-
-            mi_signalSem();
             return FALLO;
         }
-
-        if (leer_inodo(p_inodo_destino, &inodoDestino) == FALLO)
-        {
-            mi_signalSem();
-            return FALLO;
-        }
-
-        mi_cp_aux(inodoOrigen, p_inodo_origen, p_inodo_destino);
+#if DEBUGEXTRA
+        PRINT_DGB("llamando a aux directamente");
+#endif
+        return mi_cp_aux(inodo_origen, p_inodo_origen, p_inodo_destino);
     }
     else
     {
-        mi_cp_dir(inodoOrigen, p_inodo_origen, destino, sb.posInodoRaiz);
+        return mi_cp_rec(inodo_origen, p_inodo_origen, nueva_ruta, sb.posInodoRaiz);
     }
-    mi_signalSem();
-    return EXITO;
 }
 
-int mi_cp_dir(const struct inodo inodoOrigen, const int p_inodo_origen, const char *ruta_destino, unsigned int posInicialAI)
+int mi_cp_rec(const struct inodo inodo_ori, const int p_inodo_ori, const char *ruta_destino, const unsigned int posInodoR)
 {
-    if (inodoOrigen.tipo != 'd')
+    // solo directorios
+
+    unsigned int aux = posInodoR;
+    unsigned int p_inodo_dest = 0, p_entrada_dest = 0;
+    int r_be_dest = buscar_entrada(ruta_destino, &aux, &p_inodo_dest, &p_entrada_dest, 1, 6);
+    if (r_be_dest != EXITO)
     {
+        mostrar_error_buscar_entrada(r_be_dest);
         return FALLO;
     }
 
-#if DEBUGEXTRA
-    fprintf(stderr, GRAY "[mi_cp_dir() -> copiando a %s]\n" RESET, ruta_destino);
-#endif
-
-    int entradasInodo = inodoOrigen.tamEnBytesLog / sizeof(struct entrada);
+    int entradasInodo = inodo_ori.tamEnBytesLog / sizeof(struct entrada);
     struct entrada entradas[BLOCKSIZE / sizeof(struct entrada)];
     struct inodo inodoEntrada;
     int nBloques = 0;
     int nEntradas = 0;
     while (nEntradas < entradasInodo)
     {
-        if (mi_read_f(p_inodo_origen, entradas, nBloques * BLOCKSIZE, sizeof(entradas)) == FALLO)
-        {
-            return FALLO;
-        }
+        memset(entradas, '\0', sizeof(entradas));
+        mi_read_f(p_inodo_ori, &entradas, nBloques * BLOCKSIZE, BLOCKSIZE);
         for (int i = 0; nEntradas < entradasInodo && i < ENTRADASBLOQUE; i++)
         {
-            if (strcmp(entradas[i].nombre, "") == 0)
-            {
+            if(strcmp(entradas[i].nombre, "")==0){
                 continue;
             }
-            if (leer_inodo(entradas[i].ninodo, &inodoEntrada) == FALLO)
-            {
-                return FALLO;
+            leer_inodo(entradas[i].ninodo, &inodoEntrada);
+            if(inodoEntrada.tipo=='l'){
+                continue;
             }
 
-            if (inodoEntrada.tipo == 'l')
-            {
-                continue;
-            }
-            fprintf(stderr, GRAY "entrada.nombre: %s\n" RESET, entradas[i].nombre);
+            PRINT_DGB("nombre entrada:%s", entradas[i].nombre);
+            
             char nuevoDestino[strlen(ruta_destino) + strlen(entradas[i].nombre) + 2];
             memset(nuevoDestino, '\0', sizeof(nuevoDestino));
             strcpy(nuevoDestino, ruta_destino);
             strcat(nuevoDestino, entradas[i].nombre);
-            if (inodoEntrada.tipo == 'd')
-            {
+            
 
+            if(inodoEntrada.tipo == 'f'){
+                PRINT_DGB("nuevoDestinoFile: %s", nuevoDestino);
+
+                aux = posInodoR;
+                unsigned int nuevo_inodo = 0, nueva_entrada = 0;
+                int r_newF = buscar_entrada(nuevoDestino, &aux, &nuevo_inodo, &nueva_entrada, 1, 6);
+                if(r_newF != EXITO){
+                    mostrar_error_buscar_entrada(r_newF);
+                    return FALLO;
+                }
+
+                mi_cp_aux(inodoEntrada, entradas[i].ninodo, nuevo_inodo);
+            }else{
                 strcat(nuevoDestino, "/");
-                fprintf(stderr, GRAY "[mi_cp`_dir() -> DIR nuevoDestino: %s]\n" RESET, nuevoDestino);
-
-                unsigned int auxIA = posInicialAI;
-                unsigned int p_inodo_dest, p_entrada_dest;
-                fprintf(stderr, "auxIA: %u\n", auxIA);
-                int r_buscar_e = buscar_entrada(nuevoDestino, &auxIA, &p_inodo_dest, &p_entrada_dest, 1, 6);
-                if (r_buscar_e < EXITO)
-                {
-                    mostrar_error_buscar_entrada(r_buscar_e);
-                    return FALLO;
-                }
-                if (mi_cp_dir(inodoEntrada, entradas[i].ninodo, nuevoDestino, auxIA) == FALLO)
-                {
-                    return FALLO;
-                }
+                PRINT_DGB("nuevoDestinoDir: %s", nuevoDestino);
+                mi_cp_rec(inodoEntrada, entradas[i].ninodo, nuevoDestino, posInodoR);
             }
-            else
-            {
-                fprintf(stderr, GRAY "[mi_cp`_dir() -> FILE nuevoDestino: %s]\n" RESET, nuevoDestino);
 
-                unsigned int auxIA = posInicialAI;
-                unsigned int p_inodo_dest, p_entrada_dest;
-                int r_buscar_e = buscar_entrada(nuevoDestino, &auxIA, &p_inodo_dest, &p_entrada_dest, 1, 6);
-                if (r_buscar_e < EXITO)
-                {
-                    mostrar_error_buscar_entrada(r_buscar_e);
-                    return FALLO;
-                }
-                if (mi_cp_aux(inodoOrigen, p_inodo_origen, p_inodo_dest) == FALLO)
-                {
-                    return FALLO;
-                }
-            }
+            nEntradas++;
         }
+        nBloques++;
     }
+    //permisos
+    
+    mi_chmod_f(p_inodo_dest, inodo_ori.permisos);
     return EXITO;
 }
 
+
 /**
- * copia el contenido de un fichero en otro
+ * copia el contenido de un fichero en otro, ajusta permisos
  */
 int mi_cp_aux(const struct inodo iOrigen, const int p_iOrigen, const int p_iDestino)
 {
@@ -1207,7 +1157,6 @@ int mi_cp_aux(const struct inodo iOrigen, const int p_iOrigen, const int p_iDest
         int bytes_leidos = mi_read_f(p_iOrigen, aux, offset, BLOCKSIZE);
         if (bytes_leidos == FALLO)
         {
-            mi_signalSem();
             return FALLO;
         }
 
@@ -1218,7 +1167,6 @@ int mi_cp_aux(const struct inodo iOrigen, const int p_iOrigen, const int p_iDest
         bloquesNoVacios++;
         if (mi_write_f(p_iDestino, aux, offset, bytes_leidos) == FALLO)
         {
-            mi_signalSem();
             return FALLO;
         }
         memset(aux, '\0', sizeof(aux));
