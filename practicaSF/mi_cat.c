@@ -60,7 +60,9 @@ int main(int argc, char **argv)
     }
 
     struct STAT fichero;
-    mi_stat(ruta, &fichero);
+    if(mi_stat(ruta, &fichero) == FALLO){
+        return FALLO;
+    }
 
     unsigned int final_f = fichero.tamEnBytesLog;
     unsigned int bytesLeidos = 0;

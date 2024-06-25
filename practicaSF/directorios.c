@@ -1131,7 +1131,8 @@ int mi_cp_dir(const struct inodo inodoOrigen, const int p_inodo_origen, const ch
         }
         for (int i = 0; nEntradas < entradasInodo && i < ENTRADASBLOQUE; i++)
         {
-            if (strcmp(entradas[i].nombre, "")==0){
+            if (strcmp(entradas[i].nombre, "") == 0)
+            {
                 continue;
             }
             if (leer_inodo(entradas[i].ninodo, &inodoEntrada) == FALLO)
@@ -1144,7 +1145,7 @@ int mi_cp_dir(const struct inodo inodoOrigen, const int p_inodo_origen, const ch
                 continue;
             }
             fprintf(stderr, GRAY "entrada.nombre: %s\n" RESET, entradas[i].nombre);
-            char nuevoDestino[strlen(ruta_destino) + strlen(entradas[i].nombre)+2];
+            char nuevoDestino[strlen(ruta_destino) + strlen(entradas[i].nombre) + 2];
             memset(nuevoDestino, '\0', sizeof(nuevoDestino));
             strcpy(nuevoDestino, ruta_destino);
             strcat(nuevoDestino, entradas[i].nombre);
@@ -1163,7 +1164,8 @@ int mi_cp_dir(const struct inodo inodoOrigen, const int p_inodo_origen, const ch
                     mostrar_error_buscar_entrada(r_buscar_e);
                     return FALLO;
                 }
-                if(mi_cp_dir(inodoEntrada, entradas[i].ninodo, nuevoDestino, auxIA)==FALLO){
+                if (mi_cp_dir(inodoEntrada, entradas[i].ninodo, nuevoDestino, auxIA) == FALLO)
+                {
                     return FALLO;
                 }
             }
@@ -1179,7 +1181,8 @@ int mi_cp_dir(const struct inodo inodoOrigen, const int p_inodo_origen, const ch
                     mostrar_error_buscar_entrada(r_buscar_e);
                     return FALLO;
                 }
-                if(mi_cp_aux(inodoOrigen, p_inodo_origen, p_inodo_dest)==FALLO){
+                if (mi_cp_aux(inodoOrigen, p_inodo_origen, p_inodo_dest) == FALLO)
+                {
                     return FALLO;
                 }
             }
@@ -1226,13 +1229,13 @@ int mi_cp_aux(const struct inodo iOrigen, const int p_iOrigen, const int p_iDest
     return EXITO;
 }
 
-
 /**
  * mi_rn
  * Renombra un fichero o directorio
  * return: EXITO o FALLO
  */
-int mi_rn(const char *ruta_antigua, const char *nuevo_nombre, const char tipo){
+int mi_rn(const char *ruta_antigua, const char *nuevo_nombre, const char tipo)
+{
 
     CREAR_LEER_SB("mi_rn");
 
@@ -1248,32 +1251,44 @@ int mi_rn(const char *ruta_antigua, const char *nuevo_nombre, const char tipo){
         // Devolver FALLO
         return FALLO;
     }
-    
+
     struct inodo inodo;
-    if(leer_inodo(p_inodo_dir, &inodo)==FALLO){
+    if (leer_inodo(p_inodo, &inodo) == FALLO)
+    {
         return FALLO;
     }
 
-    #if DEBUGEXTRA
+    inodo.atime = time(NULL);
+
+    if (escribir_inodo(p_inodo, &inodo) == FALLO)
+    {
+        PRINT_ERR("mi_rn() -> error al guardar inodo");
+        return FALLO;
+    }
+
+#if DEBUGEXTRA
     PRINT_DGB("mi_rn -> inodo tipo:%c, tipo_f:%c", inodo.tipo, tipo);
-    #endif
-    if(inodo.tipo!=tipo){
+#endif
+    if (inodo.tipo != tipo)
+    {
         PRINT_ERR("mi_rn() -> tipos diferentes");
         return FALLO;
     }
 
-    //comprobar si existe
+    // comprobar si existe
     int len_ruta = strlen(ruta_antigua);
-    char ruta_nueva[len_ruta+strlen(nuevo_nombre)];
+    char ruta_nueva[len_ruta + strlen(nuevo_nombre)];
     memcpy(ruta_nueva, ruta_antigua, len_ruta);
-    int last_i = len_ruta-2;
-    while(ruta_nueva[last_i]!='/'){
+    int last_i = len_ruta - 2;
+    while (ruta_nueva[last_i] != '/')
+    {
         last_i--;
     }
 
-    ruta_nueva[last_i+1] = '\0';
+    ruta_nueva[last_i + 1] = '\0';
     strcat(ruta_nueva, nuevo_nombre);
-    if(tipo=='d'){
+    if (tipo == 'd')
+    {
         strcat(ruta_nueva, "/");
     }
 
@@ -1282,39 +1297,48 @@ int mi_rn(const char *ruta_antigua, const char *nuevo_nombre, const char tipo){
     int rt_be_n;
 
     rt_be_n = buscar_entrada(ruta_nueva, &p_inodo_dir_n, &p_inodo_n, &p_entrada_n, 0, 6);
-    if (rt_be_n != ERROR_ENTRADA_YA_EXISTENTE) //aprovechar buscar entrada para comprobar si existe
+    if (rt_be_n != ERROR_NO_EXISTE_ENTRADA_CONSULTA) // aprovechar buscar entrada para comprobar si existe
     {
         // Notificar error devuelto por buscar_entrada()
+        if (rt_be_n == EXITO)
+        {
+            PRINT_ERR("nuevo ya existe!");
+            return FALLO;
+        }
         mostrar_error_buscar_entrada(rt_be);
         // Devolver FALLO
         return FALLO;
     }
 
-    #if DEBUGEXTRA
+#if DEBUGEXTRA
     PRINT_DGB("ruta nueva: %s", ruta_nueva);
-    #endif
+#endif
 
     struct entrada entradas[BLOCKSIZE / sizeof(struct entrada)];
     memset(entradas, '\0', sizeof(entradas));
 
     int bloque_entrada = p_entrada / (BLOCKSIZE / sizeof(struct entrada));
-    int index_entrada = p_entrada % (BLOCKSIZE/sizeof(struct entrada));
+    int index_entrada = p_entrada % (BLOCKSIZE / sizeof(struct entrada));
 
-    if(mi_read_f(p_inodo_dir, entradas, bloque_entrada*BLOCKSIZE, sizeof(entradas)) == FALLO){
+    if (mi_read_f(p_inodo_dir, entradas, bloque_entrada * BLOCKSIZE, sizeof(entradas)) == FALLO)
+    {
         PRINT_ERR("mi_rn() -> error mi_read_f");
         return FALLO;
     }
 
-    #if DEBUGEXTRA
-    PRINT_DGB("entrada nombre:%s", entradas[index_entrada]);
-    #endif
+#if DEBUGEXTRA
+    PRINT_DGB("entrada nombre:%s", entradas[index_entrada].nombre);
+#endif
 
     strcpy(entradas[index_entrada].nombre, nuevo_nombre);
 
-    inodo.atime = time(NULL);
+#if DEBUGEXTRA
+    PRINT_DGB("entrada nuevo nombre:%s", entradas[index_entrada].nombre);
+#endif
 
-    if(escribir_inodo(p_inodo_dir, &inodo) == FALLO){
-        PRINT_ERR("mi_rn() -> error al guardar inodo");
+    if (mi_write_f(p_inodo_dir, &entradas[index_entrada], bloque_entrada * BLOCKSIZE + index_entrada * sizeof(struct entrada), sizeof(struct entrada)) == FALLO)
+    {
+        PRINT_ERR("mi_rn() -> error mi_write_f");
         return FALLO;
     }
 

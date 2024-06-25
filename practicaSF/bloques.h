@@ -65,5 +65,5 @@ void mi_signalSem();
 void *do_mmap(int fd);
 
 
-#define PRINT_ERR(msg, ...) fprintf(stderr, RED "ERROR " #msg "\n" RESET __VA_OPT__(,) __VA_ARGS__)
-#define PRINT_DGB(msg, ...) fprintf(stderr, GRAY "[" #msg "]\n" RESET __VA_OPT__(,) __VA_ARGS__)
+#define PRINT_ERR(msg, ...) fprintf(stderr, RED "ERROR " msg "\n" RESET, ##__VA_ARGS__)
+#define PRINT_DGB(msg, ...) fprintf(stderr, GRAY "[" msg "]\n" RESET, ##__VA_ARGS__)
