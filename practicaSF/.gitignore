@@ -18,6 +18,7 @@ mi_link
 mi_rm
 mi_rmdir
 mi_cp
+mi_rn
 *.dsk*
 *.txt
 testd.sh
