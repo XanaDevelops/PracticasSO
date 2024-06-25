@@ -70,6 +70,7 @@ int mi_cp_rec(const struct inodo inodo_ori, const int p_inodo_ori, const char *r
 
 int mi_rn(const char *ruta_antigua, const char *nuevo_nombre, const char tipo);
 
+int mi_unlink_r(const char *camino);
 // auxiliar
 int buscar_en_cache(const char *camino);
 void actualizar_cache(const struct UltimaEntrada *nueva_entrada);

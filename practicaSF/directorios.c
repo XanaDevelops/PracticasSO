@@ -1096,35 +1096,40 @@ int mi_cp_rec(const struct inodo inodo_ori, const int p_inodo_ori, const char *r
         mi_read_f(p_inodo_ori, &entradas, nBloques * BLOCKSIZE, BLOCKSIZE);
         for (int i = 0; nEntradas < entradasInodo && i < ENTRADASBLOQUE; i++)
         {
-            if(strcmp(entradas[i].nombre, "")==0){
+            if (strcmp(entradas[i].nombre, "") == 0)
+            {
                 continue;
             }
             leer_inodo(entradas[i].ninodo, &inodoEntrada);
-            if(inodoEntrada.tipo=='l'){
+            if (inodoEntrada.tipo == 'l')
+            {
                 continue;
             }
 
             PRINT_DGB("nombre entrada:%s", entradas[i].nombre);
-            
+
             char nuevoDestino[strlen(ruta_destino) + strlen(entradas[i].nombre) + 2];
             memset(nuevoDestino, '\0', sizeof(nuevoDestino));
             strcpy(nuevoDestino, ruta_destino);
             strcat(nuevoDestino, entradas[i].nombre);
-            
 
-            if(inodoEntrada.tipo == 'f'){
+            if (inodoEntrada.tipo == 'f')
+            {
                 PRINT_DGB("nuevoDestinoFile: %s", nuevoDestino);
 
                 aux = posInodoR;
                 unsigned int nuevo_inodo = 0, nueva_entrada = 0;
                 int r_newF = buscar_entrada(nuevoDestino, &aux, &nuevo_inodo, &nueva_entrada, 1, 6);
-                if(r_newF != EXITO){
+                if (r_newF != EXITO)
+                {
                     mostrar_error_buscar_entrada(r_newF);
                     return FALLO;
                 }
 
                 mi_cp_aux(inodoEntrada, entradas[i].ninodo, nuevo_inodo);
-            }else{
+            }
+            else
+            {
                 strcat(nuevoDestino, "/");
                 PRINT_DGB("nuevoDestinoDir: %s", nuevoDestino);
                 mi_cp_rec(inodoEntrada, entradas[i].ninodo, nuevoDestino, posInodoR);
@@ -1134,12 +1139,11 @@ int mi_cp_rec(const struct inodo inodo_ori, const int p_inodo_ori, const char *r
         }
         nBloques++;
     }
-    //permisos
-    
+    // permisos
+
     mi_chmod_f(p_inodo_dest, inodo_ori.permisos);
     return EXITO;
 }
-
 
 /**
  * copia el contenido de un fichero en otro, ajusta permisos
@@ -1289,6 +1293,87 @@ int mi_rn(const char *ruta_antigua, const char *nuevo_nombre, const char tipo)
         PRINT_ERR("mi_rn() -> error mi_write_f");
         return FALLO;
     }
+
+    return EXITO;
+}
+
+/** mi_rm_r()
+ * elimina recursivamente ficheros
+ */
+
+int mi_unlink_r(const char *camino)
+{
+    // LECTURA SUPERBLOQUE
+    struct superbloque sb;
+    if (bread(posSB, &sb) == FALLO)
+    {
+        fprintf(stderr, RED "ERROR: mi_unlink_r(): No se ha podido leer SB\n" RESET);
+        return FALLO;
+    }
+    unsigned int p_inodo_dir = sb.posInodoRaiz;
+    unsigned int p_inodo = 0, p_entrada = 0;
+    int rt_be;
+
+    rt_be = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 6);
+    if (rt_be != EXITO)
+    {
+        // Notificar error devuelto por buscar_entrada()
+        mostrar_error_buscar_entrada(rt_be);
+        // Devolver FALLO
+        return FALLO;
+    }
+
+    struct inodo inodo_dir;
+    leer_inodo(p_inodo, &inodo_dir);
+
+    int entradasInodo = inodo_dir.tamEnBytesLog / sizeof(struct entrada);
+    struct entrada entradas[BLOCKSIZE / sizeof(struct entrada)];
+    struct inodo inodoEntrada;
+    int nBloques = 0;
+    int nEntradas = 0;
+    while (nEntradas < entradasInodo)
+    {
+        memset(entradas, '\0', sizeof(entradas));
+        mi_read_f(p_inodo, &entradas, nBloques * BLOCKSIZE, BLOCKSIZE);
+        for (int i = 0; nEntradas < entradasInodo && i < ENTRADASBLOQUE; i++)
+        {
+            if (strcmp(entradas[i].nombre, "") == 0)
+            {
+                continue;
+            }
+            leer_inodo(entradas[i].ninodo, &inodoEntrada);
+            if (inodoEntrada.tipo == 'l')
+            {
+                continue;
+            }
+
+            PRINT_DGB("nombre entrada:%s", entradas[i].nombre);
+
+            char nuevoDestino[strlen(camino) + strlen(entradas[i].nombre) + 2];
+            memset(nuevoDestino, '\0', sizeof(nuevoDestino));
+            strcpy(nuevoDestino, camino);
+            strcat(nuevoDestino, entradas[i].nombre);
+
+            if (inodoEntrada.tipo == 'f')
+            {
+                PRINT_DGB("nuevoDestinoFile: %s", nuevoDestino);
+
+                mi_unlink(nuevoDestino);
+            }
+            else
+            {
+                strcat(nuevoDestino, "/");
+                PRINT_DGB("nuevoDestinoDir: %s", nuevoDestino);
+                mi_unlink_r(nuevoDestino);
+                
+            }
+
+            nEntradas++;
+        }
+        nBloques++;
+    }
+
+    mi_unlink(camino);
 
     return EXITO;
 }
