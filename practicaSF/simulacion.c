@@ -138,7 +138,6 @@ int main(int argc, char **argv)
                 if(j==NUMESCRITURAS){
                     char aux[128];
                     strftime(aux, sizeof(aux), "%H:%M:%S", localtime(&escribir.fecha.tv_sec));
-                    fprintf(stderr, GRAY "ultima escritura en :%s.%06ld\n" RESET, aux, escribir.fecha.tv_usec);
                 }
                 #endif
             }

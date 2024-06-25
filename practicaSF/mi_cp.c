@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     char* origen = argv[2];
     char* destino = argv[3];
 
-    #if DEBUGCP ==  1
+    #if DEBUGCP ==  1 && DEBUGEXTRA
     fprintf(stderr, GRAY "[mi_cp.c: origen:%s, destino:%s]\n" RESET, origen, destino);
     #endif
 
@@ -47,9 +47,9 @@ int main(int argc, char **argv)
         fprintf(stderr, RED "ERROR: mi_cp() -> no se ha podido montar %s\n" RESET, disco);
         return FALLO;
     }
-
+    #if DEBUGEXTRA
     fprintf(stderr, GRAY "[mi_cp.c: %c -> %c]\n" RESET, tipoOrigen, tipoDestino);
-
+    #endif
     if(mi_cp(origen, destino, tipoOrigen, tipoDestino)==FALLO){//son el mismo
         bumount();
         return FALLO; 

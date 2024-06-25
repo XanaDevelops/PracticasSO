@@ -49,7 +49,7 @@ Perelló Perelló, Biel*/
 #define DEBUG11 0
 #define DEBUG12 0
 #define DEBUG13 0
-#define DEBUGEXTRA 1
+#define DEBUGEXTRA 0
 
 
 int bmount(const char *camino);

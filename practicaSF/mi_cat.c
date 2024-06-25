@@ -7,7 +7,7 @@ Perelló Perelló, Biel*/
 #include <stdlib.h>
 #include "directorios.h"
 
-#define BLOCKCAT 1500
+#define BLOCKCAT BLOCKSIZE*4
 
 int main(int argc, char **argv)
 {
@@ -94,6 +94,7 @@ int main(int argc, char **argv)
     }
 
     fprintf(stderr, GRAY "\nTotal_leidos: %d\n", bytesLeidos);
-
+    fprintf(stdout, "\n");
+    fsync(STDOUT_FILENO);
     return EXITO;
 }

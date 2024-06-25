@@ -2,7 +2,7 @@
 #include <string.h>
 
 // Implementada mejora nivel 9
-#if USARCACHE == 2 || USARCACHE == 3
+#if USARCACHE == 2 || USARCACHE == 3 || USARCACHE == 1
 static struct UltimaEntrada UltimaEntradaIO[CACHE_SIZE];
 #if USARCACHE == 2
 static int pos_UltimaEntradaIO = 0;
@@ -616,7 +616,7 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
     if (pos != -1)
     {
 #if DEBUG9
-        fprintf(stderr, ORANGE "\n[mi_write() -> Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]\n" RESET);
+        fprintf(stderr, ORANGE "\n[mi_write() -> Utilizamos la caché de escritura en vez de llamar a buscar_entrada()]\n" RESET);
 #endif
         p_inodo = UltimaEntradaIO[pos].p_inodo;
         return_buscar_entrada = EXITO;
@@ -927,7 +927,7 @@ int buscar_en_cache(const char *camino)
 #if USARCACHE == 3
             gettimeofday(&UltimaEntradaIO[i].ultimaConsulta, NULL);
 #endif
-#if DEBUG9
+#if DEBUG9 && USARCACHE > 1
             fprintf(stderr, BLUE "mi_write() -> usar cache[%d] con %s\n" RESET, i, camino);
 #endif
             return i;
@@ -943,7 +943,10 @@ int buscar_en_cache(const char *camino)
  */
 void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 {
-#if USARCACHE == 2 // FIFO Circular
+#if USARCACHE == 2 || USARCACHE == 1 // FIFO Circular
+    #if USARCACHE == 1
+    int pos_UltimaEntradaIO = 0;
+    #endif
     // Si el camino ya está en la caché, no es necesario actualizar
     if (buscar_en_cache(nueva_entrada->camino) != -1)
     {
@@ -954,7 +957,7 @@ void actualizar_cache(const struct UltimaEntrada *nueva_entrada)
 
     strcpy(UltimaEntradaIO[pos_UltimaEntradaIO].camino, nueva_entrada->camino);
     UltimaEntradaIO[pos_UltimaEntradaIO].p_inodo = nueva_entrada->p_inodo;
-#if DEBUG9
+#if DEBUG9 && USARCACHE == 2
     fprintf(stderr, ORANGE "mi_write() -> actulizar cache[%d] con %s\n" RESET, pos_UltimaEntradaIO, nueva_entrada->camino);
 #endif
     // Avanzar el puntero de cola circular
@@ -1106,7 +1109,9 @@ int mi_cp_rec(const struct inodo inodo_ori, const int p_inodo_ori, const char *r
                 continue;
             }
 
+            #if DEBUGEXTRA
             PRINT_DGB("nombre entrada:%s", entradas[i].nombre);
+            #endif
 
             char nuevoDestino[strlen(ruta_destino) + strlen(entradas[i].nombre) + 2];
             memset(nuevoDestino, '\0', sizeof(nuevoDestino));
@@ -1115,7 +1120,9 @@ int mi_cp_rec(const struct inodo inodo_ori, const int p_inodo_ori, const char *r
 
             if (inodoEntrada.tipo == 'f')
             {
+                #if DEBUGEXTRA
                 PRINT_DGB("nuevoDestinoFile: %s", nuevoDestino);
+                #endif
 
                 aux = posInodoR;
                 unsigned int nuevo_inodo = 0, nueva_entrada = 0;
@@ -1131,7 +1138,10 @@ int mi_cp_rec(const struct inodo inodo_ori, const int p_inodo_ori, const char *r
             else
             {
                 strcat(nuevoDestino, "/");
+                #if DEBUGEXTRA
                 PRINT_DGB("nuevoDestinoDir: %s", nuevoDestino);
+                #endif
+
                 mi_cp_rec(inodoEntrada, entradas[i].ninodo, nuevoDestino, posInodoR);
             }
 
@@ -1188,7 +1198,6 @@ int mi_cp_aux(const struct inodo iOrigen, const int p_iOrigen, const int p_iDest
  */
 int mi_rn(const char *ruta_antigua, const char *nuevo_nombre, const char tipo)
 {
-
     CREAR_LEER_SB("mi_rn");
 
     unsigned int p_inodo_dir = sb.posInodoRaiz;
@@ -1346,9 +1355,9 @@ int mi_unlink_r(const char *camino)
             {
                 continue;
             }
-
+            #if DEBUGEXTRA
             PRINT_DGB("nombre entrada:%s", entradas[i].nombre);
-
+            #endif
             char nuevoDestino[strlen(camino) + strlen(entradas[i].nombre) + 2];
             memset(nuevoDestino, '\0', sizeof(nuevoDestino));
             strcpy(nuevoDestino, camino);
@@ -1356,14 +1365,17 @@ int mi_unlink_r(const char *camino)
 
             if (inodoEntrada.tipo == 'f')
             {
+                #if DEBUGEXTRA
                 PRINT_DGB("nuevoDestinoFile: %s", nuevoDestino);
-
+                #endif
                 mi_unlink(nuevoDestino);
             }
             else
             {
                 strcat(nuevoDestino, "/");
+                #if DEBUGEXTRA
                 PRINT_DGB("nuevoDestinoDir: %s", nuevoDestino);
+                #endif
                 mi_unlink_r(nuevoDestino);
             }
 
@@ -1415,14 +1427,29 @@ int mi_mv(const char *origen, const char *destino)
     }
 
     // comprobar si existe
-    char copia[strlen(origen)+2];
-    
+    char copia[strlen(origen) + 2];
+    strcpy(copia, origen);
+    char *last = NULL;
+    char *tok = strtok(copia, "/");
+    while (tok != NULL)
+    {
+        last = tok;
+        tok = strtok(NULL, "/");
+    }
+
+    char nuevo_destino[strlen(destino) + strlen(last) + 1];
+    strcpy(nuevo_destino, destino);
+    strcat(nuevo_destino, last);
+
+#if DEBUGEXTRA
+    PRINT_DGB("nuevo destino: %s", nuevo_destino);
+#endif
 
     unsigned int p_inodo_dir2 = sb.posInodoRaiz;
     unsigned int p_inodo2 = 0, p_entrada2 = 0;
     int return_buscar_entrada2;
 
-    return_buscar_entrada2 = buscar_entrada(destino, &p_inodo_dir2, &p_inodo2, &p_entrada2, 1, 6);
+    return_buscar_entrada2 = buscar_entrada(nuevo_destino, &p_inodo_dir2, &p_inodo2, &p_entrada2, 1, 6);
 
     if (return_buscar_entrada2 != EXITO)
     {
@@ -1433,7 +1460,7 @@ int mi_mv(const char *origen, const char *destino)
         return FALLO;
     }
 
-    // Leer la entrada creada correspondiente a camino2
+    // Leer la entrada creada correspondiente a nuevo_destino
     int num_bloque = p_inodo_dir2 / (BLOCKSIZE / sizeof(struct entrada));
     int entrada_buffer = p_entrada2 % (BLOCKSIZE / sizeof(struct entrada));
     struct entrada entrada;
@@ -1451,6 +1478,10 @@ int mi_mv(const char *origen, const char *destino)
 
     mi_read_f(p_inodo_dir2, &entrada, offset, tam_entrada);
 
+#if DEBUGEXTRA
+    PRINT_DGB("mi_mv() -> entrada: %s", entrada.nombre);
+#endif
+
     // Asociar a esta entrada el mismo inodo que el asociado a la entrada del camino1
     entrada.ninodo = p_inodo1;
 
@@ -1462,17 +1493,33 @@ int mi_mv(const char *origen, const char *destino)
     // Liberar el inodo que se ha asociado a la entrada creada, p_inodo2
     liberar_inodo(p_inodo2);
 
+    // elmininar entrada original
+    num_bloque = p_inodo_dir1 / (BLOCKSIZE / sizeof(struct entrada));
+    entrada_buffer = p_entrada1 % (BLOCKSIZE / sizeof(struct entrada));
 
-    //borrar entrada original
-    struct inodo inodo;
-    leer_inodo(p_inodo1, &inodo);
-    if(inodo.tipo=='f'){
-        mi_unlink(origen);
-    }else{
-        mi_unlink_r(origen);
+    memset(buff_entradas, '\0', sizeof(buff_entradas));
+
+    struct inodo inodo_padre;
+    leer_inodo(p_inodo_dir1, &inodo_padre);
+    int num_e = inodo_padre.tamEnBytesLog / sizeof(struct entrada);
+    if (p_entrada1 != num_e - 1)
+    {
+        memset(buff_entradas, '\0', sizeof(buff_entradas));
+        mi_read_f(p_inodo_dir1, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
+
+        if ((num_e % ENTRADASBLOQUE) == num_bloque)
+        {
+            memcpy(&buff_entradas[entrada_buffer], &buff_entradas[num_e - 1], sizeof(struct entrada));
+        }
+        else
+        {
+            struct entrada lastEntradas[BLOCKSIZE / sizeof(struct entrada)];
+            mi_read_f(p_inodo_dir1, lastEntradas, ((num_e - 1) / ENTRADASBLOQUE) * BLOCKSIZE, BLOCKSIZE);
+            memcpy(&buff_entradas[entrada_buffer], &lastEntradas[(num_e) % ENTRADASBLOQUE - 1], sizeof(struct entrada));
+        }
+        mi_write_f(p_inodo_dir1, buff_entradas, num_bloque * BLOCKSIZE, BLOCKSIZE);
     }
-
-
+    mi_truncar_f(p_inodo_dir1, inodo_padre.tamEnBytesLog - sizeof(struct entrada));
 
     mi_signalSem();
     // Devolver ÉXITO
