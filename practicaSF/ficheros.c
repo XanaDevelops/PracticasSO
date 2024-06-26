@@ -4,6 +4,7 @@ Perelló Perelló, Biel*/
 
 #include "ficheros.h"
 
+
 int mi_write_f(unsigned int ninodo, const void *buf_original, unsigned int offset, unsigned int nbytes)
 {
     // mi_waitSem();

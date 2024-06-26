@@ -5,11 +5,14 @@ Perelló Perelló, Biel*/
 #include "bloques.h"
 #include "semaforo_mutex_posix.h"
 
+#define USARMMAP 1
+
 static int descriptor = 0;
 
+#if USARMMAP
 static int tamSFM;   // tamaño mem compartida
 static void *prtSFM; // puntero mem compartida
-
+#endif
 // Variable global para el semáforo
 static sem_t *mutex;
 // Evitar multiples waits
@@ -27,7 +30,9 @@ int bmount(const char *camino)
         close(descriptor);
     }
     descriptor = open(camino, O_RDWR | O_CREAT, 0666);
+    #if USARMMAP == 1
     prtSFM = do_mmap(descriptor);
+    #endif
     // Comprobar si ha habido un error al abrir el fichero
     if (descriptor == -1)
     {
@@ -56,9 +61,11 @@ int bmount(const char *camino)
  */
 int bumount()
 {
+    #if USARMMAP == 1
     msync(prtSFM, tamSFM, MS_SYNC);
 
     munmap(prtSFM, tamSFM);
+    #endif
     descriptor = close(descriptor);
     if (descriptor == 0)
     {
@@ -78,10 +85,11 @@ int bumount()
  */
 int bwrite(unsigned int nbloque, const void *buf)
 {
-    int s;
+    
     // Calcular el desplazamiento del dispositivo virtual
     off_t desplazamiento = nbloque * BLOCKSIZE;
-
+    #if USARMMAP == 1
+    int s;
     // controlar limites
     if (desplazamiento + BLOCKSIZE <= tamSFM)
     {
@@ -104,6 +112,32 @@ int bwrite(unsigned int nbloque, const void *buf)
 
     // Devolver el número de bytes escrito en el fichero
     return s;
+    #else
+     // Mover el puntero al desplazamiento calculado
+    off_t puntero = lseek(descriptor, desplazamiento, SEEK_SET);
+
+    if (puntero == -1)
+    {
+        // Gestión de error
+        perror(RED "Error");
+        printf(RESET);
+        return FALLO;
+    }
+
+    // Escribir el contenido del buffer en el bloque especificado
+    size_t numBytes = write(descriptor, buf, BLOCKSIZE);
+
+    if (numBytes == -1)
+    {
+        // Gestión de error
+        perror(RED "Error");
+        printf(RESET);
+        return FALLO;
+    }
+
+    // Devolver el número de bytes escrito en el fichero
+    return numBytes;
+    #endif
 }
 /**
  * Lee nbloque en un *buf
@@ -111,10 +145,12 @@ int bwrite(unsigned int nbloque, const void *buf)
  */
 int bread(unsigned int nbloque, void *buf)
 {
-    int s;
+   
     // Calcular el desplazamiento del dispositivo virtual
     off_t desplazamiento = nbloque * BLOCKSIZE;
 
+    #if USARMMAP == 1
+    int s;
     // controlar limites
     if (desplazamiento + BLOCKSIZE <= tamSFM)
     {
@@ -139,6 +175,33 @@ int bread(unsigned int nbloque, void *buf)
 #endif
     // Devolver el número de bytes que se ha podido leer
     return s;
+    #else
+     // Mover el puntero al desplazamiento calculado
+    off_t puntero = lseek(descriptor, desplazamiento, SEEK_SET);
+
+      if (puntero == -1)
+    {
+        // Gestión de error
+        perror(RED "Error");
+         //printf(RESET);
+        return FALLO;
+    }
+
+    size_t numBytes = read(descriptor, buf, BLOCKSIZE);
+
+     if (numBytes == -1)
+    {
+        // Gestión de error
+        perror(RED "Error");
+         //printf(RESET);
+        return FALLO;
+    }
+#if DEBUG1
+    fprintf(stderr, GRAY "[bread()-> numBytes=%ld]\n" RESET, numBytes);
+#endif
+   // Devolver el número de bytes que se ha podido leer
+    return numBytes;
+    #endif
 }
 
 //************************************FUNCIONES SEMAFORO**********************
@@ -162,6 +225,7 @@ void mi_signalSem()
     }
 }
 
+#if USARMMAP
 void *do_mmap(int fd)
 {
     struct stat st;
@@ -175,3 +239,4 @@ void *do_mmap(int fd)
 
     return ptr;
 }
+#endif
